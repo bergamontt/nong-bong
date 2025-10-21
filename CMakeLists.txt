@@ -9,5 +9,14 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+include(FetchContent)
+
+FetchContent_Declare(
+        soci
+        GIT_REPOSITORY https://github.com/SOCI/soci.git
+        GIT_TAG v4.1.2
+)
+FetchContent_MakeAvailable(soci)
+
 add_subdirectory(core)
 add_subdirectory(gui)

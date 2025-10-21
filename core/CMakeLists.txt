@@ -12,4 +12,6 @@ add_executable(nong_bong
 target_link_libraries(nong_bong PRIVATE
         Qt6::Widgets
         gui_lib
+        soci_core
+        soci_sqlite3
 )
