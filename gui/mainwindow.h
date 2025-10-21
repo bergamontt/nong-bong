@@ -15,8 +15,17 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_B_enter_clicked();
+    void on_B_logout_clicked();
+
 private:
     Ui::MainWindow *ui;
+    std::map<std::string, std::string> users;
+    bool auntificate(const std::string&, const std::string&);
+    void animateTransition(QWidget* from, QWidget* to);
+    void setStyles();
+
 };
 
 #endif // MAINWINDOW_H
