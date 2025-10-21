@@ -1,7 +1,13 @@
-qt_add_library(gui_lib
-    mainwindow.h
-    mainwindow.cpp
-    mainwindow.ui
+add_library(gui_lib
+        mainwindow.h
+        mainwindow.cpp
+        mainwindow.ui
+)
+
+set_target_properties(gui_lib PROPERTIES
+        AUTOMOC ON
+        AUTOUIC ON
+        AUTORCC ON
 )
 
 target_link_libraries(gui_lib PRIVATE Qt6::Widgets)
