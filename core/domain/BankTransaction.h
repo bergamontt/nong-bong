@@ -1,7 +1,6 @@
 #pragma once
 #include <optional>
 #include <string>
-#include <ctime>
 #include <soci/soci.h>
 
 class BankTransaction
@@ -10,8 +9,8 @@ public:
     int id;
     std::tm createdAt;
     std::string type;
-    std::optional<int> fromCardId;
-    std::optional<int> toCardId;
+    int fromCardId;
+    int toCardId;
     int amount;
     std::string currencyCode;
     std::string description;
@@ -42,8 +41,8 @@ struct soci::type_conversion<BankTransaction>
         v.set("id", c.id);
         v.set("created_at", c.createdAt);
         v.set("type", c.type);
-        v.set("from_card_id", c.fromCardId, c.fromCardId.has_value() ? i_ok : i_null);
-        v.set("to_card_id", c.toCardId, c.toCardId.has_value() ? i_ok : i_null);
+        v.set("from_card_id", c.fromCardId);
+        v.set("to_card_id", c.toCardId);
         v.set("amount", c.amount);
         v.set("currency_code", c.currencyCode);
         v.set("description", c.description);
