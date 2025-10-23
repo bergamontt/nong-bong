@@ -7,6 +7,13 @@ add_executable(nong_bong
         scheduledTransfer/ScheduledTransfer.h
         user/User.h
         main.cpp
+        card/ICardDao.h
+        cardDesign/ICardDesignDao.h
+        currency/ICurrencyDao.h
+        exchangeRate/IExchangeRate.h
+        scheduledTransfer/IScheduledTransferDao.h
+        transaction/IBankTransactionDao.h
+        user/IUserDao.h
 )
 
 target_link_libraries(nong_bong PRIVATE
