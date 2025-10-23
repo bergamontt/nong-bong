@@ -13,7 +13,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
 private slots:
     void on_B_enter_clicked();
@@ -22,9 +22,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::map<std::string, std::string> users;
-    bool auntificate(const std::string&, const std::string&);
+    bool authenticate(const std::string&, const std::string&);
     void animateTransition(QWidget* from, QWidget* to);
-    void setStyles();
+    void setStyles() const;
 
 };
 

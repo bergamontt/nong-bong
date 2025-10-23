@@ -24,9 +24,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_B_enter_clicked()
 {
-    QString enteredName = ui->LE_name->text();
-    QString enteredPassword = ui->LE_password->text();
-    if(auntificate(enteredName.toStdString(), enteredPassword.toStdString())){
+    const QString enteredName = ui->LE_name->text();
+    const QString enteredPassword = ui->LE_password->text();
+    if(authenticate(enteredName.toStdString(), enteredPassword.toStdString())){
         ui->L_welcomeUser->setText("Welcome, " + enteredName + "!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
     } else{
@@ -35,8 +35,8 @@ void MainWindow::on_B_enter_clicked()
 
 }
 
-bool MainWindow::auntificate(const std::string& username, const std::string& password){
-    if(users.count(username)){
+bool MainWindow::authenticate(const std::string& username, const std::string& password){
+    if(users.contains(username)){
         if(users[username]==password){
             return true;
         }
@@ -51,17 +51,18 @@ void MainWindow::animateTransition(QWidget* from, QWidget* to)
     to->move(0, h);
     to->show();
 
-    QPropertyAnimation *animFrom = new QPropertyAnimation(from, "pos");
+    auto *group = new QParallelAnimationGroup;
+
+    auto *animFrom = new QPropertyAnimation(from, "pos",group);
     animFrom->setDuration(400);
     animFrom->setStartValue(from->pos());
     animFrom->setEndValue(QPoint(0, -h));
 
-    QPropertyAnimation *animTo = new QPropertyAnimation(to, "pos");
+    auto *animTo = new QPropertyAnimation(to, "pos",group);
     animTo->setDuration(400);
     animTo->setStartValue(to->pos());
     animTo->setEndValue(QPoint(0, 0));
 
-    QParallelAnimationGroup *group = new QParallelAnimationGroup;
     group->addAnimation(animFrom);
     group->addAnimation(animTo);
     group->start(QAbstractAnimation::DeleteWhenStopped);
@@ -80,7 +81,7 @@ void MainWindow::on_B_logout_clicked()
     animateTransition(ui->dashboardScreen, ui->loginScreen);
 }
 
-void MainWindow::setStyles(){
+void MainWindow::setStyles() const {
 
     ui->L_welcome->setObjectName("welcomeLabel");
     ui->L_welcomeUser->setObjectName("welcomeUserLabel");
