@@ -10,7 +10,7 @@ add_executable(nong_bong
         card/ICardDao.h
         cardDesign/ICardDesignDao.h
         currency/ICurrencyDao.h
-        exchangeRate/IExchangeRate.h
+        exchangeRate/IExchangeRateDao.h
         scheduledTransfer/IScheduledTransferDao.h
         transaction/IBankTransactionDao.h
         user/IUserDao.h
