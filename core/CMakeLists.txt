@@ -1,11 +1,11 @@
 add_executable(nong_bong
-        domain/CardDesign.h
-        domain/BankTransaction.h
-        domain/Card.h
-        domain/Currency.h
-        domain/ExchangeRate.h
-        domain/ScheduledTransfer.h
-        domain/User.h
+        cardDesign/CardDesign.h
+        transaction/BankTransaction.h
+        card/Card.h
+        currency/Currency.h
+        exchangeRate/ExchangeRate.h
+        scheduledTransfer/ScheduledTransfer.h
+        user/User.h
         main.cpp
 )
 
