@@ -1,33 +1,25 @@
-add_executable(nong_bong
-        cardDesign/CardDesign.h
-        transaction/BankTransaction.h
-        card/Card.h
-        currency/Currency.h
-        exchangeRate/ExchangeRate.h
-        scheduledTransfer/ScheduledTransfer.h
-        user/User.h
-        main.cpp
-        card/ICardDao.h
-        cardDesign/ICardDesignDao.h
-        currency/ICurrencyDao.h
-        exchangeRate/IExchangeRateDao.h
-        scheduledTransfer/IScheduledTransferDao.h
-        transaction/IBankTransactionDao.h
-        user/IUserDao.h
-        card/ICardService.h
-        cardDesign/ICardDesignService.h
-        currency/ICurrencyService.h
-        exchangeRate/IExchangeRateService.h
-        scheduledTransfer/IScheduledTransferService.h
-        transaction/IBankTransactionService.h
-        user/IUserService.h
-        card/CardService.h
-        cardDesign/CardDesignService.h
-        currency/CurrencyService.h
-        exchangeRate/ExchangeRateService.h
-        scheduledTransfer/ScheduledTransferService.h
-        transaction/BankTransactionService.h
-        user/UserService.h
+add_executable(nong_bong 
+	main.cpp 
+)
+
+target_include_directories(nong_bong PRIVATE 
+	card 
+	cardDesign 
+	currency 
+	exchangeRate 
+	scheduledTransfer 
+	transaction 
+	user 
+)
+
+target_sources(nong_bong PRIVATE
+	card/CardDao.cpp
+	cardDesign/CardDesignDao.cpp 
+	currency/CurrencyDao.cpp
+	exchangeRate/ExchangeRateDao.cpp
+	scheduledTransfer/ScheduledTransferDao.cpp
+	transaction/BankTransactionDao.cpp
+	user/UserDao.cpp
 )
 
 target_link_libraries(nong_bong PRIVATE
@@ -35,4 +27,10 @@ target_link_libraries(nong_bong PRIVATE
         gui_lib
         soci_core
         soci_sqlite3
+)
+
+add_custom_command(TARGET nong_bong POST_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${CMAKE_SOURCE_DIR}/core/database.sqlite 
+		$<TARGET_FILE_DIR:nong_bong>/database.sqlite 
 )
