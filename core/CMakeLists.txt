@@ -14,6 +14,13 @@ add_executable(nong_bong
         scheduledTransfer/IScheduledTransferDao.h
         transaction/IBankTransactionDao.h
         user/IUserDao.h
+        card/ICardService.h
+        cardDesign/ICardDesignService.h
+        currency/ICurrencyService.h
+        exchangeRate/IExchangeRateService.h
+        scheduledTransfer/IScheduledTransferService.h
+        transaction/ITransactionService.h
+        user/IUserService.h
 )
 
 target_link_libraries(nong_bong PRIVATE
