@@ -9,10 +9,10 @@ class UserService : public IUserService
 
     explicit UserService(std::shared_ptr<IUserDao> dao);
 
-    std::optional<User> doGetUserById(int id) const override;
+    [[nodiscard]] std::optional<User> doGetUserById(int id) const override;
     void doUpdateUser(const User& user) const override;
     void doCreateUser(const User& user) const override;
 
-    bool doAccessToUser(const std::string& lastName, const std::string& firstName, const std::string& password) const override;
+    [[nodiscard]] bool doAccessToUser(const std::string& lastName, const std::string& firstName, const std::string& password) const override;
 
 };

@@ -10,8 +10,8 @@ class ScheduledTransferService : public IScheduledTransferService
 
     explicit ScheduledTransferService(std::shared_ptr<IScheduledTransferDao> dao);
 
-    std::optional<ScheduledTransfer> doGetScheduledTransferById(int id) const override;
-    std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const override;
+    [[nodiscard]] std::optional<ScheduledTransfer> doGetScheduledTransferById(int id) const override;
+    [[nodiscard]] std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const override;
 
     void doCreateScheduledTransfer(const ScheduledTransfer& transfer) const override;
     void doUpdateScheduledTransfer(ScheduledTransfer transfer) const override;

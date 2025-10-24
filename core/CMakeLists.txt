@@ -21,6 +21,13 @@ add_executable(nong_bong
         scheduledTransfer/IScheduledTransferService.h
         transaction/IBankTransactionService.h
         user/IUserService.h
+        card/CardService.h
+        cardDesign/CardDesignService.h
+        currency/CurrencyService.h
+        exchangeRate/ExchangeRateService.h
+        scheduledTransfer/ScheduledTransferService.h
+        transaction/BankTransactionService.h
+        user/UserService.h
 )
 
 target_link_libraries(nong_bong PRIVATE

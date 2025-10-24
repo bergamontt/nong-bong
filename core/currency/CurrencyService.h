@@ -10,6 +10,6 @@ class CurrencyService : public ICurrencyService
 
     explicit CurrencyService(std::shared_ptr<ICurrencyDao> dao);
 
-    std::optional<Currency> doGetCurrencyByCode(const std::string& code) const override;
-    std::vector<Currency> doGetAllCurrencies() const override;
+    [[nodiscard]] std::optional<Currency> doGetCurrencyByCode(const std::string& code) const override;
+    [[nodiscard]] std::vector<Currency> doGetAllCurrencies() const override;
 };

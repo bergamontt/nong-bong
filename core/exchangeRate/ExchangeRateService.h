@@ -10,6 +10,6 @@ class ExchangeRateService : public IExchangeRateService
 
     explicit ExchangeRateService(std::shared_ptr<IExchangeRateDao> dao);
 
-    std::optional<ExchangeRate> doGetExchangeRateById(int id) const override;
-    std::vector<ExchangeRate> doGetAllExchangeRates() const override;
+    [[nodiscard]] std::optional<ExchangeRate> doGetExchangeRateById(int id) const override;
+    [[nodiscard]] std::vector<ExchangeRate> doGetAllExchangeRates() const override;
 };

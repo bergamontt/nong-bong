@@ -10,7 +10,7 @@ class BankTransactionService : public IBankTransactionService
 
     explicit BankTransactionService(std::shared_ptr<IBankTransactionDao> dao);
 
-    std::optional<BankTransaction> doGetBankTransactionById(int id) const override;
-    std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
+    [[nodiscard]] std::optional<BankTransaction> doGetBankTransactionById(int id) const override;
+    [[nodiscard]] std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
     void doCreateBankTransaction(const BankTransaction& transaction) const override;
 };

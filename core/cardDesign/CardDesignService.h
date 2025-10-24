@@ -8,6 +8,6 @@ class CardDesignService : public ICardDesignService{
 
     explicit CardDesignService(std::shared_ptr<ICardDesignDao> dao);
 
-    std::optional<CardDesign> doGetCardDesignById(int id) const override;
-    std::vector<CardDesign> doGetAllCardDesigns() const override;
+    [[nodiscard]] std::optional<CardDesign> doGetCardDesignById(int id) const override;
+    [[nodiscard]] std::vector<CardDesign> doGetAllCardDesigns() const override;
 };

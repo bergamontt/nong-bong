@@ -7,9 +7,9 @@
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    users["Iryna"] = "12345";
-    users["Daria"] = "qwerty2";
-    users["Nazar"] = "qwerty";
+    users["Iryna Hryshchenko"] = "12345";
+    users["Daria Bulavina"] = "qwerty2";
+    users["Nazar Stepanenko"] = "qwerty";
     ui->setupUi(this);
 
     setStyles();
@@ -24,10 +24,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_B_enter_clicked()
 {
-    const QString enteredName = ui->LE_name->text();
+    const QString enteredFirstName = ui->LE_firstName->text();
+    const QString enteredLastName = ui->LE_lastName->text();
+
     const QString enteredPassword = ui->LE_password->text();
-    if(authenticate(enteredName.toStdString(), enteredPassword.toStdString())){
-        ui->L_welcomeUser->setText("Welcome, " + enteredName + "!");
+    if(authenticate(enteredFirstName.toStdString(), enteredLastName.toStdString(), enteredPassword.toStdString())){
+        ui->L_welcomeUser->setText("Welcome, " + enteredFirstName + " " + enteredLastName + "!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
     } else{
         QMessageBox::critical(this,"Wrong credentials","No such user");
@@ -35,9 +37,9 @@ void MainWindow::on_B_enter_clicked()
 
 }
 
-bool MainWindow::authenticate(const std::string& username, const std::string& password){
-    if(users.contains(username)){
-        if(users[username]==password){
+bool MainWindow::authenticate(const std::string& firstName, const std::string& lastName, const std::string& password){
+    if(users.contains(firstName + " " + lastName)){
+        if(users[firstName + " " + lastName]==password){
             return true;
         }
     }
@@ -76,8 +78,10 @@ void MainWindow::animateTransition(QWidget* from, QWidget* to)
 
 void MainWindow::on_B_logout_clicked()
 {
-    ui->LE_name->clear();
+    ui->LE_firstName->clear();
+    ui->LE_lastName->clear();
     ui->LE_password->clear();
+
     animateTransition(ui->dashboardScreen, ui->loginScreen);
 }
 

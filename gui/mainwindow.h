@@ -22,7 +22,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::map<std::string, std::string> users;
-    bool authenticate(const std::string&, const std::string&);
+    bool authenticate(const std::string& firstName, const std::string& lastName, const std::string&);
     void animateTransition(QWidget* from, QWidget* to);
     void setStyles() const;
 
