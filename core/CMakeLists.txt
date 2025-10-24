@@ -19,7 +19,7 @@ add_executable(nong_bong
         currency/ICurrencyService.h
         exchangeRate/IExchangeRateService.h
         scheduledTransfer/IScheduledTransferService.h
-        transaction/ITransactionService.h
+        transaction/IBankTransactionService.h
         user/IUserService.h
 )
 
