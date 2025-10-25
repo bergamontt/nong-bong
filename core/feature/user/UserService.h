@@ -5,9 +5,11 @@
 
 class UserService final : public IUserService
 {
-    std::shared_ptr<IUserDao> dao;
+public:
+    explicit UserService(IUserDao& dao);
 
-    explicit UserService(std::shared_ptr<IUserDao> dao);
+private:
+    IUserDao& dao;
 
     [[nodiscard]] std::optional<User> doGetUserById(int id) const override;
     void doUpdateUser(const User& user) const override;

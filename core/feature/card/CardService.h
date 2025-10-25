@@ -3,12 +3,11 @@
 #include "ICardDao.h"
 #include "ICardService.h"
 
-class CardService final : public ICardService{
-
-    std::shared_ptr<ICardDao> dao;
-
-    explicit CardService(std::shared_ptr<ICardDao> dao);
-
+class CardService final : public ICardService
+{
+public:
+    explicit CardService(ICardDao& dao);
+private:
     [[nodiscard]] std::optional<Card> doGetCardById(int id) const override;
 
     [[nodiscard]] std::vector<Card> doGetAllActiveCardsByUserId(int id) const override;

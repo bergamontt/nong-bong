@@ -6,9 +6,10 @@
 
 class ScheduledTransferService final : public IScheduledTransferService
 {
-    std::shared_ptr<IScheduledTransferDao> dao;
-
-    explicit ScheduledTransferService(std::shared_ptr<IScheduledTransferDao> dao);
+public:
+    explicit ScheduledTransferService(IScheduledTransferDao& dao);
+private:
+    IScheduledTransferDao& dao;
 
     [[nodiscard]] std::optional<ScheduledTransfer> doGetScheduledTransferById(int id) const override;
     [[nodiscard]] std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const override;

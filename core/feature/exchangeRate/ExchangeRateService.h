@@ -6,10 +6,10 @@
 
 class ExchangeRateService final : public IExchangeRateService
 {
-    std::shared_ptr<IExchangeRateDao> dao;
-
-    explicit ExchangeRateService(std::shared_ptr<IExchangeRateDao> dao);
-
+public:
+    explicit ExchangeRateService(IExchangeRateDao& dao);
+private:
+    IExchangeRateDao& dao;
     [[nodiscard]] std::optional<ExchangeRate> doGetExchangeRateById(int id) const override;
     [[nodiscard]] std::vector<ExchangeRate> doGetAllExchangeRates() const override;
 };

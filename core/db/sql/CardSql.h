@@ -4,8 +4,10 @@ namespace card_sql
 {
     inline const auto getById =
         "SELECT * FROM card WHERE id = :id";
+
     inline const auto getByUserId =
         "SELECT * FROM card WHERE user_id = :id";
+
     inline const auto update =
         "UPDATE card SET "
         "user_id = :c, "
@@ -21,6 +23,7 @@ namespace card_sql
         "failed_access_count = :c, "
         "blocked_until = :c "
         "WHERE id = :c";
+
     inline const auto create =
         "INSERT INTO card (id, user_id, card_number, allow_credit, "
         "credit_limit, currency_code, balance, daily_limit, design_id, "

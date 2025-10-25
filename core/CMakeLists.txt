@@ -3,6 +3,8 @@ add_executable(nong_bong
 )
 
 target_include_directories(nong_bong PRIVATE
+		common
+		context
 		feature/card
 		feature/cardDesign
 		feature/currency
@@ -33,6 +35,6 @@ target_link_libraries(nong_bong PRIVATE
 
 add_custom_command(TARGET nong_bong POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${CMAKE_SOURCE_DIR}/core/database.sqlite 
+		${CMAKE_SOURCE_DIR}/core/resources/database.sqlite
 		$<TARGET_FILE_DIR:nong_bong>/database.sqlite 
 )
