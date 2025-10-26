@@ -3,7 +3,6 @@ add_executable(nong_bong
 )
 
 target_include_directories(nong_bong PRIVATE
-		common
 		context
 		feature/card
 		feature/cardDesign

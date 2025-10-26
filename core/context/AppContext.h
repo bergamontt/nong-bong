@@ -1,9 +1,21 @@
 #pragma once
 #include <memory>
 #include "IContext.h"
-#include "ServiceImpl.h"
-#include "DaoImpl.h"
 #include "DataSource.h"
+#include "CardService.h"
+#include "CardDesignService.h"
+#include "CurrencyService.h"
+#include "ExchangeRateService.h"
+#include "ScheduledTransferService.h"
+#include "BankTransactionService.h"
+#include "UserService.h"
+#include "CardDao.h"
+#include "CardDesignDao.h"
+#include "CurrencyDao.h"
+#include "ExchangeRateDao.h"
+#include "ScheduledTransferDao.h"
+#include "BankTransactionDao.h"
+#include "UserDao.h"
 
 class AppContext final : public IContext
 {
