@@ -7,14 +7,16 @@
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    users["Iryna Hryshchenko"] = "12345";
-    users["Daria Bulavina"] = "qwerty2";
-    users["Nazar Stepanenko"] = "qwerty";
+    users["+380 (67) 111-1111"] = "12345";
+    users["+380 (67) 222-2222"] = "qwerty2";
+    users["+380 (67) 333-3333"] = "qwerty";
     ui->setupUi(this);
 
     setStyles();
 
     ui->stackedWidget->setCurrentWidget(ui->loginScreen);
+
+    ui->LE_phone->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
 }
 
 MainWindow::~MainWindow()
@@ -24,12 +26,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_B_enter_clicked()
 {
-    const QString enteredFirstName = ui->LE_firstName->text();
-    const QString enteredLastName = ui->LE_lastName->text();
+    const QString enteredPhone = ui->LE_phone->text();
 
     const QString enteredPassword = ui->LE_password->text();
-    if(authenticate(enteredFirstName.toStdString(), enteredLastName.toStdString(), enteredPassword.toStdString())){
-        ui->L_welcomeUser->setText("Welcome, " + enteredFirstName + " " + enteredLastName + "!");
+    if(authenticate(enteredPhone.toStdString(), enteredPassword.toStdString())){
+        ui->L_welcomeUser->setText("Welcome!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
     } else{
         QMessageBox::critical(this,"Wrong credentials","No such user");
@@ -37,9 +38,9 @@ void MainWindow::on_B_enter_clicked()
 
 }
 
-bool MainWindow::authenticate(const std::string& firstName, const std::string& lastName, const std::string& password){
-    if(users.contains(firstName + " " + lastName)){
-        if(users[firstName + " " + lastName]==password){
+bool MainWindow::authenticate(const std::string& phone, const std::string& password){
+    if(users.contains(phone)){
+        if(users[phone]==password){
             return true;
         }
     }
@@ -78,8 +79,7 @@ void MainWindow::animateTransition(QWidget* from, QWidget* to)
 
 void MainWindow::on_B_logout_clicked()
 {
-    ui->LE_firstName->clear();
-    ui->LE_lastName->clear();
+    ui->LE_phone->clear();
     ui->LE_password->clear();
 
     animateTransition(ui->dashboardScreen, ui->loginScreen);
@@ -114,7 +114,7 @@ void MainWindow::setStyles() const {
             padding: 10px 20px;
             qproperty-alignment: 'AlignCenter';
         }
-        QLineEdit { background-color: #222222; color: #eae3d9; border: 3px solid #805535; font-weight: bold; border-radius: 5px; padding: 5px; }
+        QLineEdit { background-color: #222222; color: #eae3d9; border: 3px solid #805535; font-weight: bold; font-size: 10pt; border-radius: 5px; padding: 5px; }
 
         QPushButton { background-color: #805535; color: #eae3d8; border-radius: 10px; font-weight: bold; padding: 5px 15px; border: 3px solid #eae3d8; }
         QPushButton:hover { background-color: #734d30; }
