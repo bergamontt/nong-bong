@@ -26,7 +26,7 @@ target_sources(nong_bong PRIVATE
 )
 
 target_link_libraries(nong_bong PRIVATE
-		Qt6::Widgets
+	Qt6::Widgets
         gui_lib
         soci_core
         soci_sqlite3

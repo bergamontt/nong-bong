@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "BankCardWidget.h"
 #include <QMessageBox>
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
@@ -17,6 +18,31 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     ui->stackedWidget->setCurrentWidget(ui->loginScreen);
 
     ui->LE_phone->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
+
+    Card myBlockedCard;
+    myBlockedCard.id = 1;
+    myBlockedCard.userId = 42;
+    myBlockedCard.cardNumber = "4444333322221111";
+    myBlockedCard.allowCredit = 1;
+    myBlockedCard.creditLimit.reset();
+    myBlockedCard.currencyCode = "USD";
+    myBlockedCard.balance = 20000;
+    myBlockedCard.dailyLimit = 100000;
+    myBlockedCard.pinHash = "sha256$xxxxx";
+    myBlockedCard.status = "blocked";
+
+    {
+        std::time_t now = std::time(nullptr);
+        std::time_t later = now + 20;
+        std::tm tm_later = *std::localtime(&later);
+        myBlockedCard.blockedUntil = tm_later;
+    }
+
+    BankCardWidget* w = new BankCardWidget;
+    w->setCard(myBlockedCard);
+    w->setDailyUsageRatio(0.8);
+    w->setFixedSize(300, 180);
+    ui->cardList->addWidget(w);
 }
 
 MainWindow::~MainWindow()

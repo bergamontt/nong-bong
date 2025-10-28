@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="loginScreen">
      <widget class="QLabel" name="L_welcome">
@@ -144,7 +144,7 @@
         <x>230</x>
         <y>200</y>
         <width>341</width>
-        <height>61</height>
+        <height>67</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -190,6 +190,17 @@
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>229</x>
+        <y>279</y>
+        <width>341</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="cardList"/>
      </widget>
     </widget>
    </widget>
