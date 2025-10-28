@@ -8,8 +8,12 @@ class CurrencyService final : public ICurrencyService
 {
 public:
     explicit CurrencyService(ICurrencyDao& dao);
+    CurrencyService(const CurrencyService&) = delete;
+    CurrencyService& operator=(const CurrencyService&)& = delete;
+
 private:
-    ICurrencyDao& dao;
-    [[nodiscard]] std::optional<Currency> doGetCurrencyByCode(const std::string& code) const override;
-    [[nodiscard]] std::vector<Currency> doGetAllCurrencies() const override;
+    ICurrencyDao& _currencyDao;
+
+    std::optional<Currency> doGetCurrencyByCode(const std::string& code) const override;
+    std::vector<Currency> doGetAllCurrencies() const override;
 };

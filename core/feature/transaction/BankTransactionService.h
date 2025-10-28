@@ -8,9 +8,13 @@ class BankTransactionService final : public IBankTransactionService
 {
 public:
     explicit BankTransactionService(IBankTransactionDao& dao);
+    BankTransactionService(const BankTransactionService&) = delete;
+    BankTransactionService& operator=(const BankTransactionService&)& = delete;
+
 private:
-    IBankTransactionDao& dao;
-    [[nodiscard]] std::optional<BankTransaction> doGetBankTransactionById(int id) const override;
-    [[nodiscard]] std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
+    IBankTransactionDao& _bankTransactionDao;
+
+    std::optional<BankTransaction> doGetBankTransactionById(int id) const override;
+    std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
     void doCreateBankTransaction(const BankTransaction& transaction) const override;
 };

@@ -7,7 +7,8 @@ class ICurrencyDao
 public:
     Currency getByCode(const std::string& code) const;
     std::vector<Currency> getAll() const;
-    virtual ~ICurrencyDao() = default;
+protected:
+    ~ICurrencyDao() = default;
 private:
     virtual Currency doGetCurrencyByCode(const std::string& code) const = 0;
     virtual std::vector<Currency> doGetAll() const = 0;

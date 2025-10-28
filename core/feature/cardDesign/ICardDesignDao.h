@@ -7,7 +7,8 @@ class ICardDesignDao
 public:
     CardDesign getById(int id) const;
     std::vector<CardDesign> getAll() const;
-    virtual ~ICardDesignDao() = default;
+protected:
+    ~ICardDesignDao() = default;
 private:
     virtual CardDesign doGetById(int id) const = 0;
     virtual std::vector<CardDesign> doGetAll() const = 0;

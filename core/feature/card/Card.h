@@ -7,6 +7,14 @@
 class Card
 {
 public:
+
+    enum Status
+    {
+        active,
+        blocked,
+        deleted
+    };
+
     int id;
     int userId;
     std::string cardNumber;
@@ -17,10 +25,32 @@ public:
     int dailyLimit;
     std::optional<int> designId;
     std::string pinHash;
-    std::string status;
+    Status status;
     int failedAccessCount;
     std::optional<std::tm> blockedUntil;
 };
+
+inline std::string statusToString(const Card::Status status)
+{
+    switch (status)
+    {
+        case Card::Status::active: return "active";
+        case Card::Status::blocked: return "blocked";
+        case Card::Status::deleted: return "deleted";
+    }
+    return {};
+}
+
+inline Card::Status statusFromString(const std::string& status)
+{
+    if (status == "active")
+        return Card::Status::active;
+    if (status == "blocked")
+        return Card::Status::blocked;
+    if (status == "deleted")
+        return Card::Status::deleted;
+    throw std::invalid_argument("Invalid status");
+}
 
 template <>
 struct soci::type_conversion<Card>
@@ -38,7 +68,7 @@ struct soci::type_conversion<Card>
         c.dailyLimit = v.get<int>("daily_limit");
         c.designId = v.get<int>("design_id");
         c.pinHash = v.get<std::string>("pin_hash");
-        c.status = v.get<std::string>("status");
+        c.status = statusFromString(v.get<std::string>("status"));
         c.failedAccessCount = v.get<int>("failed_access_count");
         c.blockedUntil = v.get<std::tm>("blocked_until");
     }
@@ -55,7 +85,7 @@ struct soci::type_conversion<Card>
         v.set("daily_limit", c.dailyLimit);
         v.set("design_id", c.designId, c.designId.has_value() ? i_ok : i_null);
         v.set("pin_hash", c.pinHash);
-        v.set("status", c.status);
+        v.set("status", statusToString(c.status));
         v.set("failed_access_count", c.failedAccessCount);
         v.set("blocked_until", c.blockedUntil, c.blockedUntil.has_value() ? i_ok : i_null);
     }

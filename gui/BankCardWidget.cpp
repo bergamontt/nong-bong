@@ -53,7 +53,7 @@ void BankCardWidget::setCard(const Card& card)
     currency = QString::fromStdString(card.currencyCode);
     balanceMinor = static_cast<qint64>(card.balance);
     dailyLimit = card.dailyLimit;
-    status = QString::fromStdString(card.status);
+    status = QString::fromStdString(statusToString(card.status));
 
     blockedUntil.reset();
     if (card.blockedUntil.has_value()) {

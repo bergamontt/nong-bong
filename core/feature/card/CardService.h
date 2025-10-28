@@ -7,22 +7,23 @@ class CardService final : public ICardService
 {
 public:
     explicit CardService(ICardDao& dao);
-private:
-    [[nodiscard]] std::optional<Card> doGetCardById(int id) const override;
+    CardService(const CardService&) = delete;
+    CardService& operator=(const CardService&)& = delete;
 
-    [[nodiscard]] std::vector<Card> doGetAllActiveCardsByUserId(int id) const override;
-    [[nodiscard]] std::vector<Card> doGetAllBlockedCardsByUserId(int id) const override;
-    [[nodiscard]] std::vector<Card> doGetAllDeletedCardsByUserId(int id) const override;
-    [[nodiscard]] std::vector<Card> doGetAllCardsByUserId(int id) const override;
+private:
+    ICardDao& _cardDao;
+
+    std::optional<Card> doGetCardById(int id) const override;
+
+    std::vector<Card> doGetAllActiveCardsByUserId(int id) const override;
+    std::vector<Card> doGetAllBlockedCardsByUserId(int id) const override;
+    std::vector<Card> doGetAllDeletedCardsByUserId(int id) const override;
+    std::vector<Card> doGetAllCardsByUserId(int id) const override;
 
     void doCreateCard(const Card& card) const override;
     void doUpdateCard(const Card& card) const override;
     void doDeleteCardById(int id) const override;
 
-    [[nodiscard]] bool doAccessToCard(int id, const std::string& pin) const override;
-    [[nodiscard]] bool doWithdrawFromCard(int id, int amount) const override;
-    [[nodiscard]] bool doDepositToCard(int id, int amount) const override;
-    [[nodiscard]] bool doTransferBetweenCards(int fromCardId, int toCardId, int amount) const override;
-    [[nodiscard]] bool doChangeCardPin(int id, const std::string& oldPin, const std::string& newPin) const override;
-
+    bool doAccessToCard(int id, const std::string& pin) const override;
+    bool doChangeCardPin(int id, const std::string& oldPin, const std::string& newPin) const override;
 };

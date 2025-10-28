@@ -7,8 +7,12 @@ class CardDesignService final : public ICardDesignService
 {
 public:
     explicit CardDesignService(ICardDesignDao& dao);
+    CardDesignService(const CardDesignService&) = delete;
+    CardDesignService& operator=(const CardDesignService&)& = delete;
+
 private:
-    ICardDesignDao& dao;
-    [[nodiscard]] std::optional<CardDesign> doGetCardDesignById(int id) const override;
-    [[nodiscard]] std::vector<CardDesign> doGetAllCardDesigns() const override;
+    ICardDesignDao& _cardDesignDao;
+
+    std::optional<CardDesign> doGetCardDesignById(int id) const override;
+    std::vector<CardDesign> doGetAllCardDesigns() const override;
 };

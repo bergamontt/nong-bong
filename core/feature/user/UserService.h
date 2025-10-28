@@ -7,14 +7,16 @@ class UserService final : public IUserService
 {
 public:
     explicit UserService(IUserDao& dao);
+    UserService(const UserService&) = delete;
+    UserService& operator=(const UserService&)& = delete;
 
 private:
-    IUserDao& dao;
+    IUserDao& _userDao;
 
-    [[nodiscard]] std::optional<User> doGetUserById(int id) const override;
+    std::optional<User> doGetUserById(int id) const override;
     void doUpdateUser(const User& user) const override;
     void doCreateUser(const User& user) const override;
 
-    [[nodiscard]] bool doAccessToUser(const std::string& lastName, const std::string& firstName, const std::string& password) const override;
+    bool doAccessToUser(const std::string& lastName, const std::string& firstName, const std::string& password) const override;
 
 };

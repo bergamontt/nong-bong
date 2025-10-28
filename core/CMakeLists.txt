@@ -23,6 +23,7 @@ target_sources(nong_bong PRIVATE
 		feature/scheduledTransfer/ScheduledTransferDao.cpp
 		feature/transaction/BankTransactionDao.cpp
 		feature/user/UserDao.cpp
+		feature/card/CardService.cpp
 )
 
 target_link_libraries(nong_bong PRIVATE

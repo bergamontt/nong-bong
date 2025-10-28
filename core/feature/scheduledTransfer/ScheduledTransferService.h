@@ -8,11 +8,14 @@ class ScheduledTransferService final : public IScheduledTransferService
 {
 public:
     explicit ScheduledTransferService(IScheduledTransferDao& dao);
-private:
-    IScheduledTransferDao& dao;
+    ScheduledTransferService(const ScheduledTransferService&) = delete;
+    ScheduledTransferService& operator=(const ScheduledTransferService&)& = delete;
 
-    [[nodiscard]] std::optional<ScheduledTransfer> doGetScheduledTransferById(int id) const override;
-    [[nodiscard]] std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const override;
+private:
+    IScheduledTransferDao& _scheduledTransferDao;
+
+    std::optional<ScheduledTransfer> doGetScheduledTransferById(int id) const override;
+    std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const override;
 
     void doCreateScheduledTransfer(const ScheduledTransfer& transfer) const override;
     void doUpdateScheduledTransfer(ScheduledTransfer transfer) const override;

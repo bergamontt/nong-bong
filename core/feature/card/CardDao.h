@@ -12,8 +12,9 @@ public:
 private:
     soci::connection_pool& _pool;
 
-    Card doGetById(int id) const override;
+    std::optional<Card> doGetById(int id) const override;
     std::vector<Card> doGetByUserId(int id) const override;
+    std::vector<Card> doGetByUserIdAndStatus(int id, Card::Status status) const override;
     void doUpdate(const Card& card) const override;
     void doCreate(const Card& card) const override;
 };

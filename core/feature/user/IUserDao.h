@@ -7,7 +7,8 @@ public:
     User getById(int id) const;
     void update(const User& user) const;
     void create(const User& user) const;
-    virtual ~IUserDao() = default;
+protected:
+    ~IUserDao() = default;
 private:
     virtual User doGetById(int id) const = 0;
     virtual void doUpdate(const User& user) const = 0;

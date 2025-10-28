@@ -7,7 +7,8 @@ class IExchangeRateDao
 public:
     ExchangeRate getById(int id) const;
     std::vector<ExchangeRate> getAll() const;
-    virtual ~IExchangeRateDao() = default;
+protected:
+    ~IExchangeRateDao() = default;
 private:
     virtual ExchangeRate doGetById(int id) const = 0;
     virtual std::vector<ExchangeRate> doGetAll() const = 0;

@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     myBlockedCard.balance = 20000;
     myBlockedCard.dailyLimit = 100000;
     myBlockedCard.pinHash = "sha256$xxxxx";
-    myBlockedCard.status = "blocked";
+    myBlockedCard.status = Card::Status::blocked;
 
     {
         std::time_t now = std::time(nullptr);

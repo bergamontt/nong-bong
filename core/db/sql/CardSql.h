@@ -8,6 +8,9 @@ namespace card_sql
     inline const auto getByUserId =
         "SELECT * FROM card WHERE user_id = :id";
 
+    inline const auto getByUserIdAndStatus =
+        "SELECT * FROM card WHERE user_id = :user_id AND status = :status";
+
     inline const auto update =
         "UPDATE card SET "
         "user_id = :c, "
