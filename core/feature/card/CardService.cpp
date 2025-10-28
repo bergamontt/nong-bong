@@ -1,4 +1,5 @@
 #include "CardService.h"
+#include "Hasher.h"
 
 CardService::CardService(ICardDao &dao)
     : _cardDao(dao)
@@ -31,12 +32,16 @@ std::vector<Card> CardService::doGetAllCardsByUserId(const int id) const
 
 void CardService::doCreateCard(const Card& card) const
 {
-    _cardDao.create(card);
+    Card newCard = card;
+    newCard.pinHash = Hasher::hashPin(card.pinHash);
+    _cardDao.create(newCard);
 }
 
 void CardService::doUpdateCard(const Card& card) const
 {
-    _cardDao.update(card);
+    Card newCard = card;
+    newCard.pinHash = Hasher::hashPin(card.pinHash);
+    _cardDao.update(newCard);
 }
 
 void CardService::doDeleteCardById(const int id) const
@@ -51,18 +56,16 @@ bool CardService::doAccessToCard(const int id, const std::string &pin) const
 {
     const std::optional<Card> optionalCard = getCardById(id);
     const Card& card = optionalCard.value();
-    // TODO: Add pin hashing and counter of incorrect accesses
-    return card.pinHash == pin;
+    return Hasher::verifyPin(pin, card.pinHash);
 }
 
 bool CardService::doChangeCardPin(const int id, const std::string& oldPin, const std::string& newPin) const
 {
     const std::optional<Card> optionalCard = getCardById(id);
     Card card = optionalCard.value();
-    // TODO: Add pin hashing
-    if (card.pinHash != oldPin || card.pinHash == newPin)
+    if ( !(Hasher::verifyPin(oldPin, card.pinHash)) || Hasher::verifyPin(newPin, card.pinHash))
         return false;
-    card.pinHash = newPin;
+    card.pinHash = Hasher::hashPin(newPin);
     updateCard(card);
     return true;
 }

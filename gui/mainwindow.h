@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <context/AppContext.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -12,7 +13,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(IContext& context, QWidget *parent = nullptr);
     ~MainWindow() override;
 
 private slots:
@@ -22,7 +23,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::map<std::string, std::string> users;
-    bool authenticate(const std::string& phone, const std::string& password);
+    IContext& context;
+    bool authenticate(const std::string& phone, const std::string& password) const;
     void animateTransition(QWidget* from, QWidget* to);
     void setStyles() const;
 

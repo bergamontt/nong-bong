@@ -1,16 +1,38 @@
 #include "mainwindow.h"
+
+#include <iostream>
+
 #include "ui_mainwindow.h"
 #include "BankCardWidget.h"
 #include <QMessageBox>
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+#include "feature/user/IUserService.h"
 
-MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(IContext& context, QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), context(context)
 {
-    users["+380 (67) 111-1111"] = "12345";
-    users["+380 (67) 222-2222"] = "qwerty2";
-    users["+380 (67) 333-3333"] = "qwerty";
+    // FOR TEST ONLY
+    try {
+        context.userService().createUser({
+            1, "Iryna", "Hryshchenko", std::nullopt, "+380 (68) 778-0314", std::nullopt, "12345", "active", 0, std::nullopt
+        });
+    } catch (const std::exception& e) {
+        std::cout << "Insert failed: " << e.what() << std::endl;
+    }
+
+    try {
+        if(auto userOpt = context.userService().getUserById(1)) {
+            std::cout << "User inserted: " << userOpt->firstName << " " << userOpt->phone << " " << userOpt->passwordHash << std::endl;
+        } else {
+            std::cout << "User not found in DB!" << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cout << "Query failed: " << e.what() << std::endl;
+    }
+
+    // END FOR TEST ONLY
+
     ui->setupUi(this);
 
     setStyles();
@@ -64,13 +86,8 @@ void MainWindow::on_B_enter_clicked()
 
 }
 
-bool MainWindow::authenticate(const std::string& phone, const std::string& password){
-    if(users.contains(phone)){
-        if(users[phone]==password){
-            return true;
-        }
-    }
-    return false;
+bool MainWindow::authenticate(const std::string& phone, const std::string& password) const {
+    return context.userService().accessToUser(phone, password);
 }
 
 void MainWindow::animateTransition(QWidget* from, QWidget* to)

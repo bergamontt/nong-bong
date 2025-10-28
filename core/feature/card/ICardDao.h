@@ -10,12 +10,11 @@ public:
     std::vector<Card> getByUserIdAndStatus(int id, Card::Status status) const;
     void update(const Card& card) const;
     void create(const Card& card) const;
-protected:
-    ~ICardDao() = default;
+    virtual ~ICardDao() = 0;
 private:
     virtual std::optional<Card> doGetById(int id) const = 0;
     virtual std::vector<Card> doGetByUserId(int id) const = 0;
-    virtual std::vector<Card> doGetByUserIdAndStatus(int id, Card::Status status) const;
+    virtual std::vector<Card> doGetByUserIdAndStatus(int id, Card::Status status) const = 0;
     virtual void doUpdate(const Card& card) const = 0;
     virtual void doCreate(const Card& card) const = 0;
 };
@@ -44,3 +43,5 @@ inline void ICardDao::create(const Card& card) const
 {
     doCreate(card);
 }
+
+inline ICardDao::~ICardDao() {}

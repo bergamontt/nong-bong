@@ -13,6 +13,7 @@ private:
     soci::connection_pool& _pool;
 
     User doGetById(int id) const override;
+    User doGetByPhone(const std::string& phone) const override;
     void doUpdate(const User& user) const override;
     void doCreate(const User& user) const override;
 };

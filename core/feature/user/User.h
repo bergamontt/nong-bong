@@ -28,14 +28,22 @@ struct soci::type_conversion<User>
         u.id = v.get<int>("id");
         u.firstName = v.get<std::string>("first_name");
         u.lastName = v.get<std::string>("last_name");
-        u.email = v.get<std::string>("email");
+        if (v.get_indicator("email") != soci::i_null)
+            u.email = v.get<std::string>("email");
+        else
+            u.email.reset();
+
         u.phone = v.get<std::string>("phone");
-        u.createdAt = v.get<std::tm>("created_at");
-        u.passwordHash = v.get<std::string>("password_hash");
+        if (v.get_indicator("created_at") != soci::i_null)
+            u.createdAt = v.get<std::tm>("created_at");
+        else
+            u.createdAt.reset();        u.passwordHash = v.get<std::string>("password_hash");
         u.status = v.get<std::string>("status");
         u.failedLoginCount = v.get<int>("failed_login_count");
-        u.blockedUntil = v.get<std::tm>("blocked_until");
-    }
+        if (v.get_indicator("blocked_until") != soci::i_null)
+            u.blockedUntil = v.get<std::tm>("blocked_until");
+        else
+            u.blockedUntil.reset();    }
 
     static void to_base(const User& u, values& v, indicator& ind)
     {

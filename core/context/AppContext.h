@@ -3,11 +3,11 @@
 #include "IContext.h"
 #include "DataSource.h"
 #include "CardService.h"
-#include "CardDesignService.h"
-#include "CurrencyService.h"
-#include "ExchangeRateService.h"
-#include "ScheduledTransferService.h"
-#include "BankTransactionService.h"
+//#include "CardDesignService.h"
+//#include "CurrencyService.h"
+//#include "ExchangeRateService.h"
+//#include "ScheduledTransferService.h"
+//#include "BankTransactionService.h"
 #include "UserService.h"
 #include "CardDao.h"
 #include "CardDesignDao.h"
@@ -33,19 +33,19 @@ private:
     std::unique_ptr<UserDao> _userDao;
 
     std::unique_ptr<CardService> _cardService;
-    std::unique_ptr<CardDesignService> _cardDesignService;
+    /*std::unique_ptr<CardDesignService> _cardDesignService;
     std::unique_ptr<CurrencyService> _currencyService;
     std::unique_ptr<ExchangeRateService> _exchangeRateService;
     std::unique_ptr<ScheduledTransferService> _scheduledTransferService;
-    std::unique_ptr<BankTransactionService> _bankTransactionService;
+    std::unique_ptr<BankTransactionService> _bankTransactionService;*/
     std::unique_ptr<UserService> _userService;
 
     ICardService& doCardService() const override;
-    ICardDesignService& doCardDesignService() const override;
+    /*ICardDesignService& doCardDesignService() const override;
     ICurrencyService& doCurrencyService() const override;
     IExchangeRateService& doExchangeRateService() const override;
     IScheduledTransferService& doScheduledTransferService() const override;
-    IBankTransactionService& doBankTransactionService() const override;
+    IBankTransactionService& doBankTransactionService() const override;*/
     IUserService& doUserService() const override;
 };
 
@@ -54,7 +54,7 @@ inline ICardService& AppContext::doCardService() const
     return *_cardService;
 }
 
-inline ICardDesignService& AppContext::doCardDesignService() const
+/*inline ICardDesignService& AppContext::doCardDesignService() const
 {
     return *_cardDesignService;
 }
@@ -78,7 +78,7 @@ inline IScheduledTransferService &AppContext::doScheduledTransferService() const
 {
     return *_scheduledTransferService;
 }
-
+*/
 inline IUserService &AppContext::doUserService() const
 {
     return *_userService;
