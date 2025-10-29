@@ -15,4 +15,6 @@ private:
     BankTransaction doGetById(int id) const override;
     std::vector<BankTransaction> doGetByFromCardId(int id) const override;
     void doCreate(const BankTransaction& transfer) const override;
+    void doCreateWithDate(const BankTransaction& transfer) const override;
+
 };

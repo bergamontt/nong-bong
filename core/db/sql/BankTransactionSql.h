@@ -10,7 +10,13 @@ namespace bank_transaction_sql
 
     inline const auto create =
         "INSERT INTO bank_transaction ("
-        "id, created_at, type, from_card_id, to_card_id, amount, "
+        "type, from_card_id, to_card_id, amount, "
+        "currency_code, description, comment, status) "
+        "VALUES (:t)";
+
+    inline const auto createWithDate =
+        "INSERT INTO bank_transaction ("
+        "created_at, type, from_card_id, to_card_id, amount, "
         "currency_code, description, comment, status) "
         "VALUES (:t)";
 }

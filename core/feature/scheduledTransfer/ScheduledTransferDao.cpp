@@ -12,6 +12,17 @@ ScheduledTransfer ScheduledTransferDao::doGetById(int id) const
     return res;
 }
 
+std::vector<ScheduledTransfer> ScheduledTransferDao::doGetAllActiveBeforeDate(const std::tm& date) const
+{
+    soci::session sql(_pool);
+    vector<ScheduledTransfer> res;
+    soci::rowset<ScheduledTransfer> rs = (sql.prepare
+        << scheduled_transfer_sql::getActiveBeforeDate, soci::use(date, "date"));
+    for (const ScheduledTransfer& st : rs)
+        res.push_back(st);
+    return res;
+}
+
 std::vector<ScheduledTransfer> ScheduledTransferDao::doGetByFromCardId(int id) const
 {
     soci::session sql(_pool);

@@ -1,5 +1,5 @@
 add_executable(nong_bong
-	main.cpp 
+	main.cpp
 )
 
 target_include_directories(nong_bong PRIVATE
@@ -30,11 +30,11 @@ target_sources(nong_bong PRIVATE
 		feature/user/UserDao.cpp
 
 		feature/card/CardService.cpp
-		#feature/cardDesign/CardDesignService.cpp
-		#feature/currency/CurrencyService.cpp
-		#feature/exchangeRate/ExchangeRateService.cpp
-		#feature/scheduledTransfer/ScheduledTransferService.cpp
-		#feature/transaction/BankTransactionService.cpp
+		feature/cardDesign/CardDesignService.cpp
+		feature/currency/CurrencyService.cpp
+		feature/exchangeRate/ExchangeRateService.cpp
+		feature/scheduledTransfer/ScheduledTransferService.cpp
+		feature/transaction/BankTransactionService.cpp
 		feature/user/UserService.cpp
 		security/Hasher.cpp
 )

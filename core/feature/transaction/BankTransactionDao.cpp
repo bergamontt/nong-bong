@@ -29,3 +29,10 @@ void BankTransactionDao::doCreate(const BankTransaction& transfer) const
     sql << bank_transaction_sql::create,
         soci::use(transfer);
 }
+
+void BankTransactionDao::doCreateWithDate(const BankTransaction& transfer) const
+{
+    soci::session sql(_pool);
+    sql << bank_transaction_sql::createWithDate,
+        soci::use(transfer);
+}
