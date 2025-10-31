@@ -194,10 +194,10 @@
      <widget class="QWidget" name="horizontalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>229</x>
+        <x>179</x>
         <y>279</y>
-        <width>341</width>
-        <height>171</height>
+        <width>441</width>
+        <height>211</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="cardList"/>

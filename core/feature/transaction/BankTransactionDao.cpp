@@ -17,7 +17,7 @@ std::vector<BankTransaction> BankTransactionDao::doGetByFromCardId(int id) const
     soci::session sql(_pool);
     vector<BankTransaction> res;
     soci::rowset<BankTransaction> rs = (sql.prepare
-        << bank_transaction_sql::getByFromCardId, soci::use(id, "id"));
+        << bank_transaction_sql::getByFromCardId, soci::use(id));
     for (const BankTransaction& bt : rs)
         res.push_back(bt);
     return res;

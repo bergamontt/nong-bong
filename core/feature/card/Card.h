@@ -58,19 +58,26 @@ struct soci::type_conversion<Card>
     typedef values base_type;
     static void from_base(values const& v, indicator, Card& c)
     {
+        using soci::i_null;
         c.id = v.get<int>("id");
         c.userId = v.get<int>("user_id");
         c.cardNumber = v.get<std::string>("card_number");
         c.allowCredit = v.get<int>("allow_credit");
-        c.creditLimit = v.get<int>("credit_limit");
+        c.creditLimit = (v.get_indicator("credit_limit") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<int>("credit_limit"));
         c.currencyCode = v.get<std::string>("currency_code");
         c.balance = v.get<int>("balance");
         c.dailyLimit = v.get<int>("daily_limit");
-        c.designId = v.get<int>("design_id");
+        c.designId = (v.get_indicator("design_id") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<int>("design_id"));
         c.pinHash = v.get<std::string>("pin_hash");
         c.status = statusFromString(v.get<std::string>("status"));
         c.failedAccessCount = v.get<int>("failed_access_count");
-        c.blockedUntil = v.get<std::tm>("blocked_until");
+        c.blockedUntil = (v.get_indicator("blocked_until") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<std::tm>("blocked_until"));
     }
 
     static void to_base(const Card& c, values& v, indicator& ind)

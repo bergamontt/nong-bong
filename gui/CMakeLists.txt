@@ -1,6 +1,8 @@
 add_library(gui_lib
 	BankCardWidget.h
 	BankCardWidget.cpp
+	BankCardList.h
+	BankCardList.cpp
         mainwindow.h
         mainwindow.cpp
         mainwindow.ui

@@ -36,8 +36,8 @@ BankCardWidget::BankCardWidget(QWidget* parent)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setMinimumSize(260, 160);
-    countdownTimer.setInterval(1000);
-    connect(&countdownTimer, &QTimer::timeout, this, &BankCardWidget::onCountdownTick);
+    _countdownTimer.setInterval(1000);
+    connect(&_countdownTimer, &QTimer::timeout, this, &BankCardWidget::onCountdownTick);
 }
 
 QSize BankCardWidget::minimumSizeHint() const
@@ -47,38 +47,37 @@ QSize BankCardWidget::minimumSizeHint() const
 
 void BankCardWidget::setCard(const Card& card)
 {
-    id = card.id;
-    cardNumber = QString::fromStdString(card.cardNumber);
-    maskedNumber = maskCardNumber(cardNumber);
-    currency = QString::fromStdString(card.currencyCode);
-    balanceMinor = static_cast<qint64>(card.balance);
-    dailyLimit = card.dailyLimit;
-    status = QString::fromStdString(statusToString(card.status));
+    _id = card.id;
+    _cardNumber = QString::fromStdString(card.cardNumber);
+    _currency = QString::fromStdString(card.currencyCode);
+    _balanceMinor = static_cast<qint64>(card.balance);
+    _dailyLimit = card.dailyLimit;
+    _status = QString::fromStdString(statusToString(card.status));
 
-    blockedUntil.reset();
+    _blockedUntil.reset();
     if (card.blockedUntil.has_value()) {
         tm tm = *card.blockedUntil;
         time_t t = mktime(&tm);
         if (t != -1) 
-            blockedUntil = t;
+            _blockedUntil = t;
     }
 
-    if (status == "blocked" && blockedUntil.has_value()) {
+    if (_status == "blocked" && _blockedUntil.has_value()) {
         qint64 now = QDateTime::currentSecsSinceEpoch();
-        if (static_cast<qint64>(*blockedUntil) > now) {
-            if (!countdownTimer.isActive()) 
-                countdownTimer.start();
+        if (static_cast<qint64>(*_blockedUntil) > now) {
+            if (!_countdownTimer.isActive())
+                _countdownTimer.start();
         }
         else {
-            if (countdownTimer.isActive()) 
-                countdownTimer.stop();
-            status = "active";
-            blockedUntil.reset();
+            if (_countdownTimer.isActive())
+                _countdownTimer.stop();
+            _status = "active";
+            _blockedUntil.reset();
         }
     }
     else {
-        if (countdownTimer.isActive()) 
-            countdownTimer.stop();
+        if (_countdownTimer.isActive())
+            _countdownTimer.stop();
     }
     update();
 }
@@ -89,36 +88,36 @@ void BankCardWidget::setDailyUsageRatio(double ratio)
         ratio = 0.0;
     if (ratio > 1.0) 
         ratio = 1.0;
-    dailyUsageRatio = ratio;
+    _dailyUsageRatio = ratio;
     update();
 }
 
 void BankCardWidget::setDesignPixmap(const QPixmap& pix)
 {
-    designPixmap = pix;
+    _designPixmap = pix;
     update();
 }
 
 qint64 BankCardWidget::blockedUntilEpochSeconds() const
 {
-    if (!blockedUntil.has_value()) 
+    if (!_blockedUntil.has_value())
         return 0;
-    return static_cast<qint64>(*blockedUntil);
+    return static_cast<qint64>(*_blockedUntil);
 }
 
 void BankCardWidget::onCountdownTick()
 {
-    if (!blockedUntil.has_value()) {
-        countdownTimer.stop();
+    if (!_blockedUntil.has_value()) {
+        _countdownTimer.stop();
         update();
         return;
     }
     qint64 now = QDateTime::currentSecsSinceEpoch();
-    qint64 until = static_cast<qint64>(*blockedUntil) - now;
+    qint64 until = static_cast<qint64>(*_blockedUntil) - now;
     if (until <= 0) {
-        blockedUntil.reset();
-        status = "active";
-        countdownTimer.stop();
+        _blockedUntil.reset();
+        _status = "active";
+        _countdownTimer.stop();
     }
     update();
 }
@@ -131,7 +130,7 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     const QRectF r = rect().adjusted(6, 6, -6, -6);
     const qreal radius = qMin(r.height(), r.width()) * 0.06;
 
-    if (designPixmap.isNull()) {
+    if (_designPixmap.isNull()) {
         QLinearGradient g(r.topLeft(), r.bottomRight());
         g.setColorAt(0.0, QColor(28, 118, 211));
         g.setColorAt(1.0, QColor(19, 84, 150));
@@ -140,7 +139,7 @@ void BankCardWidget::paintEvent(QPaintEvent*)
         p.drawRoundedRect(r, radius, radius);
     }
     else {
-        QPixmap scaled = designPixmap.scaled(r.size().toSize(),
+        QPixmap scaled = _designPixmap.scaled(r.size().toSize(),
             Qt::KeepAspectRatioByExpanding,
             Qt::SmoothTransformation);
         QPainterPath clipPath;
@@ -178,7 +177,7 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     p.setFont(numFont);
     p.setPen(Qt::white);
 
-    QString displayNumber = maskedNumber.isEmpty() ? maskCardNumber(cardNumber) : maskedNumber;
+    QString displayNumber = maskCardNumber(_cardNumber);
     QRectF numArea(r.left() + r.width() * 0.06, r.top() + r.height() * 0.38,
         r.width() * 0.88, r.height() * 0.2);
     p.drawText(numArea, Qt::AlignLeft | Qt::AlignVCenter, displayNumber);
@@ -187,18 +186,19 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     balFont.setBold(true);
     balFont.setPointSizeF(h * 0.085);
     p.setFont(balFont);
-    QString balText = formatMoney(balanceMinor, currency);
-    QRectF balArea(r.left() + r.width() * 0.58, r.top() + r.height() * 0.12, r.width() * 0.36, r.height() * 0.18);
+    QString balText = formatMoney(_balanceMinor, _currency);
+    QRectF balArea(
+        r.left() + r.width() * 0.52,
+        r.top() + r.height() * 0.12,
+        r.width() * 0.42,
+        r.height() * 0.18
+    );
     p.drawText(balArea, Qt::AlignRight | Qt::AlignTop, balText);
 
     QFont smallFont = font();
     smallFont.setPointSizeF(h * 0.065);
     p.setFont(smallFont);
-    QString holder = QString("Jumbo Nemumbo");
-    QRectF holderArea(r.left() + r.width() * 0.06, r.top() + r.height() * 0.62, r.width() * 0.5, r.height() * 0.12);
-    p.drawText(holderArea, Qt::AlignLeft | Qt::AlignVCenter, holder);
-
-    QString dailyLabel = QString("Daily limit: %1").arg(formatMoney(dailyLimit, currency));
+    QString dailyLabel = QString("Daily limit: %1").arg(formatMoney(_dailyLimit, _currency));
     QRectF dailyLabelArea(r.left() + r.width() * 0.06, r.bottom() - r.height() * 0.22,
         r.width() * 0.6, r.height() * 0.08);
     p.drawText(dailyLabelArea, Qt::AlignLeft | Qt::AlignVCenter, dailyLabel);
@@ -211,11 +211,8 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     p.setPen(Qt::NoPen);
     p.drawRoundedRect(barBg, barHeight / 2.0, barHeight / 2.0);
 
-    double fillRatio = 1.0;
-    if (dailyUsageRatio >= 0.0) 
-        fillRatio = dailyUsageRatio;
     QRectF fillRect = barBg;
-    fillRect.setWidth(barBg.width() * fillRatio);
+    fillRect.setWidth(barBg.width() * _dailyUsageRatio);
     p.setBrush(QColor(0, 200, 100));
     p.drawRoundedRect(fillRect, barHeight / 2.0, barHeight / 2.0);
 
@@ -224,15 +221,15 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     pctFont.setPointSizeF(h * 0.055);
     pctFont.setBold(true);
     p.setFont(pctFont);
-    QString pct = (dailyUsageRatio >= 0.0)
-        ? QString("%1%").arg(int(dailyUsageRatio * 100.0))
-        : QString::number(dailyLimit);
+    QString pct = (_dailyUsageRatio >= 0.0)
+        ? QString("%1%").arg(int(_dailyUsageRatio * 100.0))
+        : QString::number(_dailyLimit);
     QRectF pctArea(barBg.right() - 80, barBg.top(), 80, barBg.height());
     p.drawText(pctArea, Qt::AlignRight | Qt::AlignVCenter, pct);
 
-    if (status == "blocked" && blockedUntil.has_value()) {
+    if (_status == "blocked" && _blockedUntil.has_value()) {
         qint64 now = QDateTime::currentSecsSinceEpoch();
-        qint64 until = static_cast<qint64>(*blockedUntil) - now;
+        qint64 until = static_cast<qint64>(*_blockedUntil) - now;
         if (until > 0) {
             p.setBrush(QColor(255, 255, 255, 180));
             p.setPen(Qt::NoPen);

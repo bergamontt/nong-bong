@@ -6,7 +6,7 @@ namespace bank_transaction_sql
         "SELECT * FROM bank_transaction WHERE id = :id";
 
     inline const auto getByFromCardId =
-        "SELECT * FROM bank_transaction WHERE from_card_id = :id";
+        "SELECT * FROM bank_transaction WHERE from_card_id = ?";
 
     inline const auto create =
         "INSERT INTO bank_transaction ("

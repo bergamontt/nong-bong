@@ -1,5 +1,6 @@
 #include "CardDao.h"
 #include "CardSql.h"
+#include <iostream>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ std::vector<Card> CardDao::doGetByUserId(int id) const
     soci::session sql(_pool);
     vector<Card> res;
     const soci::rowset<Card> rs = (sql.prepare
-        << card_sql::getByUserId, soci::use(id, "id"));
+        << card_sql::getByUserId, soci::use(id));
     for (const Card& c : rs)
         res.push_back(c);
     return res;
@@ -32,8 +33,8 @@ std::vector<Card> CardDao::doGetByUserIdAndStatus(int id, const Card::Status sta
     std::string statusStr = statusToString(status);
     const soci::rowset<Card> rs = (sql.prepare
         << card_sql::getByUserIdAndStatus,
-        soci::use(id, "id"),
-        soci::use(statusStr, "status"));
+        soci::use(id),
+        soci::use(statusStr));
     for (const Card& c : rs)
         res.push_back(c);
     return res;

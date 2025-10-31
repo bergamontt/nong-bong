@@ -11,8 +11,6 @@ Currency CurrencyDao::doGetCurrencyByCode(const string& code) const
     Currency res;
     sql << currency_sql::getByCode,
         soci::use(code, "code"), soci::into(res);
-    if (!sql.got_data())
-        throw runtime_error("Currency not found: " + code);
     return res;
 }
 

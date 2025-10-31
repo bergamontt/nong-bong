@@ -6,10 +6,10 @@ namespace card_sql
         "SELECT * FROM card WHERE id = :id";
 
     inline const auto getByUserId =
-        "SELECT * FROM card WHERE user_id = :id";
+        "SELECT * FROM card WHERE user_id = ?";
 
     inline const auto getByUserIdAndStatus =
-        "SELECT * FROM card WHERE user_id = :user_id AND status = :status";
+        "SELECT * FROM card WHERE user_id = ? AND status = ?";
 
     inline const auto update =
         "UPDATE card SET "

@@ -6,10 +6,10 @@ namespace scheduled_transfer_sql
         "SELECT * FROM scheduled_transfer WHERE id = :id";
 
     inline const auto getActiveBeforeDate =
-    "SELECT * FROM scheduled_transfer WHERE next_tun < :date AND active = 1";
+    "SELECT * FROM scheduled_transfer WHERE next_tun < ? AND active = 1";
 
     inline const auto getByFromCardId =
-        "SELECT * FROM scheduled_transfer WHERE from_card_id = :id";
+        "SELECT * FROM scheduled_transfer WHERE from_card_id = ?";
 
     inline const auto create =
         "INSERT INTO scheduled_transfer ("

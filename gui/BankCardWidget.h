@@ -3,7 +3,7 @@
 #include <QTimer>
 #include <optional>
 #include <ctime>
-#include "../core/feature/card/Card.h"
+#include "feature/card/Card.h"
 
 class BankCardWidget : public QWidget
 {
@@ -26,17 +26,16 @@ private:
     qint64 blockedUntilEpochSeconds() const;
 
 private:
-    Card* cardPtrFallback = nullptr;
-    int id = -1;
-    QString cardNumber;
-    QString maskedNumber;
-    QString currency;
-    qint64 balanceMinor = 0;
-    int dailyLimit = 0;
-    double dailyUsageRatio = 1.0;
-    QString status;
-    std::optional<std::time_t> blockedUntil;
+    Card* _cardPtrFallback = nullptr;
+    int _id = -1;
+    QString _cardNumber;
+    QString _currency;
+    qint64 _balanceMinor = 0;
+    int _dailyLimit = 0;
+    double _dailyUsageRatio = 1.0;
+    QString _status;
+    std::optional<std::time_t> _blockedUntil;
 
-    QTimer countdownTimer;
-    QPixmap designPixmap;
+    QTimer _countdownTimer;
+    QPixmap _designPixmap;
 };

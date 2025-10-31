@@ -3,36 +3,17 @@
 #include <iostream>
 
 #include "ui_mainwindow.h"
-#include "BankCardWidget.h"
+#include "BankCardList.h"
 #include <QMessageBox>
+#include <QSizePolicy>
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include "feature/user/IUserService.h"
+#include "feature/user/User.h"
 
 MainWindow::MainWindow(IContext& context, QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), context(context)
 {
-    // FOR TEST ONLY
-    try {
-        context.userService().createUser({
-            1, "Iryna", "Hryshchenko", std::nullopt, "+380 (68) 778-0314", std::nullopt, "12345", "active", 0, std::nullopt
-        });
-    } catch (const std::exception& e) {
-        std::cout << "Insert failed: " << e.what() << std::endl;
-    }
-
-    try {
-        if(auto userOpt = context.userService().getUserById(1)) {
-            std::cout << "User inserted: " << userOpt->firstName << " " << userOpt->phone << " " << userOpt->passwordHash << std::endl;
-        } else {
-            std::cout << "User not found in DB!" << std::endl;
-        }
-    } catch (const std::exception& e) {
-        std::cout << "Query failed: " << e.what() << std::endl;
-    }
-
-    // END FOR TEST ONLY
-
     ui->setupUi(this);
 
     setStyles();
@@ -40,31 +21,6 @@ MainWindow::MainWindow(IContext& context, QWidget *parent): QMainWindow(parent),
     ui->stackedWidget->setCurrentWidget(ui->loginScreen);
 
     ui->LE_phone->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
-
-    Card myBlockedCard;
-    myBlockedCard.id = 1;
-    myBlockedCard.userId = 42;
-    myBlockedCard.cardNumber = "4444333322221111";
-    myBlockedCard.allowCredit = 1;
-    myBlockedCard.creditLimit.reset();
-    myBlockedCard.currencyCode = "USD";
-    myBlockedCard.balance = 20000;
-    myBlockedCard.dailyLimit = 100000;
-    myBlockedCard.pinHash = "sha256$xxxxx";
-    myBlockedCard.status = Card::Status::blocked;
-
-    {
-        std::time_t now = std::time(nullptr);
-        std::time_t later = now + 20;
-        std::tm tm_later = *std::localtime(&later);
-        myBlockedCard.blockedUntil = tm_later;
-    }
-
-    BankCardWidget* w = new BankCardWidget;
-    w->setCard(myBlockedCard);
-    w->setDailyUsageRatio(0.8);
-    w->setFixedSize(300, 180);
-    ui->cardList->addWidget(w);
 }
 
 MainWindow::~MainWindow()
@@ -78,8 +34,12 @@ void MainWindow::on_B_enter_clicked()
 
     const QString enteredPassword = ui->LE_password->text();
     if(authenticate(enteredPhone.toStdString(), enteredPassword.toStdString())){
+        const IUserService& userService = context.userService();
+        User user = userService.getUserByPhone(enteredPhone.toStdString()).value();
         ui->L_welcomeUser->setText("Welcome!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
+
+        ui->cardList->addWidget(new BankCardList(context, user.id));
     } else{
         QMessageBox::critical(this,"Wrong credentials","No such user");
     }
@@ -124,6 +84,13 @@ void MainWindow::on_B_logout_clicked()
 {
     ui->LE_phone->clear();
     ui->LE_password->clear();
+
+    QLayoutItem* item;
+    while ((item = ui->cardList->takeAt(0)) != nullptr) {
+        if (item->widget())
+            delete item->widget();
+        delete item;
+    }
 
     animateTransition(ui->dashboardScreen, ui->loginScreen);
 }
