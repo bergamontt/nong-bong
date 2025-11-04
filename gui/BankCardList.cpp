@@ -7,33 +7,46 @@
 
 using namespace std;
 
-BankCardList::BankCardList(IContext& context, int userId, QWidget* parent)
-	: QWidget(parent), _context(context), _userId(userId)
+BankCardList::BankCardList(IContext& context, int userId, 
+	QPushButton* prevBtn, QPushButton* nextBtn, QWidget* parent)
+	: QWidget(parent), _context(context), _userId(userId), 
+	_prevBtn(prevBtn), _nextBtn(nextBtn)
 {
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	setMinimumSize(300, 200);
 
 	_leftCard = new BankCardWidget(this);
+	QSizePolicy sp1 = _leftCard->sizePolicy();
+	sp1.setRetainSizeWhenHidden(true);
+	_leftCard->setSizePolicy(sp1);
 	_leftCard->setVisible(false);
+
 	_centerCard = new BankCardWidget(this);
+	QSizePolicy sp2 = _centerCard->sizePolicy();
+	sp2.setRetainSizeWhenHidden(true);
+	_centerCard->setSizePolicy(sp2);
 	_centerCard->setVisible(false);
+
 	_rightCard = new BankCardWidget(this);
+	QSizePolicy sp3 = _rightCard->sizePolicy();
+	sp3.setRetainSizeWhenHidden(true);
+	_rightCard->setSizePolicy(sp3);
 	_rightCard->setVisible(false);
 
-	_prevBtn = new QPushButton(QStringLiteral("<"), this);
 	_prevBtn->setFocusPolicy(Qt::NoFocus);
 	_prevBtn->setToolTip(tr("Previous card"));
 	_prevBtn->setFlat(true);
-	_prevBtn->setFixedSize(40, 40);
-	_prevBtn->setStyleSheet("background-color: rgba(0,0,0,192); color: white; border: none; border-radius: 20px;");
+	QSizePolicy sp4 = _prevBtn->sizePolicy();
+	sp4.setRetainSizeWhenHidden(true);
+	_prevBtn->setSizePolicy(sp4);
 	connect(_prevBtn, &QPushButton::clicked, this, &BankCardList::onPrevClicked);
 
-	_nextBtn = new QPushButton(QStringLiteral(">"), this);
 	_nextBtn->setFocusPolicy(Qt::NoFocus);
 	_nextBtn->setToolTip(tr("Next card"));
 	_nextBtn->setFlat(true);
-	_nextBtn->setFixedSize(40, 40);
-	_nextBtn->setStyleSheet("background-color: rgba(0,0,0,192); color: white; border: none; border-radius: 20px;");
+	QSizePolicy sp5 = _nextBtn->sizePolicy();
+	sp5.setRetainSizeWhenHidden(true);
+	_nextBtn->setSizePolicy(sp5);
 	connect(_nextBtn, &QPushButton::clicked, this, &BankCardList::onNextClicked);
 
 	_emptyLabel = new QLabel(tr("No cards available"), this);
@@ -45,6 +58,7 @@ BankCardList::BankCardList(IContext& context, int userId, QWidget* parent)
 	_anim->setEasingCurve(QEasingCurve::InOutCubic);
 	connect(_anim, &QPropertyAnimation::finished, this, &BankCardList::onAnimationFinished);
 }
+
 void BankCardList::refresh()
 {
 	updateCards();
@@ -73,11 +87,11 @@ std::optional<Card> BankCardList::getSelectedCard()
 
 void BankCardList::onPrevClicked()
 {
-	if (_cards.empty()) 
+	if (_cards.empty())
 		return;
-	if (_anim->state() == QAbstractAnimation::Running) 
+	if (_anim->state() == QAbstractAnimation::Running)
 		return;
-	if (!(_selectedIndex > 0)) 
+	if (!(_selectedIndex > 0))
 		return;
 
 	QRect avail = contentsRect();
@@ -94,12 +108,11 @@ void BankCardList::onPrevClicked()
 	const int step = centerX - leftX;
 
 	int nextIndex = _selectedIndex - 1;
-	if (nextIndex == _selectedIndex) 
+	if (nextIndex == _selectedIndex)
 		return;
 	_pendingIndex = nextIndex;
 	_leftCard->setCard(_cards[_pendingIndex]);
 	_leftCard->setVisible(true);
-	_leftCard->raise();
 
 	_anim->stop();
 	_anim->setStartValue(0);
@@ -109,11 +122,11 @@ void BankCardList::onPrevClicked()
 
 void BankCardList::onNextClicked()
 {
-	if (_cards.empty()) 
+	if (_cards.empty())
 		return;
-	if (_anim->state() == QAbstractAnimation::Running) 
+	if (_anim->state() == QAbstractAnimation::Running)
 		return;
-	if (!(_selectedIndex + 1 < static_cast<int>(_cards.size()))) 
+	if (!(_selectedIndex + 1 < static_cast<int>(_cards.size())))
 		return;
 
 	QRect avail = contentsRect();
@@ -130,12 +143,11 @@ void BankCardList::onNextClicked()
 	const int step = rightX - centerX;
 
 	int nextIndex = _selectedIndex + 1;
-	if (nextIndex == _selectedIndex) 
+	if (nextIndex == _selectedIndex)
 		return;
 	_pendingIndex = nextIndex;
 	_rightCard->setCard(_cards[_pendingIndex]);
 	_rightCard->setVisible(true);
-	_rightCard->raise();
 
 	_anim->stop();
 	_anim->setStartValue(0);
@@ -155,6 +167,7 @@ void BankCardList::onAnimationFinished()
 	if (_selectedIndex >= 0 && _selectedIndex < static_cast<int>(_cards.size()))
 		emit selectedCardChanged(_cards[_selectedIndex]);
 }
+
 void BankCardList::updateVisibleWidgets()
 {
 	const bool has = !_cards.empty();
@@ -164,16 +177,10 @@ void BankCardList::updateVisibleWidgets()
 		_leftCard->setVisible(false);
 		_centerCard->setVisible(false);
 		_rightCard->setVisible(false);
-		if (_prevBtn) 
-		{ 
-			_prevBtn->setVisible(false); 
-			_prevBtn->setEnabled(false); 
-		}
-		if (_nextBtn) 
-		{ 
-			_nextBtn->setVisible(false); 
-			_nextBtn->setEnabled(false); 
-		}
+		_prevBtn->setVisible(false);
+		_prevBtn->setEnabled(false);
+		_nextBtn->setVisible(false);
+		_nextBtn->setEnabled(false);
 		return;
 	}
 
@@ -202,23 +209,13 @@ void BankCardList::updateVisibleWidgets()
 		_rightCard->setVisible(false); 
 	}
 
-	if (_prevBtn)
-	{
-		bool isActive = has && _cards.size() > 1 && _selectedIndex > 0;
-		_prevBtn->setVisible(isActive);
-		_prevBtn->setEnabled(isActive);
-	}
-	if (_nextBtn)
-	{
-		bool isActive = has && _cards.size() > 1
-			&& (_selectedIndex + 1) < static_cast<int>(_cards.size());
-		_nextBtn->setVisible(isActive);
-		_nextBtn->setEnabled(isActive);
-	}
-
-	_centerCard->raise();
-	_prevBtn->raise();
-	_nextBtn->raise();
+	bool prevActive = has && _cards.size() > 1 && _selectedIndex > 0;
+	_prevBtn->setVisible(prevActive);
+	_prevBtn->setEnabled(prevActive);
+	bool nextActive = has && _cards.size() > 1
+		&& (_selectedIndex + 1) < static_cast<int>(_cards.size());
+	_nextBtn->setVisible(nextActive);
+	_nextBtn->setEnabled(nextActive);
 }
 
 void BankCardList::paintEvent(QPaintEvent* event)
@@ -246,7 +243,7 @@ void BankCardList::layoutWidgets()
 	QRect avail = contentsRect();
 	const int w = avail.width();
 	const int h = avail.height();
-	if (w == 0 || h == 0) 
+	if (w == 0 || h == 0)
 		return;
 
 	const double centerWRatio = 0.60;
@@ -267,16 +264,7 @@ void BankCardList::layoutWidgets()
 	if (_rightCard && _rightCard->isVisible())
 		_rightCard->setGeometry(rightX + shift, centerY, centerW, centerH);
 
-	const int btnW = _prevBtn ? _prevBtn->width() : 40;
-	const int btnH = _prevBtn ? _prevBtn->height() : 40;
-	const int btnY = (h - btnH) / 2;
-	int prevX = 6;
-	int nextX = w - btnW - 6;
-	if (_prevBtn) 
-		_prevBtn->move(prevX, btnY);
-	if (_nextBtn) 
-		_nextBtn->move(nextX, btnY);
-	if (_emptyLabel) 
+	if (_emptyLabel)
 		_emptyLabel->setGeometry(0, 0, w, h);
 }
 

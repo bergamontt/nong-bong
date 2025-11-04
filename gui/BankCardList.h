@@ -17,7 +17,8 @@ class BankCardList : public QWidget
         Q_PROPERTY(int carouselShift READ carouselShift WRITE setCarouselShift)
 
 public:
-    explicit BankCardList(IContext& context, int userId, QWidget* parent = nullptr);
+    explicit BankCardList(IContext& context, int userId, 
+        QPushButton* prevBtn, QPushButton* nextBtn, QWidget* parent = nullptr);
 
     std::optional<Card> getSelectedCard();
 
@@ -54,7 +55,6 @@ private:
 
     QPropertyAnimation* _anim = nullptr;
     int _carouselShift = 0;
-    int _lastWidth = 0;
 
     void updateCards();
     void updateVisibleWidgets();

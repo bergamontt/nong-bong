@@ -39,7 +39,9 @@ void MainWindow::on_B_enter_clicked()
         ui->L_welcomeUser->setText("Welcome!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
 
-        ui->cardList->addWidget(new BankCardList(context, user.id));
+        auto cardList = new BankCardList(context, user.id, 
+            ui->B_prevCard, ui->B_nextCard);
+        ui->cardList->addWidget(cardList);
     } else{
         QMessageBox::critical(this,"Wrong credentials","No such user");
     }
@@ -126,7 +128,7 @@ void MainWindow::setStyles() const {
         }
         QLineEdit { background-color: #222222; color: #eae3d9; border: 3px solid #805535; font-weight: bold; font-size: 10pt; border-radius: 5px; padding: 5px; }
 
-        QPushButton { background-color: #805535; color: #eae3d8; border-radius: 10px; font-weight: bold; padding: 5px 15px; border: 3px solid #eae3d8; }
+        QPushButton { background-color: #805535; color: #eae3d8; border-radius: 10px; font-weight: bold; padding: 5px 10px; border: 3px solid #eae3d8; }
         QPushButton:hover { background-color: #734d30; }
         QPushButton:pressed { background-color: #5a3b25; }
     )");
