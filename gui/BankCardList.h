@@ -21,9 +21,12 @@ public:
         QPushButton* prevBtn, QPushButton* nextBtn, QWidget* parent = nullptr);
 
     std::optional<Card> getSelectedCard();
+    void hideLeftRight();
 
 signals:
     void selectedCardChanged(const Card& card);
+    void selectedCardClicked(const Card& card);
+
 
 public slots:
     void refresh();

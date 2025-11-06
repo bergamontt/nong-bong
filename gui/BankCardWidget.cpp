@@ -38,6 +38,7 @@ BankCardWidget::BankCardWidget(QWidget* parent)
     setMinimumSize(260, 160);
     _countdownTimer.setInterval(1000);
     connect(&_countdownTimer, &QTimer::timeout, this, &BankCardWidget::onCountdownTick);
+    setCursor(Qt::PointingHandCursor);
 }
 
 QSize BankCardWidget::minimumSizeHint() const
@@ -121,6 +122,14 @@ void BankCardWidget::onCountdownTick()
     }
     update();
 }
+
+void BankCardWidget::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        emit clicked();
+    }
+    //QWidget::mousePressEvent(event);
+}
+
 
 void BankCardWidget::paintEvent(QPaintEvent*)
 {

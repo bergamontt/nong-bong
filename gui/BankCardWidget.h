@@ -1,6 +1,7 @@
 #pragma once
 #include <QWidget>
 #include <QTimer>
+#include <QMouseEvent>
 #include <optional>
 #include <ctime>
 #include "feature/card/Card.h"
@@ -18,9 +19,13 @@ public:
 protected:
     void paintEvent(QPaintEvent* event) override;
     QSize minimumSizeHint() const override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private slots:
     void onCountdownTick();
+
+signals:
+    void clicked();
 
 private:
     qint64 blockedUntilEpochSeconds() const;

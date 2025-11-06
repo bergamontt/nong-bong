@@ -5,6 +5,8 @@
 *.pro.user
 *.autosave
 
+.vs/
+
 build/
 build-*/
 cmake-build-*/

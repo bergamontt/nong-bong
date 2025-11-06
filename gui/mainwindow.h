@@ -25,7 +25,7 @@ private:
     std::map<std::string, std::string> users;
     IContext& context;
     bool authenticate(const std::string& phone, const std::string& password) const;
-    void animateTransition(QWidget* from, QWidget* to);
+    void animateTransition(QWidget* from, QWidget* to, int initY = 0, std::function<void()> onFinished = nullptr);
     void setStyles() const;
 
 };

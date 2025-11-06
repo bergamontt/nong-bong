@@ -12,8 +12,8 @@
 #include "feature/user/IUserService.h"
 #include "feature/user/User.h"
 
-MainWindow::MainWindow(IContext& context, QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), context(context)
-{
+MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow),
+                                                             context(context) {
     ui->setupUi(this);
 
     setStyles();
@@ -23,37 +23,45 @@ MainWindow::MainWindow(IContext& context, QWidget *parent): QMainWindow(parent),
     ui->LE_phone->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::on_B_enter_clicked()
-{
+void MainWindow::on_B_enter_clicked() {
     const QString enteredPhone = ui->LE_phone->text();
 
     const QString enteredPassword = ui->LE_password->text();
-    if(authenticate(enteredPhone.toStdString(), enteredPassword.toStdString())){
-        const IUserService& userService = context.userService();
+    if (authenticate(enteredPhone.toStdString(), enteredPassword.toStdString())) {
+        const IUserService &userService = context.userService();
         User user = userService.getUserByPhone(enteredPhone.toStdString()).value();
         ui->L_welcomeUser->setText("Welcome!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
 
-        auto cardList = new BankCardList(context, user.id, 
-            ui->B_prevCard, ui->B_nextCard);
+        auto cardList = new BankCardList(context, user.id,
+                                         ui->B_prevCard, ui->B_nextCard);
         ui->cardList->addWidget(cardList);
-    } else{
-        QMessageBox::critical(this,"Wrong credentials","No such user");
+        connect(cardList, &BankCardList::selectedCardClicked,
+                this, [this, cardList](const Card &card) {
+                    ui->W_currentCard->setCard(card);
+                    ui->B_nextCard->hide();
+                    ui->B_prevCard->hide();
+                    cardList->hideLeftRight();
+                    animateTransition(ui->dashboardScreen, ui->pinScreen, 340, [this] {
+                        ui->B_nextCard->show();
+                        ui->B_prevCard->show();
+                    });
+                });
+    } else {
+        QMessageBox::critical(this, "Wrong credentials", "No such user");
     }
-
 }
 
-bool MainWindow::authenticate(const std::string& phone, const std::string& password) const {
+bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
     return context.userService().accessToUser(phone, password);
 }
 
-void MainWindow::animateTransition(QWidget* from, QWidget* to)
-{
+
+void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::function<void()> onFinished) {
     int h = ui->stackedWidget->height();
 
     to->move(0, h);
@@ -61,14 +69,14 @@ void MainWindow::animateTransition(QWidget* from, QWidget* to)
 
     auto *group = new QParallelAnimationGroup;
 
-    auto *animFrom = new QPropertyAnimation(from, "pos",group);
+    auto *animFrom = new QPropertyAnimation(from, "pos", group);
     animFrom->setDuration(400);
     animFrom->setStartValue(from->pos());
-    animFrom->setEndValue(QPoint(0, -h));
+    animFrom->setEndValue(QPoint(0, -h + initY));
 
-    auto *animTo = new QPropertyAnimation(to, "pos",group);
+    auto *animTo = new QPropertyAnimation(to, "pos", group);
     animTo->setDuration(400);
-    animTo->setStartValue(to->pos());
+    animTo->setStartValue(QPoint(to->pos().x(), to->pos().y() - initY));
     animTo->setEndValue(QPoint(0, 0));
 
     group->addAnimation(animFrom);
@@ -78,16 +86,15 @@ void MainWindow::animateTransition(QWidget* from, QWidget* to)
     connect(group, &QParallelAnimationGroup::finished, this, [this, to, from]() {
         ui->stackedWidget->setCurrentWidget(to);
         from->hide();
-        from->move(0,0);
+        from->move(0, 0);
     });
 }
 
-void MainWindow::on_B_logout_clicked()
-{
+void MainWindow::on_B_logout_clicked() {
     ui->LE_phone->clear();
     ui->LE_password->clear();
 
-    QLayoutItem* item;
+    QLayoutItem *item;
     while ((item = ui->cardList->takeAt(0)) != nullptr) {
         if (item->widget())
             delete item->widget();
@@ -98,7 +105,6 @@ void MainWindow::on_B_logout_clicked()
 }
 
 void MainWindow::setStyles() const {
-
     ui->L_welcome->setObjectName("welcomeLabel");
     ui->L_welcomeUser->setObjectName("welcomeUserLabel");
 
@@ -133,4 +139,3 @@ void MainWindow::setStyles() const {
         QPushButton:pressed { background-color: #5a3b25; }
     )");
 }
-
