@@ -83,6 +83,10 @@ void BankCardWidget::setCard(const Card& card)
     update();
 }
 
+int BankCardWidget::getCardId() const {
+    return _id;
+};
+
 void BankCardWidget::setDailyUsageRatio(double ratio)
 {
     if (ratio < 0.0) 

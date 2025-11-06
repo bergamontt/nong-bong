@@ -9,6 +9,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+#include <qvalidator.h>
+
 #include "feature/user/IUserService.h"
 #include "feature/user/User.h"
 
@@ -45,16 +47,31 @@ void MainWindow::on_B_enter_clicked() {
                     ui->W_currentCard->setCard(card);
                     ui->B_nextCard->hide();
                     ui->B_prevCard->hide();
+                    setupPinScreen();
                     cardList->hideLeftRight();
                     animateTransition(ui->dashboardScreen, ui->pinScreen, 340, [this] {
                         ui->B_nextCard->show();
                         ui->B_prevCard->show();
+
                     });
+
+
                 });
     } else {
         QMessageBox::critical(this, "Wrong credentials", "No such user");
     }
 }
+
+void MainWindow::on_B_enterPin_clicked() {
+    const QString enteredPin = ui->LE_pin->text();
+    if (context.cardService().accessToCard(ui->W_currentCard->getCardId(),enteredPin.toStdString())) {
+        qDebug() << "SUCCESS";
+    } else {
+        qDebug() << "FAILURE";
+    }
+
+}
+
 
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
     return context.userService().accessToUser(phone, password);
@@ -104,9 +121,17 @@ void MainWindow::on_B_logout_clicked() {
     animateTransition(ui->dashboardScreen, ui->loginScreen);
 }
 
+void MainWindow::setupPinScreen() {
+    ui->LE_pin->setEchoMode(QLineEdit::Password);
+    ui->LE_pin->setMaxLength(4);
+    ui->LE_pin->setValidator(new QIntValidator(0, 9999, this));
+}
+
+
 void MainWindow::setStyles() const {
     ui->L_welcome->setObjectName("welcomeLabel");
     ui->L_welcomeUser->setObjectName("welcomeUserLabel");
+
 
     qApp->setStyleSheet(R"(
         QMainWindow { background-color: #57735d; }

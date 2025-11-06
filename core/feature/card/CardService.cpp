@@ -1,4 +1,8 @@
 #include "CardService.h"
+
+#include <iostream>
+#include <qlogging.h>
+
 #include "Hasher.h"
 
 CardService::CardService(ICardDao &dao)
@@ -56,7 +60,19 @@ bool CardService::doAccessToCard(const int id, const std::string &pin) const
 {
     const std::optional<Card> optionalCard = getCardById(id);
     const Card& card = optionalCard.value();
-    return Hasher::verifyPin(pin, card.pinHash);
+
+    //FOR TEST
+    std::cout << card.cardNumber << std::endl;
+    std::cout << Hasher::hashPin("4321") << std::endl << Hasher::hashPin(pin) << std::endl << card.pinHash << std::endl;
+    bool a = Hasher::verifyPin("4321", Hasher::hashPin(pin));
+    std::cout << "a = " << a << std::endl;
+    bool b = Hasher::verifyPin(pin, card.pinHash);
+    std::cout << "b = " << b << std::endl;
+    bool c = Hasher::verifyPin("4321", card.pinHash);
+    std::cout << "c = " << c << std::endl;
+    bool d = Hasher::verifyPin("4321", "$argon2id$v=19$m=65536,t=2,p=1$UU9EUU5HZUpwbGpNcFpGRQ$NWWojBCLZX63RgIHm3lWsOGUL7sti+8O+N/CQDMiJEE");
+    std::cout << "d = " << d << std::endl;
+    return b;
 }
 
 bool CardService::doChangeCardPin(const int id, const std::string& oldPin, const std::string& newPin) const

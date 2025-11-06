@@ -15,6 +15,7 @@ public:
     void setCard(const Card& card);
     void setDailyUsageRatio(double ratio);
     void setDesignPixmap(const QPixmap& pix);
+    [[nodiscard]] int getCardId() const;
 
 protected:
     void paintEvent(QPaintEvent* event) override;

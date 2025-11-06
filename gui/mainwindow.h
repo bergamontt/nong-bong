@@ -19,6 +19,7 @@ public:
 private slots:
     void on_B_enter_clicked();
     void on_B_logout_clicked();
+    void on_B_enterPin_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -27,6 +28,8 @@ private:
     bool authenticate(const std::string& phone, const std::string& password) const;
     void animateTransition(QWidget* from, QWidget* to, int initY = 0, std::function<void()> onFinished = nullptr);
     void setStyles() const;
+    void setupPinScreen();
+
 
 };
 
