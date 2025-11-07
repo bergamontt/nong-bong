@@ -20,10 +20,14 @@ namespace card_sql {
             "balance = :balance, "
             "daily_limit = :daily_limit, "
             "design_id = :design_id, "
-            "pin_hash = :pin_hash, "
             "status = :status, "
             "failed_access_count = :failed_access_count, "
             "blocked_until = :blocked_until "
+            "WHERE id = :id";
+
+    inline const auto update_pin =
+            "UPDATE card SET "
+            "pin_hash = :pin_hash "
             "WHERE id = :id";
 
     inline const auto create =

@@ -11,3 +11,11 @@ std::optional<CardDesign> CardDesignService::doGetCardDesignById(int id) const {
 std::vector<CardDesign> CardDesignService::doGetAllCardDesigns() const{
     return _cardDesignDao.getAll();
 }
+
+void CardDesignService::doCreateCardDesign(const CardDesign& cardDesign) const{
+    return _cardDesignDao.create(cardDesign);
+}
+
+void CardDesignService::doDeleteAll() const {
+    return _cardDesignDao.deleteAll();
+}

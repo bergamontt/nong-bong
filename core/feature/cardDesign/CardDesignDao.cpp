@@ -21,3 +21,15 @@ std::vector<CardDesign> CardDesignDao::doGetAll() const
         res.push_back(cd);
     return res;
 }
+
+
+void CardDesignDao::doCreate(const CardDesign& cardDesign) const {
+    soci::session sql(_pool);
+    sql << card_design_sql::create,
+        soci::use(cardDesign);
+}
+
+void CardDesignDao::doDeleteAll() const {
+    soci::session sql(_pool);
+    sql << card_design_sql::deleteAll;
+}

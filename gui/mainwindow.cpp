@@ -9,6 +9,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+#include <QDir>
 #include <qvalidator.h>
 
 #include "feature/user/IUserService.h"
@@ -19,6 +20,7 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->setupUi(this);
 
     setStyles();
+    initDesigns();
 
     ui->stackedWidget->setCurrentWidget(ui->loginScreen);
 
@@ -44,16 +46,24 @@ void MainWindow::on_B_enter_clicked() {
         ui->cardList->addWidget(cardList);
         connect(cardList, &BankCardList::selectedCardClicked,
                 this, [this, cardList](const Card &card) {
-                    if (card.status==Card::active) {
+                    if (card.status == Card::active) {
                         ui->W_currentCard->setCard(card);
-                    ui->B_nextCard->hide();
-                    ui->B_prevCard->hide();
-                    setupPinScreen();
-                    cardList->hideLeftRight();
-                    animateTransition(ui->dashboardScreen, ui->pinScreen, 340, [this] {
-                        ui->B_nextCard->show();
-                        ui->B_prevCard->show();
-                    });
+                        if (card.designId.has_value()) {
+                            QPixmap design1(QString::fromStdString(
+                                context.cardDesignService().getCardDesignById(card.designId.value()).
+                                value().imageRef));
+                            ui->W_currentCard->setDesignPixmap(design1);
+                        } else {
+                            ui->W_currentCard->setDesignPixmap();
+                        }
+                        ui->B_nextCard->hide();
+                        ui->B_prevCard->hide();
+                        setupPinScreen();
+                        cardList->hideLeftRight();
+                        animateTransition(ui->dashboardScreen, ui->pinScreen, 340, [this] {
+                            ui->B_nextCard->show();
+                            ui->B_prevCard->show();
+                        });
                     }
                 });
     } else {
@@ -63,20 +73,28 @@ void MainWindow::on_B_enter_clicked() {
 
 void MainWindow::on_B_enterPin_clicked() {
     const QString enteredPin = ui->LE_pin->text();
-    if (context.cardService().accessToCard(ui->W_currentCard->getCardId(),enteredPin.toStdString())) {
+    if (context.cardService().accessToCard(ui->W_currentCard->getCardId(), enteredPin.toStdString())) {
         qDebug() << "SUCCESS";
         ui->L_accessDenied->hide();
         ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
+        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
+            QPixmap design1(QString::fromStdString(
+                context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
+                value().imageRef));
+            ui->W_currentCardOnScreen->setDesignPixmap(design1);
+        } else {
+            ui->W_currentCardOnScreen->setDesignPixmap();
+        }
         animateTransition(ui->pinScreen, ui->cardScreen);
     } else {
         qDebug() << "FAILURE";
         ui->L_accessDenied->show();
+        ui->LE_pin->clear();
         shakeLabel(ui->L_accessDenied);
-        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status==Card::blocked) {
+        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status == Card::blocked) {
             animateTransition(ui->pinScreen, ui->dashboardScreen);
         }
     }
-
 }
 
 void MainWindow::on_B_logout_clicked() {
@@ -134,10 +152,10 @@ void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::f
     });
 }
 
-void MainWindow::shakeLabel(QLabel* label){
+void MainWindow::shakeLabel(QLabel *label) {
     QPoint originalPos = label->pos();
 
-    QPropertyAnimation* animation = new QPropertyAnimation(label, "pos");
+    QPropertyAnimation *animation = new QPropertyAnimation(label, "pos");
     animation->setDuration(400); // тривалість (мс)
 
     animation->setKeyValueAt(0, originalPos);
@@ -153,7 +171,6 @@ void MainWindow::shakeLabel(QLabel* label){
 
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
-
 
 
 void MainWindow::setStyles() const {
@@ -197,4 +214,27 @@ void MainWindow::setStyles() const {
         QPushButton:hover { background-color: #734d30; }
         QPushButton:pressed { background-color: #5a3b25; }
     )");
+}
+
+void MainWindow::initDesigns() {
+    QString basePath = QDir(QCoreApplication::applicationDirPath()).filePath("../../");
+
+    context.cardDesignService().deleteAll();
+    CardDesign newDesign;
+    newDesign.name = "Church";
+    newDesign.author = "iryna";
+    newDesign.imageRef = basePath.toStdString()+"core/resources/designs/church1.jpg";
+    context.cardDesignService().createCardDesign(newDesign);
+    Card card = context.cardService().getCardById(2).value();
+    card.designId = 1;
+    context.cardService().updateCard(card);
+
+    CardDesign newDesign1;
+    newDesign1.name = "Spiral staircase";
+    newDesign1.author = "iryna";
+    newDesign1.imageRef = basePath.toStdString()+"core/resources/designs/spiral_staircase.jpg";
+    context.cardDesignService().createCardDesign(newDesign1);
+    card = context.cardService().getCardById(4).value();
+    card.designId = 2;
+    context.cardService().updateCard(card);
 }

@@ -1,4 +1,6 @@
 #include "BankCardWidget.h"
+
+#include <iostream>
 #include <QPainter>
 #include <QLinearGradient>
 #include <QFontMetrics>
@@ -100,6 +102,12 @@ void BankCardWidget::setDailyUsageRatio(double ratio)
 void BankCardWidget::setDesignPixmap(const QPixmap& pix)
 {
     _designPixmap = pix;
+    update();
+}
+
+void BankCardWidget::setDesignPixmap()
+{
+    _designPixmap = QPixmap();
     update();
 }
 

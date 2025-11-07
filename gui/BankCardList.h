@@ -65,4 +65,5 @@ private:
 
     int carouselShift() const;
     void setCarouselShift(int s);
+    void applyDesignToCard(BankCardWidget* widget, const Card& card);
 };

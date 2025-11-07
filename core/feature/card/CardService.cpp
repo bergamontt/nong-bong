@@ -92,6 +92,6 @@ bool CardService::doChangeCardPin(const int id, const std::string& oldPin, const
     if ( !Hasher::verifyPin(oldPin, card.pinHash) || Hasher::verifyPin(newPin, card.pinHash))
         return false;
     card.pinHash = Hasher::hashPin(newPin);
-    updateCard(card);
+    _cardDao.updatePin(card);
     return true;
 }

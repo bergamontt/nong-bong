@@ -9,6 +9,7 @@ public:
     std::vector<Card> getByUserId(int id) const;
     std::vector<Card> getByUserIdAndStatus(int id, Card::Status status) const;
     void update(const Card& card) const;
+    void updatePin(const Card& card) const;
     void create(const Card& card) const;
     virtual ~ICardDao() = 0;
 private:
@@ -16,6 +17,7 @@ private:
     virtual std::vector<Card> doGetByUserId(int id) const = 0;
     virtual std::vector<Card> doGetByUserIdAndStatus(int id, Card::Status status) const = 0;
     virtual void doUpdate(const Card& card) const = 0;
+    virtual void doUpdatePin(const Card& card) const = 0;
     virtual void doCreate(const Card& card) const = 0;
 };
 
@@ -37,6 +39,11 @@ inline std::vector<Card> ICardDao::getByUserIdAndStatus(int id, Card::Status sta
 inline void ICardDao::update(const Card& card) const
 {
     doUpdate(card);
+}
+
+inline void ICardDao::updatePin(const Card& card) const
+{
+    doUpdatePin(card);
 }
 
 inline void ICardDao::create(const Card& card) const

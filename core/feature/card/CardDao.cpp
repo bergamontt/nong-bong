@@ -47,6 +47,13 @@ void CardDao::doUpdate(const Card& card) const
         soci::use(card);
 }
 
+void CardDao::doUpdatePin(const Card& card) const
+{
+    soci::session sql(_pool);
+    sql << card_sql::update_pin,
+        soci::use(card);
+}
+
 void CardDao::doCreate(const Card& card) const
 {
     soci::session sql(_pool);

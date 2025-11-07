@@ -15,4 +15,6 @@ private:
 
     std::optional<CardDesign> doGetCardDesignById(int id) const override;
     std::vector<CardDesign> doGetAllCardDesigns() const override;
+    void doCreateCardDesign(const CardDesign& cardDesign) const override;
+    void doDeleteAll() const override;
 };

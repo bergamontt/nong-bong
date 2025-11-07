@@ -4,6 +4,7 @@
 #include <QStyleOption>
 #include <QResizeEvent>
 #include <QEasingCurve>
+#include "ICardDesignService.h"
 
 using namespace std;
 
@@ -110,6 +111,7 @@ void BankCardList::onPrevClicked() {
         return;
     _pendingIndex = nextIndex;
     _leftCard->setCard(_cards[_pendingIndex]);
+    applyDesignToCard(_leftCard, _cards[_pendingIndex]);
     _leftCard->setVisible(true);
 
     _anim->stop();
@@ -144,6 +146,7 @@ void BankCardList::onNextClicked() {
         return;
     _pendingIndex = nextIndex;
     _rightCard->setCard(_cards[_pendingIndex]);
+    applyDesignToCard(_rightCard, _cards[_pendingIndex]);
     _rightCard->setVisible(true);
 
     _anim->stop();
@@ -179,10 +182,12 @@ void BankCardList::updateVisibleWidgets() {
     }
 
     _centerCard->setCard(_cards[_selectedIndex]);
+    applyDesignToCard(_centerCard, _cards[_selectedIndex]);
     _centerCard->setVisible(true);
     int leftIdx = _selectedIndex - 1;
     if (leftIdx >= 0) {
         _leftCard->setCard(_cards[leftIdx]);
+        applyDesignToCard(_leftCard, _cards[leftIdx]);
         _leftCard->setVisible(true);
         _leftCard->lower();
     } else {
@@ -191,6 +196,7 @@ void BankCardList::updateVisibleWidgets() {
     int rightIdx = _selectedIndex + 1;
     if (rightIdx < static_cast<int>(_cards.size())) {
         _rightCard->setCard(_cards[rightIdx]);
+        applyDesignToCard(_rightCard, _cards[rightIdx]);
         _rightCard->setVisible(true);
         _rightCard->lower();
     } else {
@@ -266,4 +272,18 @@ int BankCardList::carouselShift() const {
 void BankCardList::setCarouselShift(int s) {
     _carouselShift = s;
     layoutWidgets();
+}
+
+void BankCardList::applyDesignToCard(BankCardWidget* widget, const Card& card)
+{
+    if (card.designId.has_value()) {
+        auto designOpt = _context.cardDesignService().getCardDesignById(card.designId.value());
+        if (designOpt.has_value()) {
+            const auto& design = designOpt.value();
+            QPixmap pix(QString::fromStdString(design.imageRef));
+            widget->setDesignPixmap(pix);
+            return;
+        }
+    }
+    widget->setDesignPixmap();
 }

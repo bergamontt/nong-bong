@@ -29,6 +29,7 @@ private:
     bool authenticate(const std::string& phone, const std::string& password) const;
     void animateTransition(QWidget* from, QWidget* to, int initY = 0, std::function<void()> onFinished = nullptr);
     void shakeLabel(QLabel* label);
+    void initDesigns();
 
     void setStyles() const;
     void setupPinScreen();
