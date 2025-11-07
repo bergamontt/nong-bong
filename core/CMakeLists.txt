@@ -19,6 +19,7 @@ target_include_directories(nong_bong PRIVATE
 target_sources(nong_bong PRIVATE
 		context/AppContext.cpp
 		db/DataSource.cpp
+		resources.qrc
 
 
 		feature/card/CardDao.cpp

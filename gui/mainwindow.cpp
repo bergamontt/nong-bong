@@ -217,24 +217,30 @@ void MainWindow::setStyles() const {
 }
 
 void MainWindow::initDesigns() {
-    QString basePath = QDir(QCoreApplication::applicationDirPath()).filePath("../../");
 
     context.cardDesignService().deleteAll();
     CardDesign newDesign;
     newDesign.name = "Church";
     newDesign.author = "iryna";
-    newDesign.imageRef = basePath.toStdString()+"core/resources/designs/church1.jpg";
+    newDesign.imageRef = ":/designs/resources/designs/church1.jpg";
     context.cardDesignService().createCardDesign(newDesign);
-    Card card = context.cardService().getCardById(2).value();
-    card.designId = 1;
-    context.cardService().updateCard(card);
 
     CardDesign newDesign1;
     newDesign1.name = "Spiral staircase";
     newDesign1.author = "iryna";
-    newDesign1.imageRef = basePath.toStdString()+"core/resources/designs/spiral_staircase.jpg";
+    newDesign1.imageRef = ":/designs/resources/designs/spiral_staircase.jpg";
     context.cardDesignService().createCardDesign(newDesign1);
-    card = context.cardService().getCardById(4).value();
-    card.designId = 2;
-    context.cardService().updateCard(card);
+
+    auto allDesigns = context.cardDesignService().getAllCardDesigns();
+
+    if (allDesigns.size() >= 2) {
+        Card card = context.cardService().getCardById(2).value();
+        card.designId = allDesigns[0].id;
+        context.cardService().updateCard(card);
+
+        card = context.cardService().getCardById(4).value();
+        card.designId = allDesigns[1].id;
+        context.cardService().updateCard(card);
+
+    }
 }
