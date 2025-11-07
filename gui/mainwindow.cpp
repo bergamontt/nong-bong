@@ -44,7 +44,8 @@ void MainWindow::on_B_enter_clicked() {
         ui->cardList->addWidget(cardList);
         connect(cardList, &BankCardList::selectedCardClicked,
                 this, [this, cardList](const Card &card) {
-                    ui->W_currentCard->setCard(card);
+                    if (card.status==Card::active) {
+                        ui->W_currentCard->setCard(card);
                     ui->B_nextCard->hide();
                     ui->B_prevCard->hide();
                     setupPinScreen();
@@ -52,10 +53,8 @@ void MainWindow::on_B_enter_clicked() {
                     animateTransition(ui->dashboardScreen, ui->pinScreen, 340, [this] {
                         ui->B_nextCard->show();
                         ui->B_prevCard->show();
-
                     });
-
-
+                    }
                 });
     } else {
         QMessageBox::critical(this, "Wrong credentials", "No such user");
@@ -66,12 +65,40 @@ void MainWindow::on_B_enterPin_clicked() {
     const QString enteredPin = ui->LE_pin->text();
     if (context.cardService().accessToCard(ui->W_currentCard->getCardId(),enteredPin.toStdString())) {
         qDebug() << "SUCCESS";
+        ui->L_accessDenied->hide();
+        ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
+        animateTransition(ui->pinScreen, ui->cardScreen);
     } else {
         qDebug() << "FAILURE";
+        ui->L_accessDenied->show();
+        shakeLabel(ui->L_accessDenied);
+        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status==Card::blocked) {
+            animateTransition(ui->pinScreen, ui->dashboardScreen);
+        }
     }
 
 }
 
+void MainWindow::on_B_logout_clicked() {
+    ui->LE_phone->clear();
+    ui->LE_password->clear();
+
+    QLayoutItem *item;
+    while ((item = ui->cardList->takeAt(0)) != nullptr) {
+        if (item->widget())
+            delete item->widget();
+        delete item;
+    }
+
+    animateTransition(ui->dashboardScreen, ui->loginScreen);
+}
+
+void MainWindow::setupPinScreen() {
+    ui->LE_pin->setEchoMode(QLineEdit::Password);
+    ui->LE_pin->setMaxLength(4);
+    ui->LE_pin->setValidator(new QIntValidator(0, 9999, this));
+    ui->L_accessDenied->hide();
+}
 
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
     return context.userService().accessToUser(phone, password);
@@ -107,31 +134,32 @@ void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::f
     });
 }
 
-void MainWindow::on_B_logout_clicked() {
-    ui->LE_phone->clear();
-    ui->LE_password->clear();
+void MainWindow::shakeLabel(QLabel* label){
+    QPoint originalPos = label->pos();
 
-    QLayoutItem *item;
-    while ((item = ui->cardList->takeAt(0)) != nullptr) {
-        if (item->widget())
-            delete item->widget();
-        delete item;
-    }
+    QPropertyAnimation* animation = new QPropertyAnimation(label, "pos");
+    animation->setDuration(400); // тривалість (мс)
 
-    animateTransition(ui->dashboardScreen, ui->loginScreen);
+    animation->setKeyValueAt(0, originalPos);
+    animation->setKeyValueAt(0.1, originalPos + QPoint(-5, 0));
+    animation->setKeyValueAt(0.2, originalPos + QPoint(5, 0));
+    animation->setKeyValueAt(0.3, originalPos + QPoint(-5, 0));
+    animation->setKeyValueAt(0.4, originalPos + QPoint(5, 0));
+    animation->setKeyValueAt(0.5, originalPos + QPoint(-3, 0));
+    animation->setKeyValueAt(0.6, originalPos + QPoint(3, 0));
+    animation->setKeyValueAt(1, originalPos);
+
+    animation->setEasingCurve(QEasingCurve::OutElastic);
+
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void MainWindow::setupPinScreen() {
-    ui->LE_pin->setEchoMode(QLineEdit::Password);
-    ui->LE_pin->setMaxLength(4);
-    ui->LE_pin->setValidator(new QIntValidator(0, 9999, this));
-}
 
 
 void MainWindow::setStyles() const {
     ui->L_welcome->setObjectName("welcomeLabel");
     ui->L_welcomeUser->setObjectName("welcomeUserLabel");
-
+    ui->L_accessDenied->setObjectName("accessDeniedLabel");
 
     qApp->setStyleSheet(R"(
         QMainWindow { background-color: #57735d; }
@@ -155,6 +183,12 @@ void MainWindow::setStyles() const {
             background-color: #eae4d9;
             border-radius: 20px;
             padding: 10px 20px;
+            qproperty-alignment: 'AlignCenter';
+        }
+        QLabel#accessDeniedLabel {
+            color: #800000;
+            font-size: 15px;
+            font-weight: bold;
             qproperty-alignment: 'AlignCenter';
         }
         QLineEdit { background-color: #222222; color: #eae3d9; border: 3px solid #805535; font-weight: bold; font-size: 10pt; border-radius: 5px; padding: 5px; }

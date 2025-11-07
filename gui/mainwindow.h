@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QLabel>
 #include <QMainWindow>
 #include <context/AppContext.h>
 
@@ -27,6 +28,8 @@ private:
     IContext& context;
     bool authenticate(const std::string& phone, const std::string& password) const;
     void animateTransition(QWidget* from, QWidget* to, int initY = 0, std::function<void()> onFinished = nullptr);
+    void shakeLabel(QLabel* label);
+
     void setStyles() const;
     void setupPinScreen();
 

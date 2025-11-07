@@ -56,30 +56,40 @@ void CardService::doDeleteCardById(const int id) const
     _cardDao.update(card);
 }
 
-bool CardService::doAccessToCard(const int id, const std::string &pin) const
+bool CardService::doAccessToCard(const int id, const std::string &pin)
 {
+    std::time_t now = std::time(nullptr);
     const std::optional<Card> optionalCard = getCardById(id);
-    const Card& card = optionalCard.value();
+    Card card = optionalCard.value();
 
-    //FOR TEST
-    std::cout << card.cardNumber << std::endl;
-    std::cout << Hasher::hashPin("4321") << std::endl << Hasher::hashPin(pin) << std::endl << card.pinHash << std::endl;
-    bool a = Hasher::verifyPin("4321", Hasher::hashPin(pin));
-    std::cout << "a = " << a << std::endl;
-    bool b = Hasher::verifyPin(pin, card.pinHash);
-    std::cout << "b = " << b << std::endl;
-    bool c = Hasher::verifyPin("4321", card.pinHash);
-    std::cout << "c = " << c << std::endl;
-    bool d = Hasher::verifyPin("4321", "$argon2id$v=19$m=65536,t=2,p=1$UU9EUU5HZUpwbGpNcFpGRQ$NWWojBCLZX63RgIHm3lWsOGUL7sti+8O+N/CQDMiJEE");
-    std::cout << "d = " << d << std::endl;
-    return b;
+    if (card.status == Card::Status::blocked) {
+        std::time_t blockedUntilTime = std::mktime(&card.blockedUntil.value());
+        if (blockedUntilTime >= now) {
+            return false;
+        }
+    }
+    const bool accept = Hasher::verifyPin(pin, card.pinHash);
+    if (!accept) {
+        if (++card.failedAccessCount==3) {
+            now += 30 * 60;
+            std::tm* tm_ptr = std::localtime(&now);
+            card.blockedUntil = *tm_ptr;
+            card.failedAccessCount = 0;
+            card.status = Card::Status::blocked;
+        }
+    } else {
+        card.failedAccessCount=0;
+    }
+
+    _cardDao.update(card);
+    return accept;
 }
 
 bool CardService::doChangeCardPin(const int id, const std::string& oldPin, const std::string& newPin) const
 {
     const std::optional<Card> optionalCard = getCardById(id);
     Card card = optionalCard.value();
-    if ( !(Hasher::verifyPin(oldPin, card.pinHash)) || Hasher::verifyPin(newPin, card.pinHash))
+    if ( !Hasher::verifyPin(oldPin, card.pinHash) || Hasher::verifyPin(newPin, card.pinHash))
         return false;
     card.pinHash = Hasher::hashPin(newPin);
     updateCard(card);
