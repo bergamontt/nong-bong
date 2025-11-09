@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="loginScreen">
      <widget class="QLabel" name="L_welcome">
@@ -301,9 +301,9 @@
       <property name="geometry">
        <rect>
         <x>49</x>
-        <y>180</y>
+        <y>240</y>
         <width>701</width>
-        <height>341</height>
+        <height>281</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -333,6 +333,29 @@
         <layout class="QVBoxLayout" name="transHistoryContainer"/>
        </item>
       </layout>
+     </widget>
+     <widget class="BankCardWidget" name="W_currentCard_2" native="true">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>60</y>
+        <width>275</width>
+        <height>160</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>275</width>
+        <height>160</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>275</width>
+        <height>160</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="currentCard_2"/>
      </widget>
     </widget>
     <widget class="QWidget" name="changePinScreen">

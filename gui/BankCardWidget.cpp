@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QPainterPath>
 #include "feature/currency/ICurrencyService.h"
+#include "feature/card/ICardService.h"
 
 using namespace std;
 
@@ -54,8 +55,10 @@ void BankCardWidget::setContext(const IContext& context)
     _context = &context;
 }
 
-void BankCardWidget::setCard(const Card& card)
+void BankCardWidget::setCardId(int id)
 {
+    Card card = _context->cardService().getCardById(id).value();
+
     _id = card.id;
     _cardNumber = QString::fromStdString(card.cardNumber);
     _currency = QString::fromStdString(card.currencyCode);

@@ -28,6 +28,7 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->LE_phone->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
 
     ui->W_currentCard->setContext(context);
+    ui->W_currentCard_2->setContext(context);
     ui->W_currentCardd->setContext(context);
     ui->W_currentCardwd->setContext(context);
     ui->W_currentCardOnScreen->setContext(context);
@@ -53,7 +54,7 @@ void MainWindow::on_B_enter_clicked() {
         connect(cardList, &BankCardList::selectedCardClicked,
                 this, [this, cardList](const Card &card) {
                     if (card.status == Card::active) {
-                        ui->W_currentCard->setCard(card);
+                        ui->W_currentCard->setCardId(card.id);
                         if (card.designId.has_value()) {
                             const QPixmap design1(QString::fromStdString(
                                 context.cardDesignService().getCardDesignById(card.designId.value()).
@@ -82,7 +83,7 @@ void MainWindow::on_B_enterPin_clicked() {
     if (context.cardService().accessToCard(ui->W_currentCard->getCardId(), enteredPin.toStdString())) {
         qDebug() << "SUCCESS";
         ui->L_accessDenied->hide();
-        ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
+        ui->W_currentCardOnScreen->setCardId(ui->W_currentCard->getCardId());
         if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
             const QPixmap design1(QString::fromStdString(
                 context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
@@ -202,10 +203,12 @@ void MainWindow::on_B_enterWithdraw_clicked() const {
     if (context.bankTransactionService().createBankTransaction(newTransaction)) {
         qDebug() << "Transaction SUCCESS";
         ui->L_failWithdrawal->hide();
-        ui->W_currentCardwd->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
-        ui->W_currentCard->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
-        ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
-        ui->W_currentCardd->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
+        int cardId = ui->W_currentCardwd->getCardId();
+        ui->W_currentCardwd->setCardId(cardId);
+        ui->W_currentCard->setCardId(cardId);
+        ui->W_currentCard_2->setCardId(cardId);
+        ui->W_currentCardOnScreen->setCardId(cardId);
+        ui->W_currentCardd->setCardId(cardId);
         ui->LE_enteredAmount->clear();
     } else {
         qDebug() << "Transaction FAILURE";
@@ -284,10 +287,12 @@ void MainWindow::on_B_enterDeposit_clicked() const {
 
     if (context.bankTransactionService().createBankTransaction(newTransaction)) {
         qDebug() << "Deposit SUCCESS";
-        ui->W_currentCardd->setCard(context.cardService().getCardById(ui->W_currentCardd->getCardId()).value());
-        ui->W_currentCardwd->setCard(context.cardService().getCardById(ui->W_currentCardd->getCardId()).value());
-        ui->W_currentCard->setCard(context.cardService().getCardById(ui->W_currentCardd->getCardId()).value());
-        ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCardd->getCardId()).value());
+        int cardId = ui->W_currentCardd->getCardId();
+        ui->W_currentCardd->setCardId(cardId);
+        ui->W_currentCardwd->setCardId(cardId);
+        ui->W_currentCard->setCardId(cardId);
+        ui->W_currentCard_2->setCardId(cardId);
+        ui->W_currentCardOnScreen->setCardId(cardId);
 
         ui->B_cancelDeposit->setDisabled(false);
         ui->L_amountDeposit->clear();
@@ -329,7 +334,7 @@ void MainWindow::setupPinChangeScreen() {
 }
 
 void MainWindow::setupWithdrawScreen() {
-    ui->W_currentCardwd->setCard(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value());
+    ui->W_currentCardwd->setCardId(ui->W_currentCardOnScreen->getCardId());
     if (context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.has_value()) {
         const QPixmap design1(QString::fromStdString(
             context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).
@@ -365,13 +370,25 @@ void MainWindow::on_B_toCardList_clicked()
 
 void MainWindow::setupTransHistoryScreen() {
     int cardId = ui->W_currentCard->getCardId();
+    ui->W_currentCard_2->setCardId(cardId);
+    if (context.cardService().getCardById(cardId).value().designId.has_value()) {
+        const QPixmap design(QString::fromStdString(
+            context.cardDesignService()
+            .getCardDesignById(context.cardService()
+                .getCardById(cardId).value().designId.value()).
+            value().imageRef));
+        ui->W_currentCard_2->setDesignPixmap(design);
+    }
+    else {
+        ui->W_currentCard_2->setDesignPixmap();
+    }
     QWidget* listWidget = new TransactionListWidget(context, cardId);
     listWidget->setMouseTracking(true);
     ui->transHistoryContainer->layout()->addWidget(listWidget);
 }
 
 void MainWindow::setupDepositScreen() const {
-    ui->W_currentCardd->setCard(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value());
+    ui->W_currentCardd->setCardId(ui->W_currentCardOnScreen->getCardId());
     if (context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.has_value()) {
         const QPixmap design1(QString::fromStdString(
             context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).

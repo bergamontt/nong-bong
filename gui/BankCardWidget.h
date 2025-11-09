@@ -13,8 +13,8 @@ class BankCardWidget : public QWidget
 public:
     explicit BankCardWidget(QWidget* parent = nullptr);
 
-    void setCard(const Card& card);
     void setContext(const IContext& context);
+    void setCardId(int id);
     void setDailyUsageRatio(double ratio);
     void setDesignPixmap(const QPixmap& pix);
     void setDesignPixmap();
