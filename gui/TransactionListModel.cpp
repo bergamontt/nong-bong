@@ -141,7 +141,7 @@ BankTransaction TransactionListModel::transactionAt(int row) const
 void TransactionListModel::updateTransactions() 
 {
     const IBankTransactionService& service = _context.bankTransactionService();
-    _transactions = service.getAllBankTransactionsFromCardId(_cardId);
+    _transactions = service.getBankTransactionByUserCardId(_cardId);
     std::sort(_transactions.begin(), _transactions.end(),
         [this](const BankTransaction& a, const BankTransaction& b) {
             return tmToEpoch(a.createdAt) > tmToEpoch(b.createdAt);

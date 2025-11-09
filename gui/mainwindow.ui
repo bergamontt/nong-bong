@@ -144,7 +144,7 @@
         <x>0</x>
         <y>60</y>
         <width>801</width>
-        <height>301</height>
+        <height>251</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -167,7 +167,7 @@
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item alignment="Qt::AlignmentFlag::AlignHCenter">
+         <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignBottom">
           <widget class="QLabel" name="L_pin">
            <property name="font">
             <font>
@@ -207,28 +207,6 @@
            </property>
           </widget>
          </item>
-         <item alignment="Qt::AlignmentFlag::AlignHCenter">
-          <widget class="QPushButton" name="B_enterPin">
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Enter</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -260,6 +238,62 @@
       <property name="alignment">
        <set>Qt::AlignmentFlag::AlignCenter</set>
       </property>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>320</y>
+        <width>251</width>
+        <height>43</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QPushButton" name="B_cancelPin">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>↩ Cancel</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="B_enterPin">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Enter</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="designsScreen">
@@ -591,9 +625,9 @@
       <property name="geometry">
        <rect>
         <x>49</x>
-        <y>180</y>
+        <y>240</y>
         <width>701</width>
-        <height>341</height>
+        <height>281</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -623,6 +657,29 @@
         <layout class="QVBoxLayout" name="transHistoryContainer"/>
        </item>
       </layout>
+     </widget>
+     <widget class="BankCardWidget" name="W_currentCard_2" native="true">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>60</y>
+        <width>275</width>
+        <height>160</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>275</width>
+        <height>160</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>275</width>
+        <height>160</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="currentCard_2"/>
      </widget>
     </widget>
     <widget class="QWidget" name="changePinScreen">
@@ -1368,44 +1425,6 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="1">
-          <widget class="QPushButton" name="B_withdraw">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>100</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>100</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Withdraw</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QPushButton" name="B_deposit">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>100</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>100</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Deposit</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="2">
           <widget class="QPushButton" name="B_regularPayment">
            <property name="minimumSize">
@@ -1423,26 +1442,6 @@
            <property name="text">
             <string>Regular 
 payment</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="B_transactionHistory">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>100</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>100</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Transaction
- history</string>
            </property>
           </widget>
          </item>
@@ -1466,6 +1465,64 @@ payment</string>
            </property>
           </widget>
          </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="B_deposit">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Deposit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="B_transactionHistory">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Transaction
+ history</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="B_withdraw">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Withdraw</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="B_chooseDesign">
            <property name="minimumSize">
@@ -1483,6 +1540,44 @@ payment</string>
            <property name="text">
             <string>Choose
  design</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="B_transfer">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Transfer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="B_toCardList">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Return back</string>
            </property>
           </widget>
          </item>
@@ -1634,7 +1729,7 @@ payment</string>
      <x>0</x>
      <y>0</y>
      <width>799</width>
-     <height>33</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

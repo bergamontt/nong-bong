@@ -16,12 +16,14 @@ BankCardList::BankCardList(IContext &context, int userId,
     setMinimumSize(300, 200);
 
     _leftCard = new BankCardWidget(this);
+    _leftCard->setContext(context);
     QSizePolicy sp1 = _leftCard->sizePolicy();
     sp1.setRetainSizeWhenHidden(true);
     _leftCard->setSizePolicy(sp1);
     _leftCard->setVisible(false);
 
     _centerCard = new BankCardWidget(this);
+    _centerCard->setContext(context);
     connect(_centerCard, &BankCardWidget::clicked, this, [this]() {
         emit selectedCardClicked(getSelectedCard().value_or(Card{}));
     });
@@ -31,6 +33,7 @@ BankCardList::BankCardList(IContext &context, int userId,
     _centerCard->setVisible(false);
 
     _rightCard = new BankCardWidget(this);
+    _rightCard->setContext(context);
     QSizePolicy sp3 = _rightCard->sizePolicy();
     sp3.setRetainSizeWhenHidden(true);
     _rightCard->setSizePolicy(sp3);
@@ -110,7 +113,7 @@ void BankCardList::onPrevClicked() {
     if (nextIndex == _selectedIndex)
         return;
     _pendingIndex = nextIndex;
-    _leftCard->setCard(_cards[_pendingIndex]);
+    _leftCard->setCardId(_cards[_pendingIndex].id);
     applyDesignToCard(_leftCard, _cards[_pendingIndex]);
     _leftCard->setVisible(true);
 
@@ -145,7 +148,7 @@ void BankCardList::onNextClicked() {
     if (nextIndex == _selectedIndex)
         return;
     _pendingIndex = nextIndex;
-    _rightCard->setCard(_cards[_pendingIndex]);
+    _rightCard->setCardId(_cards[_pendingIndex].id);
     applyDesignToCard(_rightCard, _cards[_pendingIndex]);
     _rightCard->setVisible(true);
 
@@ -181,12 +184,12 @@ void BankCardList::updateVisibleWidgets() {
         return;
     }
 
-    _centerCard->setCard(_cards[_selectedIndex]);
+    _centerCard->setCardId(_cards[_selectedIndex].id);
     applyDesignToCard(_centerCard, _cards[_selectedIndex]);
     _centerCard->setVisible(true);
     int leftIdx = _selectedIndex - 1;
     if (leftIdx >= 0) {
-        _leftCard->setCard(_cards[leftIdx]);
+        _leftCard->setCardId(_cards[leftIdx].id);
         applyDesignToCard(_leftCard, _cards[leftIdx]);
         _leftCard->setVisible(true);
         _leftCard->lower();
@@ -195,7 +198,7 @@ void BankCardList::updateVisibleWidgets() {
     }
     int rightIdx = _selectedIndex + 1;
     if (rightIdx < static_cast<int>(_cards.size())) {
-        _rightCard->setCard(_cards[rightIdx]);
+        _rightCard->setCardId(_cards[rightIdx].id);
         applyDesignToCard(_rightCard, _cards[rightIdx]);
         _rightCard->setVisible(true);
         _rightCard->lower();

@@ -19,9 +19,12 @@ private slots:
     void on_B_enter_clicked();
     void on_B_logout_clicked();
     void on_B_enterPin_clicked();
+    void on_B_cancelPin_clicked();
+
     void on_B_changePin_clicked();
     void on_B_enterNewPin_clicked();
     void on_B_cancelChange_clicked();
+
     void on_B_transactionHistory_clicked();
     void on_B_backToCard_clicked();
 
@@ -42,6 +45,8 @@ private slots:
     void on_B_D1000_clicked() const;
     void on_B_cancelDeposit_clicked();
     void on_B_enterDeposit_clicked() const;
+
+    void on_B_toCardList_clicked();
 
     void on_B_chooseDesign_clicked();
     void on_B_cancelDesign_clicked();

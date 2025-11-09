@@ -1,6 +1,7 @@
 #pragma once
 
-namespace card_sql {
+namespace card_sql
+{
     inline const auto getById =
             "SELECT * FROM card WHERE id = :id";
 
