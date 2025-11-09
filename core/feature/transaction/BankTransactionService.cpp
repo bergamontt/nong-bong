@@ -41,12 +41,12 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
 
         if (from.balance<transaction.amount) {
             transaction.status = "failed";
-            //_bankTransactionDao.create(transaction);
+            _bankTransactionDao.create(transaction);
             return false;
         }
         from.balance -= transaction.amount;
-        //_cardDao.update(from);
-        //_bankTransactionDao.create(transaction);
+        _cardDao.update(from);
+        _bankTransactionDao.create(transaction);
         return true;
     }
     if (!transaction.fromCardId.has_value() && transaction.toCardId.has_value() && transaction.type=="deposit") {

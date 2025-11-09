@@ -190,6 +190,9 @@ void MainWindow::on_B_enterWithdraw_clicked() {
         qDebug() << "Transaction SUCCESS";
         ui->L_failWithdrawal->hide();
         ui->W_currentCardwd->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
+        ui->W_currentCard->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
+        ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
+
         /*ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
         if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
             const QPixmap design1(QString::fromStdString(
