@@ -44,8 +44,7 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
             _bankTransactionDao.create(transaction);
             return false;
         }
-        transaction.amount *= -1;
-        from.balance += transaction.amount;
+        from.balance -= transaction.amount;
         _cardDao.update(from);
         _bankTransactionDao.create(transaction);
         return true;
