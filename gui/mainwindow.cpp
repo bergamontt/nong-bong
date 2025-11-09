@@ -105,8 +105,7 @@ void MainWindow::on_B_enterPin_clicked() {
     }
 }
 
-void MainWindow::on_B_cancelPin_clicked()
-{
+void MainWindow::on_B_cancelPin_clicked() {
     ui->L_accessDenied->hide();
     ui->LE_pin->clear();
     animateTransition(ui->pinScreen, ui->dashboardScreen);
@@ -407,20 +406,33 @@ void MainWindow::setupDesignsScreen() const {
         }
         ui->scrollAreaWidgetContents->adjustSize();
     }
-    connect(buttonGroup, &QButtonGroup::buttonClicked, this, [this, buttonGroup, currentCardD](QAbstractButton *button) {
-        int id = buttonGroup->id(button);
-        qDebug() << "chosen ID:" << id;
-        auto cardOpt = context.cardService().getCardById(currentCardD.id);
-        if (cardOpt.has_value()) {
-            auto card = cardOpt.value();
-            card.designId = id;
-            context.cardService().updateCard(card);
-            ui->W_currentCardwd->setCard(card);
-            ui->W_currentCard->setCard(card);
-            ui->W_currentCardOnScreen->setCard(card);
-            ui->W_currentCardd->setCard(card);
-        }
-    });
+    connect(buttonGroup, &QButtonGroup::buttonClicked, this,
+            [this, buttonGroup, currentCardD](QAbstractButton *button) {
+                int id = buttonGroup->id(button);
+                qDebug() << "chosen ID:" << id;
+                auto cardOpt = context.cardService().getCardById(currentCardD.id);
+                if (cardOpt.has_value()) {
+                    auto card = cardOpt.value();
+                    card.designId = id;
+                    context.cardService().updateCard(card);
+                    ui->W_currentCardd->setCardId(card.id);
+                    ui->W_currentCardwd->setCardId(card.id);
+                    ui->W_currentCard->setCardId(card.id);
+                    ui->W_currentCard_2->setCardId(card.id);
+                    ui->W_currentCardOnScreen->setCardId(card.id);
+                    if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.
+                        has_value()) {
+                        const QPixmap design1(QString::fromStdString(
+                            context.cardDesignService().getCardDesignById(
+                                context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.
+                                value()).
+                            value().imageRef));
+                        ui->W_currentCardOnScreen->setDesignPixmap(design1);
+                    } else {
+                        ui->W_currentCardOnScreen->setDesignPixmap();
+                    }
+                }
+            });
 
     connect(ui->B_noDesign, &QPushButton::clicked, this, [this, buttonGroup, currentCardD]() {
         buttonGroup->setExclusive(false);
@@ -432,10 +444,20 @@ void MainWindow::setupDesignsScreen() const {
             auto card = cardOpt.value();
             card.designId = std::nullopt;
             context.cardService().updateCard(card);
-            ui->W_currentCardwd->setCard(card);
-            ui->W_currentCard->setCard(card);
-            ui->W_currentCardOnScreen->setCard(card);
-            ui->W_currentCardd->setCard(card);
+            ui->W_currentCardd->setCardId(card.id);
+            ui->W_currentCardwd->setCardId(card.id);
+            ui->W_currentCard->setCardId(card.id);
+            ui->W_currentCard_2->setCardId(card.id);
+            ui->W_currentCardOnScreen->setCardId(card.id);
+            if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
+                const QPixmap design1(QString::fromStdString(
+                    context.cardDesignService().getCardDesignById(
+                        context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
+                    value().imageRef));
+                ui->W_currentCardOnScreen->setDesignPixmap(design1);
+            } else {
+                ui->W_currentCardOnScreen->setDesignPixmap();
+            }
         }
     });
 }
@@ -457,23 +479,7 @@ void MainWindow::setupWithdrawScreen() {
     ui->L_failWithdrawal->hide();
 }
 
-void MainWindow::on_B_transactionHistory_clicked() {
-    setupTransHistoryScreen();
-    animateTransition(ui->cardScreen, ui->transHistoryScreen);
-}
-
-void MainWindow::on_B_backToCard_clicked() {
-    QLayout* layout = ui->transHistoryContainer->layout();
-    QLayoutItem* item;
-    while ((item = layout->takeAt(0)) != nullptr) {
-        delete item->widget();
-        delete item;
-    }
-    animateTransition(ui->transHistoryScreen, ui->cardScreen);
-}
-
-void MainWindow::on_B_toCardList_clicked()
-{
+void MainWindow::on_B_toCardList_clicked() {
     animateTransition(ui->cardScreen, ui->dashboardScreen);
 }
 
@@ -488,11 +494,9 @@ void MainWindow::setupTransHistoryScreen() {
                 .getCardById(cardId).value().designId.value()).
             value().imageRef));
         ui->W_currentCard_2->setDesignPixmap(design);
-    }
-    else {
+    } else {
         ui->W_currentCard_2->setDesignPixmap();
     }
-    QWidget* listWidget = new TransactionListWidget(context, cardId);
     listWidget->setMouseTracking(true);
     ui->transHistoryContainer->layout()->addWidget(listWidget);
 }
