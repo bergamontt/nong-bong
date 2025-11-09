@@ -21,6 +21,9 @@ private slots:
     void on_B_enter_clicked();
     void on_B_logout_clicked();
     void on_B_enterPin_clicked();
+    void on_B_changePin_clicked();
+    void on_B_enterNewPin_clicked();
+    void on_B_cancelChange_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -33,6 +36,7 @@ private:
 
     void setStyles() const;
     void setupPinScreen();
+    void setupPinChangeScreen();
 
 
 };

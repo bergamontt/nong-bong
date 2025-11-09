@@ -111,11 +111,65 @@ void MainWindow::on_B_logout_clicked() {
     animateTransition(ui->dashboardScreen, ui->loginScreen);
 }
 
+void MainWindow::on_B_changePin_clicked() {
+    setupPinChangeScreen();
+    animateTransition(ui->cardScreen, ui->changePinScreen);
+}
+
+void MainWindow::on_B_enterNewPin_clicked() {
+    const QString oldPin = ui->LE_oldPin->text();
+    const QString newPin = ui->LE_newPin_1->text();
+    const QString newPinConfirm = ui->LE_newPin_2->text();
+    if (newPin.toStdString() == newPinConfirm.toStdString() 
+        && newPin.size() == 4 && newPinConfirm.size() == 4)
+    {
+        const std::string& oldPinStr = oldPin.toStdString();
+        const std::string& newPinStr = newPin.toStdString();
+        int id = ui->W_currentCard->getCardId();
+        bool success = context.cardService().changeCardPin(id, oldPinStr, newPinStr);
+        if (success) 
+        {
+            on_B_cancelChange_clicked();
+            return;
+        }
+    }
+    ui->L_newPinInvalid->show();
+    shakeLabel(ui->L_newPinInvalid);
+}
+
+void MainWindow::on_B_cancelChange_clicked() {
+    ui->LE_oldPin->clear();
+    ui->LE_newPin_1->clear();
+    ui->LE_newPin_2->clear();
+    ui->L_newPinInvalid->hide();
+    animateTransition(ui->changePinScreen, ui->cardScreen);
+}
+
 void MainWindow::setupPinScreen() {
     ui->LE_pin->setEchoMode(QLineEdit::Password);
     ui->LE_pin->setMaxLength(4);
     ui->LE_pin->setValidator(new QIntValidator(0, 9999, this));
     ui->L_accessDenied->hide();
+}
+
+void MainWindow::setupPinChangeScreen() {
+    ui->LE_oldPin->setEchoMode(QLineEdit::Password);
+    ui->LE_oldPin->setMaxLength(4);
+    ui->LE_oldPin->setValidator(new QIntValidator(0, 9999, this));
+    ui->LE_oldPin->setPlaceholderText("Old PIN");
+
+    ui->LE_newPin_1->setEchoMode(QLineEdit::Password);
+    ui->LE_newPin_1->setMaxLength(4);
+    ui->LE_newPin_1->setValidator(new QIntValidator(0, 9999, this));
+    ui->LE_newPin_1->setPlaceholderText("New PIN");
+
+    ui->LE_newPin_2->setEchoMode(QLineEdit::Password);
+    ui->LE_newPin_2->setMaxLength(4);
+    ui->LE_newPin_2->setValidator(new QIntValidator(0, 9999, this));
+    ui->LE_newPin_2->setPlaceholderText("Repeat");
+
+    ui->L_newPinInvalid->setStyleSheet("color: #800000;");
+    ui->L_newPinInvalid->hide();
 }
 
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
