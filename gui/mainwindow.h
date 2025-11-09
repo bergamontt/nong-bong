@@ -1,6 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
+#pragma once
 #include <QLabel>
 #include <QMainWindow>
 #include <context/AppContext.h>
@@ -25,20 +23,28 @@ private slots:
     void on_B_enterNewPin_clicked();
     void on_B_cancelChange_clicked();
 
+    void on_B_withdraw_clicked();
+    void on_B_100_clicked() const;
+    void on_B_200_clicked() const;
+    void on_B_500_clicked() const;
+    void on_B_1000_clicked() const;
+    void on_B_cancelWithdraw_clicked();
+    void on_B_enterWithdraw_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::map<std::string, std::string> users;
     IContext& context;
     bool authenticate(const std::string& phone, const std::string& password) const;
     void animateTransition(QWidget* from, QWidget* to, int initY = 0, std::function<void()> onFinished = nullptr);
-    void shakeLabel(QLabel* label);
+
+    static void shakeLabel(QLabel* label);
     void initDesigns();
 
     void setStyles() const;
     void setupPinScreen();
     void setupPinChangeScreen();
+    void setupWithdrawScreen();
 
 
 };
-
-#endif // MAINWINDOW_H

@@ -16,5 +16,5 @@ private:
 
     std::optional<BankTransaction> doGetBankTransactionById(int id) const override;
     std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
-    void doCreateBankTransaction(const BankTransaction& transaction) const override;
+    bool doCreateBankTransaction(const BankTransaction& transaction) const override;
 };

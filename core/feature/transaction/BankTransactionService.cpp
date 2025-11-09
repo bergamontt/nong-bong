@@ -12,6 +12,10 @@ std::vector<BankTransaction> BankTransactionService::doGetAllBankTransactionsFro
     return _bankTransactionDao.getByFromCardId(id);
 }
 
-void BankTransactionService::doCreateBankTransaction(const BankTransaction& transaction) const {
-    _bankTransactionDao.create(transaction);
+bool BankTransactionService::doCreateBankTransaction(const BankTransaction& transaction) const {
+    if (true) {
+        _bankTransactionDao.create(transaction);
+        return true;
+    }
+    return false;
 }

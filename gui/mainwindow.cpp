@@ -37,7 +37,7 @@ void MainWindow::on_B_enter_clicked() {
     const QString enteredPassword = ui->LE_password->text();
     if (authenticate(enteredPhone.toStdString(), enteredPassword.toStdString())) {
         const IUserService &userService = context.userService();
-        User user = userService.getUserByPhone(enteredPhone.toStdString()).value();
+        const User user = userService.getUserByPhone(enteredPhone.toStdString()).value();
         ui->L_welcomeUser->setText("Welcome!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
 
@@ -49,7 +49,7 @@ void MainWindow::on_B_enter_clicked() {
                     if (card.status == Card::active) {
                         ui->W_currentCard->setCard(card);
                         if (card.designId.has_value()) {
-                            QPixmap design1(QString::fromStdString(
+                            const QPixmap design1(QString::fromStdString(
                                 context.cardDesignService().getCardDesignById(card.designId.value()).
                                 value().imageRef));
                             ui->W_currentCard->setDesignPixmap(design1);
@@ -78,7 +78,7 @@ void MainWindow::on_B_enterPin_clicked() {
         ui->L_accessDenied->hide();
         ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
         if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
-            QPixmap design1(QString::fromStdString(
+            const QPixmap design1(QString::fromStdString(
                 context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
                 value().imageRef));
             ui->W_currentCardOnScreen->setDesignPixmap(design1);
@@ -125,8 +125,8 @@ void MainWindow::on_B_enterNewPin_clicked() {
     {
         const std::string& oldPinStr = oldPin.toStdString();
         const std::string& newPinStr = newPin.toStdString();
-        int id = ui->W_currentCard->getCardId();
-        bool success = context.cardService().changeCardPin(id, oldPinStr, newPinStr);
+        const int id = ui->W_currentCard->getCardId();
+        const bool success = context.cardService().changeCardPin(id, oldPinStr, newPinStr);
         if (success) 
         {
             on_B_cancelChange_clicked();
@@ -143,6 +143,62 @@ void MainWindow::on_B_cancelChange_clicked() {
     ui->LE_newPin_2->clear();
     ui->L_newPinInvalid->hide();
     animateTransition(ui->changePinScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_withdraw_clicked() {
+    setupWithdrawScreen();
+    animateTransition(ui->cardScreen, ui->withdrawScreen);
+}
+
+void MainWindow::on_B_100_clicked() const {
+    ui->LE_enteredAmount->clear();
+    ui->LE_enteredAmount->insert("100");
+}
+
+void MainWindow::on_B_200_clicked() const {
+    ui->LE_enteredAmount->clear();
+    ui->LE_enteredAmount->insert("200");
+}
+
+void MainWindow::on_B_500_clicked() const {
+    ui->LE_enteredAmount->clear();
+    ui->LE_enteredAmount->insert("500");
+}
+
+void MainWindow::on_B_1000_clicked() const {
+    ui->LE_enteredAmount->clear();
+    ui->LE_enteredAmount->insert("1000");
+}
+
+void MainWindow::on_B_cancelWithdraw_clicked() {
+    ui->L_failWithdrawal->hide();
+    animateTransition(ui->withdrawScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_enterWithdraw_clicked() {
+    const QString enteredPin = ui->LE_pin->text();
+    if (context.cardService().accessToCard(ui->W_currentCard->getCardId(), enteredPin.toStdString())) {
+        qDebug() << "SUCCESS";
+        ui->L_accessDenied->hide();
+        ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
+        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
+            const QPixmap design1(QString::fromStdString(
+                context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
+                value().imageRef));
+            ui->W_currentCardOnScreen->setDesignPixmap(design1);
+        } else {
+            ui->W_currentCardOnScreen->setDesignPixmap();
+        }
+        animateTransition(ui->pinScreen, ui->cardScreen);
+    } else {
+        qDebug() << "FAILURE";
+        ui->L_accessDenied->show();
+        ui->LE_pin->clear();
+        shakeLabel(ui->L_accessDenied);
+        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status == Card::blocked) {
+            animateTransition(ui->pinScreen, ui->dashboardScreen);
+        }
+    }
 }
 
 void MainWindow::setupPinScreen() {
@@ -172,13 +228,28 @@ void MainWindow::setupPinChangeScreen() {
     ui->L_newPinInvalid->hide();
 }
 
+void MainWindow::setupWithdrawScreen() {
+    ui->W_currentCardwd->setCard(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value());
+    if (context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.has_value()) {
+        const QPixmap design1(QString::fromStdString(
+            context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).
+            value().imageRef));
+        ui->W_currentCardwd->setDesignPixmap(design1);
+    } else {
+        ui->W_currentCardwd->setDesignPixmap();
+    }
+    ui->LE_enteredAmount->clear();
+    ui->LE_enteredAmount->setValidator(new QIntValidator(0, 10000, this));
+    ui->L_failWithdrawal->hide();
+}
+
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
     return context.userService().accessToUser(phone, password);
 }
 
 
 void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::function<void()> onFinished) {
-    int h = ui->stackedWidget->height();
+    const int h = ui->stackedWidget->height();
 
     to->move(0, h);
     to->show();
@@ -207,10 +278,10 @@ void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::f
 }
 
 void MainWindow::shakeLabel(QLabel *label) {
-    QPoint originalPos = label->pos();
+    const QPoint originalPos = label->pos();
 
-    QPropertyAnimation *animation = new QPropertyAnimation(label, "pos");
-    animation->setDuration(400); // тривалість (мс)
+    const auto animation = new QPropertyAnimation(label, "pos");
+    animation->setDuration(400);
 
     animation->setKeyValueAt(0, originalPos);
     animation->setKeyValueAt(0.1, originalPos + QPoint(-5, 0));
@@ -231,6 +302,8 @@ void MainWindow::setStyles() const {
     ui->L_welcome->setObjectName("welcomeLabel");
     ui->L_welcomeUser->setObjectName("welcomeUserLabel");
     ui->L_accessDenied->setObjectName("accessDeniedLabel");
+    ui->L_cashWithdrawal->setObjectName("cashWithdrawal");
+    ui->L_failWithdrawal->setObjectName("failWithdrawalLabel");
 
     qApp->setStyleSheet(R"(
         QMainWindow { background-color: #57735d; }
@@ -256,7 +329,12 @@ void MainWindow::setStyles() const {
             padding: 10px 20px;
             qproperty-alignment: 'AlignCenter';
         }
-        QLabel#accessDeniedLabel {
+        QLabel#cashWithdrawal {
+            font-size: 20px;
+            font-weight: bold;
+            qproperty-alignment: 'AlignCenter';
+        }
+        QLabel#accessDeniedLabel#failWithdrawalLabel {
             color: #800000;
             font-size: 15px;
             font-weight: bold;

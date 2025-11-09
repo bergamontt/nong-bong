@@ -274,10 +274,9 @@ void BankCardList::setCarouselShift(int s) {
     layoutWidgets();
 }
 
-void BankCardList::applyDesignToCard(BankCardWidget* widget, const Card& card)
-{
+void BankCardList::applyDesignToCard(BankCardWidget* widget, const Card& card) const {
     if (card.designId.has_value()) {
-        auto designOpt = _context.cardDesignService().getCardDesignById(card.designId.value());
+        const auto designOpt = _context.cardDesignService().getCardDesignById(card.designId.value());
         if (designOpt.has_value()) {
             const auto& design = designOpt.value();
             QPixmap pix(QString::fromStdString(design.imageRef));
