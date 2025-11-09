@@ -1,6 +1,7 @@
 #pragma once
 
-namespace bank_transaction_sql {
+namespace bank_transaction_sql
+{
     inline const auto getById =
             "SELECT * FROM bank_transaction WHERE id = :id";
 
