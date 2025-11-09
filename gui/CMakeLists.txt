@@ -6,7 +6,6 @@ add_library(gui_lib
         mainwindow.h
         mainwindow.cpp
         mainwindow.ui
-		resources/resources.qrc
 )
 
 set_target_properties(gui_lib PROPERTIES

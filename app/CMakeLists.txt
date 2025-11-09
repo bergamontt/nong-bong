@@ -1,5 +1,6 @@
 add_executable(nong_bong
         main.cpp
+        ${CMAKE_SOURCE_DIR}/gui/resources.qrc
 )
 
 target_link_libraries(nong_bong PRIVATE

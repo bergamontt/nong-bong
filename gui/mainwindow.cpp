@@ -271,7 +271,6 @@ void MainWindow::setStyles() const {
 }
 
 void MainWindow::initDesigns() {
-
     context.cardDesignService().deleteAll();
     CardDesign newDesign;
     newDesign.name = "Church";
