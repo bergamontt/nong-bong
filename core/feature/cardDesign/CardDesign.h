@@ -20,7 +20,9 @@ struct soci::type_conversion<CardDesign>
     {
         c.id = v.get<int>("id");
         c.name = v.get<std::string>("name");
-        c.author = v.get<std::string>("author");
+        c.author = (v.get_indicator("author") == i_null)
+                  ? std::nullopt
+                    : std::make_optional(v.get<std::string>("author"));
         c.imageRef = v.get<std::string>("image_ref");
     }
 

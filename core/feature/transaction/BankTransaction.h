@@ -23,18 +23,24 @@ template <>
 struct soci::type_conversion<BankTransaction>
 {
     typedef values base_type;
-    static void from_base(values const& v, indicator, BankTransaction& c)
+    static void from_base(values const& v, indicator, BankTransaction& bt)
     {
-        c.id = v.get<int>("id");
-        c.createdAt = v.get<std::tm>("created_at");
-        c.type = v.get<std::string>("type");
-        c.fromCardId = v.get<int>("from_card_id");
-        c.toCardId = v.get<int>("to_card_id");
-        c.amount = v.get<int>("amount");
-        c.currencyCode = v.get<std::string>("currency_code");
-        c.description = v.get<std::string>("description");
-        c.comment = v.get<std::string>("comment");
-        c.status = v.get<std::string>("status");
+        bt.id = v.get<int>("id");
+        bt.createdAt = v.get<std::tm>("created_at");
+        bt.type = v.get<std::string>("type");
+        bt.fromCardId = (v.get_indicator("from_card_id") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<int>("from_card_id"));
+        bt.toCardId = (v.get_indicator("to_card_id") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<int>("to_card_id"));
+        bt.amount = v.get<int>("amount");
+        bt.currencyCode = v.get<std::string>("currency_code");
+        bt.description = v.get<std::string>("description");
+        bt.comment = (v.get_indicator("comment") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<std::string>("comment"));
+        bt.status = v.get<std::string>("status");
     }
 
     static void to_base(const BankTransaction& c, values& v, indicator& ind)

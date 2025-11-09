@@ -28,22 +28,25 @@ struct soci::type_conversion<User>
         u.id = v.get<int>("id");
         u.firstName = v.get<std::string>("first_name");
         u.lastName = v.get<std::string>("last_name");
-        if (v.get_indicator("email") != soci::i_null)
-            u.email = v.get<std::string>("email");
-        else
-            u.email.reset();
+
+        u.email = (v.get_indicator("email") == i_null)
+                 ? std::nullopt
+                   : std::make_optional(v.get<std::string>("email"));
 
         u.phone = v.get<std::string>("phone");
-        if (v.get_indicator("created_at") != soci::i_null)
-            u.createdAt = v.get<std::tm>("created_at");
-        else
-            u.createdAt.reset();        u.passwordHash = v.get<std::string>("password_hash");
+
+        u.createdAt = (v.get_indicator("created_at") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<std::tm>("created_at"));
+
+        u.passwordHash = v.get<std::string>("password_hash");
         u.status = v.get<std::string>("status");
         u.failedLoginCount = v.get<int>("failed_login_count");
-        if (v.get_indicator("blocked_until") != soci::i_null)
-            u.blockedUntil = v.get<std::tm>("blocked_until");
-        else
-            u.blockedUntil.reset();    }
+
+        u.blockedUntil = (v.get_indicator("blocked_until") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<std::tm>("blocked_until"));
+    }
 
     static void to_base(const User& u, values& v, indicator& ind)
     {

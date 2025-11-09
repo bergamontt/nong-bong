@@ -9,16 +9,16 @@ namespace user_sql {
 
     inline const auto update =
             "UPDATE user SET "
-            "first_name = :u, "
-            "last_name = :u, "
-            "email = :u, "
-            "phone = :u, "
-            "created_at = :u, "
-            "password_hash = :u, "
-            "status = :u, "
-            "failed_login_count = :u, "
-            "blocked_until = :u "
-            "WHERE id = :u";
+            "first_name = :first_name, "
+            "last_name = :last_name, "
+            "email = :email, "
+            "phone = :phone, "
+            "created_at = :created_at, "
+            "password_hash = :password_hash, "
+            "status = :status, "
+            "failed_login_count = :failed_login_count, "
+            "blocked_until = :blocked_until "
+            "WHERE id = :id";
 
     inline const auto create =
             "INSERT INTO user ("

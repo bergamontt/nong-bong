@@ -31,10 +31,14 @@ struct soci::type_conversion<ScheduledTransfer>
         s.amount = v.get<int>("amount");
         s.currencyCode = v.get<std::string>("currency_code");
         s.frequency = v.get<std::string>("frequency");
-        s.nextTun = v.get<std::tm>("next_tun");
+        s.nextTun = (v.get_indicator("next_tun") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<std::tm>("next_tun"));
         s.active = v.get<int>("active");
         s.description = v.get<std::string>("description");
-        s.comment = v.get<std::string>("comment");
+        s.comment = (v.get_indicator("comment") == i_null)
+            ? std::nullopt
+            : std::make_optional(v.get<std::string>("comment"));
     }
 
     static void to_base(const ScheduledTransfer& s, values& v, indicator& ind)

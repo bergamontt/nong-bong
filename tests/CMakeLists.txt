@@ -1,5 +1,8 @@
 add_executable(core_tests
+        test_main.cpp
         UserDaoTest.cpp
+        CardDesignDaoTest.cpp
+        CurrencyDaoTest.cpp
 )
 
 target_link_libraries(core_tests PRIVATE
