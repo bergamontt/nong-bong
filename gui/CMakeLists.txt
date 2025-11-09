@@ -3,6 +3,10 @@ add_library(gui_lib
 		BankCardWidget.cpp
 		BankCardList.h
 		BankCardList.cpp
+		TransactionListModel.h
+		TransactionListModel.cpp
+		TransactionListWidget.h
+		TransactionListWidget.cpp
         mainwindow.h
         mainwindow.cpp
         mainwindow.ui

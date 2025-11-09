@@ -4,6 +4,7 @@
 
 #include "ui_mainwindow.h"
 #include "BankCardList.h"
+#include "TransactionListWidget.h"
 #include <QMessageBox>
 #include <QSizePolicy>
 #include <QGraphicsDropShadowEffect>
@@ -234,6 +235,9 @@ void MainWindow::setupPinChangeScreen() {
     ui->LE_newPin_2->setPlaceholderText("Repeat");
 
     ui->L_newPinInvalid->setStyleSheet("color: #800000;");
+    QSizePolicy sp = ui->L_newPinInvalid->sizePolicy();
+    sp.setRetainSizeWhenHidden(true);
+    ui->L_newPinInvalid->setSizePolicy(sp);
     ui->L_newPinInvalid->hide();
 }
 
@@ -252,10 +256,30 @@ void MainWindow::setupWithdrawScreen() {
     ui->L_failWithdrawal->hide();
 }
 
+void MainWindow::on_B_transactionHistory_clicked() {
+    setupTransHistoryScreen();
+    animateTransition(ui->cardScreen, ui->transHistoryScreen);
+}
+
+void MainWindow::on_B_backToCard_clicked() {
+    QLayout* layout = ui->transHistoryContainer->layout();
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+    animateTransition(ui->transHistoryScreen, ui->cardScreen);
+}
+
+void MainWindow::setupTransHistoryScreen() {
+    int cardId = ui->W_currentCard->getCardId();
+    QWidget* listWidget = new TransactionListWidget(context, cardId);
+    ui->transHistoryContainer->layout()->addWidget(listWidget);
+}
+
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
     return context.userService().accessToUser(phone, password);
 }
-
 
 void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::function<void()> onFinished) {
     const int h = ui->stackedWidget->height();
@@ -360,6 +384,22 @@ void MainWindow::setStyles() const {
         QPushButton { background-color: #805535; color: #eae3d8; border-radius: 10px; font-weight: bold; padding: 5px 10px; border: 3px solid #eae3d8; }
         QPushButton:hover { background-color: #734d30; }
         QPushButton:pressed { background-color: #5a3b25; }
+
+        QTableView {
+            background-color: #57735d;
+            color: #eae3d8;
+            gridline-color: #4a5b4f;
+            selection-background-color: #375b4f;
+            selection-color: #eae3d8;
+            alternate-background-color: #506853;
+        }
+
+        QHeaderView::section {
+            background-color: #445a4a;
+            color: #eae3d8;
+            padding: 4px;
+            border: none;
+        }
     )");
 }
 

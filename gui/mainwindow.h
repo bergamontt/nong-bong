@@ -22,6 +22,8 @@ private slots:
     void on_B_changePin_clicked();
     void on_B_enterNewPin_clicked();
     void on_B_cancelChange_clicked();
+    void on_B_transactionHistory_clicked();
+    void on_B_backToCard_clicked();
 
     void on_B_withdraw_clicked();
     void on_B_100_clicked() const;
@@ -45,6 +47,5 @@ private:
     void setupPinScreen();
     void setupPinChangeScreen();
     void setupWithdrawScreen();
-
-
+    void setupTransHistoryScreen();
 };

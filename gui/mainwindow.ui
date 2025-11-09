@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="loginScreen">
      <widget class="QLabel" name="L_welcome">
@@ -262,6 +262,45 @@
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="transHistoryScreen">
+     <widget class="QWidget" name="verticalLayoutWidget_5">
+      <property name="geometry">
+       <rect>
+        <x>49</x>
+        <y>180</y>
+        <width>701</width>
+        <height>341</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QPushButton" name="B_backToCard">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>↩ Back</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="transHistoryContainer"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
     <widget class="QWidget" name="changePinScreen">
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
@@ -452,7 +491,7 @@
         <x>0</x>
         <y>60</y>
         <width>801</width>
-        <height>374</height>
+        <height>383</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -777,7 +816,7 @@ payment</string>
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QPushButton" name="B_transactioHistory">
+          <widget class="QPushButton" name="B_transactionHistory">
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -984,7 +1023,7 @@ payment</string>
      <x>0</x>
      <y>0</y>
      <width>799</width>
-     <height>33</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
