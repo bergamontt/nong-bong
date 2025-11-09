@@ -30,9 +30,14 @@ void BankTransactionDao::doCreate(BankTransaction& transfer) const
         soci::use(transfer);
 }
 
-void BankTransactionDao::doCreateWithDate(BankTransaction& transfer) const
+std::vector<BankTransaction> BankTransactionDao::doGetByUserCardId(int cardId) const
 {
     soci::session sql(_pool);
-    sql << bank_transaction_sql::createWithDate,
-        soci::use(transfer);
+    std::vector<BankTransaction> res;
+    soci::rowset<BankTransaction> rs = (sql.prepare
+        << bank_transaction_sql::getByUserCardId,
+        soci::use(cardId, "cardId"));
+    for (const BankTransaction& bt : rs)
+        res.push_back(bt);
+    return res;
 }

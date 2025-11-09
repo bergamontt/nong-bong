@@ -20,8 +20,8 @@ private:
     IExchangeRateDao& _exchangeRateDao;
     ICurrencyDao& _currencyDao;
 
-
     std::optional<BankTransaction> doGetBankTransactionById(int id) const override;
     std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
+    std::vector<BankTransaction> doGetBankTransactionByUserCardId(int id) const override;
     bool doCreateBankTransaction(BankTransaction& transaction) override;
 };

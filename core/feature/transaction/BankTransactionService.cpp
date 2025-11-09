@@ -16,6 +16,11 @@ std::vector<BankTransaction> BankTransactionService::doGetAllBankTransactionsFro
     return _bankTransactionDao.getByFromCardId(id);
 }
 
+std::vector<BankTransaction> BankTransactionService::doGetBankTransactionByUserCardId(int id) const
+{
+    return _bankTransactionDao.getByUserCardId(id);
+}
+
 bool BankTransactionService::doCreateBankTransaction(BankTransaction& transaction) {
     if (transaction.fromCardId.has_value() && !transaction.toCardId.has_value() && transaction.type=="withdrawal") {
         std::cout << "Withdrawal";

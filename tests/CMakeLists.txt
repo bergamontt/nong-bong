@@ -5,6 +5,7 @@ add_executable(core_tests
         CurrencyDaoTest.cpp
         ExchangeRateDaoTest.cpp
         CardDaoTest.cpp
+        BankTransactionTest.cpp
 )
 
 target_link_libraries(core_tests PRIVATE
