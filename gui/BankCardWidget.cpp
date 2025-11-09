@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QPainterPath>
+#include "feature/currency/ICurrencyService.h"
 
 using namespace std;
 
@@ -16,8 +17,8 @@ QString maskCardNumber(const QString& number) {
     return QString("**** **** **** %1").arg(last4);
 }
 
-QString formatMoney(qint64 minorUnits, const QString& currency) {
-    return QString("%1 %2").arg(QString::number(minorUnits / 100.0, 'f', 2)).arg(currency);
+QString formatMoney(qint64 minorUnits, double minorsInUnit, const QString& currency) {
+    return QString("%1 %2").arg(QString::number(minorUnits / minorsInUnit, 'f', 2)).arg(currency);
 }
 
 QString humanFriendlyCountdown(qint64 seconds)
@@ -48,6 +49,11 @@ QSize BankCardWidget::minimumSizeHint() const
     return QSize(260, 160);
 }
 
+void BankCardWidget::setContext(const IContext& context)
+{
+    _context = &context;
+}
+
 void BankCardWidget::setCard(const Card& card)
 {
     _id = card.id;
@@ -55,7 +61,14 @@ void BankCardWidget::setCard(const Card& card)
     _currency = QString::fromStdString(card.currencyCode);
     _balanceMinor = static_cast<qint64>(card.balance);
     _dailyLimit = card.dailyLimit;
+    _isCredit = card.allowCredit;
+    if (_isCredit)
+        _creditLimit = card.creditLimit.value();
     _status = QString::fromStdString(statusToString(card.status));
+
+    Currency curr = _context->currencyService()
+        .getCurrencyByCode(_currency.toStdString()).value();
+    _minorsInUnit = curr.minorUnit;
 
     _blockedUntil.reset();
     if (card.blockedUntil.has_value()) {
@@ -153,8 +166,16 @@ void BankCardWidget::paintEvent(QPaintEvent*)
 
     if (_designPixmap.isNull()) {
         QLinearGradient g(r.topLeft(), r.bottomRight());
-        g.setColorAt(0.0, QColor(28, 118, 211));
-        g.setColorAt(1.0, QColor(19, 84, 150));
+        if (_isCredit) 
+        {
+            g.setColorAt(0.0, QColor(255, 140, 0));
+            g.setColorAt(1.0, QColor(191, 87, 0));
+        }
+        else
+        {
+            g.setColorAt(0.0, QColor(28, 118, 211));
+            g.setColorAt(1.0, QColor(19, 84, 150));
+        }
         p.setBrush(g);
         p.setPen(Qt::NoPen);
         p.drawRoundedRect(r, radius, radius);
@@ -207,7 +228,7 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     balFont.setBold(true);
     balFont.setPointSizeF(h * 0.085);
     p.setFont(balFont);
-    QString balText = formatMoney(_balanceMinor, _currency);
+    QString balText = formatMoney(_balanceMinor, _minorsInUnit, _currency);
     QRectF balArea(
         r.left() + r.width() * 0.52,
         r.top() + r.height() * 0.12,
@@ -219,7 +240,13 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     QFont smallFont = font();
     smallFont.setPointSizeF(h * 0.065);
     p.setFont(smallFont);
-    QString dailyLabel = QString("Daily limit: %1").arg(formatMoney(_dailyLimit, _currency));
+
+    QString cardType = !_isCredit ? QString("Debit card")
+        : QString("Credit limit: %1").arg(formatMoney(_creditLimit, _minorsInUnit, _currency));
+    QRectF typeArea(r.left() + r.width() * 0.06, r.top() + r.height() * 0.62, r.width(), r.height() * 0.12);
+    p.drawText(typeArea, Qt::AlignLeft | Qt::AlignVCenter, cardType);
+
+    QString dailyLabel = QString("Daily limit: %1").arg(formatMoney(_dailyLimit, _minorsInUnit, _currency));
     QRectF dailyLabelArea(r.left() + r.width() * 0.06, r.bottom() - r.height() * 0.22,
         r.width() * 0.6, r.height() * 0.08);
     p.drawText(dailyLabelArea, Qt::AlignLeft | Qt::AlignVCenter, dailyLabel);

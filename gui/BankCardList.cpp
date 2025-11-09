@@ -16,12 +16,14 @@ BankCardList::BankCardList(IContext &context, int userId,
     setMinimumSize(300, 200);
 
     _leftCard = new BankCardWidget(this);
+    _leftCard->setContext(context);
     QSizePolicy sp1 = _leftCard->sizePolicy();
     sp1.setRetainSizeWhenHidden(true);
     _leftCard->setSizePolicy(sp1);
     _leftCard->setVisible(false);
 
     _centerCard = new BankCardWidget(this);
+    _centerCard->setContext(context);
     connect(_centerCard, &BankCardWidget::clicked, this, [this]() {
         emit selectedCardClicked(getSelectedCard().value_or(Card{}));
     });
@@ -31,6 +33,7 @@ BankCardList::BankCardList(IContext &context, int userId,
     _centerCard->setVisible(false);
 
     _rightCard = new BankCardWidget(this);
+    _rightCard->setContext(context);
     QSizePolicy sp3 = _rightCard->sizePolicy();
     sp3.setRetainSizeWhenHidden(true);
     _rightCard->setSizePolicy(sp3);

@@ -26,6 +26,11 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->stackedWidget->setCurrentWidget(ui->loginScreen);
 
     ui->LE_phone->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
+
+    ui->W_currentCard->setContext(context);
+    ui->W_currentCardd->setContext(context);
+    ui->W_currentCardwd->setContext(context);
+    ui->W_currentCardOnScreen->setContext(context);
 }
 
 MainWindow::~MainWindow() {
