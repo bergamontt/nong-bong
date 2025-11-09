@@ -23,14 +23,14 @@ std::vector<BankTransaction> BankTransactionDao::doGetByFromCardId(int id) const
     return res;
 }
 
-void BankTransactionDao::doCreate(const BankTransaction& transfer) const
+void BankTransactionDao::doCreate(BankTransaction& transfer) const
 {
     soci::session sql(_pool);
     sql << bank_transaction_sql::create,
         soci::use(transfer);
 }
 
-void BankTransactionDao::doCreateWithDate(const BankTransaction& transfer) const
+void BankTransactionDao::doCreateWithDate(BankTransaction& transfer) const
 {
     soci::session sql(_pool);
     sql << bank_transaction_sql::createWithDate,

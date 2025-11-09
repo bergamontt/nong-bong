@@ -17,6 +17,6 @@ AppContext::AppContext()
     , _currencyService(make_unique<CurrencyService>(*_currencyDao))
     , _exchangeRateService(make_unique<ExchangeRateService>(*_exchangeRateDao))
     , _scheduledTransferService(make_unique<ScheduledTransferService>(*_scheduledTransferDao, *_bankTransactionDao))
-    , _bankTransactionService(make_unique<BankTransactionService>(*_bankTransactionDao))
+    , _bankTransactionService(make_unique<BankTransactionService>(*_bankTransactionDao, *_cardDao, *_exchangeRateDao, *_currencyDao))
     , _userService(make_unique<UserService>(*_userDao))
 {}

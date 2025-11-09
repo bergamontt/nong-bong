@@ -33,7 +33,8 @@ void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm
 
     for (const auto& t : transfers) {
         ScheduledTransfer transfer = t;
-        _transactionDao.createWithDate({0,t.nextTun.value(), "payment", t.fromCardId,t.toCardId, t.amount, t.currencyCode, t.description, t.comment, "completed"});
+        BankTransaction transaction(0,t.nextTun.value(), "payment", t.fromCardId,t.toCardId, t.amount, t.currencyCode, t.description, t.comment, "completed");
+        _transactionDao.createWithDate(transaction);
         //TODO: make not only "payment" (add field "type" to ScheduledTransfer)
         //TODO: make not only "completed" (logic to service Transfer)
 

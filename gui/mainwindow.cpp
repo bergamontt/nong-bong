@@ -176,11 +176,21 @@ void MainWindow::on_B_cancelWithdraw_clicked() {
 }
 
 void MainWindow::on_B_enterWithdraw_clicked() {
-    const QString enteredPin = ui->LE_pin->text();
-    if (context.cardService().accessToCard(ui->W_currentCard->getCardId(), enteredPin.toStdString())) {
-        qDebug() << "SUCCESS";
-        ui->L_accessDenied->hide();
-        ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
+    const int enteredAmount = ui->LE_enteredAmount->text().toInt();
+    auto newTransaction = BankTransaction();
+    newTransaction.type = "withdrawal";
+    newTransaction.fromCardId = ui->W_currentCardwd->getCardId();
+    newTransaction.amount = enteredAmount;
+    newTransaction.currencyCode = "UAH";
+    newTransaction.description = "withdrawal";
+    newTransaction.comment = "";
+    newTransaction.status = "completed";
+
+    if (context.bankTransactionService().createBankTransaction(newTransaction)) {
+        qDebug() << "Transaction SUCCESS";
+        ui->L_failWithdrawal->hide();
+        ui->W_currentCardwd->setCard(context.cardService().getCardById(ui->W_currentCardwd->getCardId()).value());
+        /*ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
         if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
             const QPixmap design1(QString::fromStdString(
                 context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
@@ -189,15 +199,11 @@ void MainWindow::on_B_enterWithdraw_clicked() {
         } else {
             ui->W_currentCardOnScreen->setDesignPixmap();
         }
-        animateTransition(ui->pinScreen, ui->cardScreen);
+        animateTransition(ui->pinScreen, ui->cardScreen);*/
     } else {
-        qDebug() << "FAILURE";
-        ui->L_accessDenied->show();
-        ui->LE_pin->clear();
-        shakeLabel(ui->L_accessDenied);
-        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status == Card::blocked) {
-            animateTransition(ui->pinScreen, ui->dashboardScreen);
-        }
+        qDebug() << "Transaction FAILURE";
+        ui->L_failWithdrawal->show();
+        shakeLabel(ui->L_failWithdrawal);
     }
 }
 
@@ -334,7 +340,13 @@ void MainWindow::setStyles() const {
             font-weight: bold;
             qproperty-alignment: 'AlignCenter';
         }
-        QLabel#accessDeniedLabel#failWithdrawalLabel {
+        QLabel#accessDeniedLabel {
+            color: #800000;
+            font-size: 15px;
+            font-weight: bold;
+            qproperty-alignment: 'AlignCenter';
+        }
+        QLabel#failWithdrawalLabel {
             color: #800000;
             font-size: 15px;
             font-weight: bold;

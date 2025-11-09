@@ -1,7 +1,11 @@
 #include "BankTransactionService.h"
 
-BankTransactionService::BankTransactionService(IBankTransactionDao& dao) :
-    _bankTransactionDao(dao)
+#include <iostream>
+
+#include "ICurrencyDao.h"
+
+BankTransactionService::BankTransactionService(IBankTransactionDao& dao, ICardDao& cardDao, IExchangeRateDao& exchangeRateDao, ICurrencyDao& currencyDao) :
+    _bankTransactionDao(dao), _cardDao(cardDao), _exchangeRateDao(exchangeRateDao), _currencyDao(currencyDao)
 {}
 
 std::optional<BankTransaction> BankTransactionService::doGetBankTransactionById(int id) const {
@@ -12,10 +16,58 @@ std::vector<BankTransaction> BankTransactionService::doGetAllBankTransactionsFro
     return _bankTransactionDao.getByFromCardId(id);
 }
 
-bool BankTransactionService::doCreateBankTransaction(const BankTransaction& transaction) const {
-    if (true) {
-        _bankTransactionDao.create(transaction);
+bool BankTransactionService::doCreateBankTransaction(BankTransaction& transaction) {
+    if (transaction.fromCardId.has_value() && !transaction.toCardId.has_value() && transaction.type=="withdrawal") {
+        std::cout << "Withdrawal";
+        Card from = _cardDao.getById(transaction.fromCardId.value()).value();
+        if (from.currencyCode != transaction.currencyCode) {
+            for (ExchangeRate e:_exchangeRateDao.getAll()) {
+                //std::cout << e.id << " " << e.baseCurrency << " "<< e.targetCurrency << " "<< e.rate << " " << std::endl;
+                if ((e.baseCurrency == transaction.currencyCode)&&(e.targetCurrency == from.currencyCode)) {
+                    transaction.amount = transaction.amount * e.rate;
+                    transaction.currencyCode = from.currencyCode;
+                }
+            }
+        }
+
+        for (Currency c:_currencyDao.getAll()) {
+            if (c.code == transaction.currencyCode) {
+                transaction.amount = transaction.amount * c.minorUnit;
+            }
+        }
+
+        std::cout << std::endl << transaction.currencyCode << std::endl;
+        std::cout << from.balance << " " << transaction.amount << std::endl;
+
+        if (from.balance<transaction.amount) {
+            transaction.status = "failed";
+            //_bankTransactionDao.create(transaction);
+            return false;
+        }
+        from.balance -= transaction.amount;
+        //_cardDao.update(from);
+        //_bankTransactionDao.create(transaction);
         return true;
     }
-    return false;
+    if (!transaction.fromCardId.has_value() && transaction.toCardId.has_value() && transaction.type=="deposit") {
+        std::cout << "Deposit";
+        //_bankTransactionDao.create(transaction);
+        return true;
+    }
+    if (!transaction.fromCardId.has_value() && !transaction.toCardId.has_value()) {
+        std::cout << "ERROR";
+        return false;
+    }
+    if (transaction.type=="transfer") {
+        std::cout << "Transfer";
+        //_bankTransactionDao.create(transaction);
+        return true;
+    }
+    if (transaction.type=="payment") {
+        std::cout << "Payment";
+        //_bankTransactionDao.create(transaction);
+        return true;
+    }
+    std::cout << "ERROR type";
+    return true;
 }

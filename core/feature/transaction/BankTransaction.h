@@ -48,12 +48,12 @@ struct soci::type_conversion<BankTransaction>
         v.set("id", c.id);
         v.set("created_at", c.createdAt);
         v.set("type", c.type);
-        v.set("from_card_id", c.fromCardId, c.fromCardId.has_value() ? i_ok : i_null);
-        v.set("to_card_id", c.toCardId, c.toCardId.has_value() ? i_ok : i_null);
+        v.set("from_card_id", c.fromCardId, c.fromCardId.has_value()? i_ok:i_null);
+        v.set("to_card_id", c.toCardId, c.toCardId.has_value()? i_ok:i_null);
         v.set("amount", c.amount);
         v.set("currency_code", c.currencyCode);
         v.set("description", c.description);
-        v.set("comment", c.comment, c.comment.has_value() ? i_ok : i_null);
+        v.set("comment", c.comment, c.comment.has_value()? i_ok:i_null);
         v.set("status", c.status);
     }
 };
