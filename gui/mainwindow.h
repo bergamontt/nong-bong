@@ -31,7 +31,18 @@ private slots:
     void on_B_500_clicked() const;
     void on_B_1000_clicked() const;
     void on_B_cancelWithdraw_clicked();
-    void on_B_enterWithdraw_clicked();
+    void on_B_enterWithdraw_clicked() const;
+
+    void on_B_deposit_clicked();
+    void on_B_D20_clicked() const;
+    void on_B_D50_clicked() const;
+    void on_B_D100_clicked() const;
+    void on_B_D200_clicked() const;
+    void on_B_D500_clicked() const;
+    void on_B_D1000_clicked() const;
+    void on_B_cancelDeposit_clicked();
+
+    void on_B_enterDeposit_clicked() const;
 
 private:
     Ui::MainWindow *ui;
@@ -48,4 +59,5 @@ private:
     void setupPinChangeScreen();
     void setupWithdrawScreen();
     void setupTransHistoryScreen();
+    void setupDepositScreen() const;
 };

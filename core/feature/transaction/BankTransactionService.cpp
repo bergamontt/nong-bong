@@ -44,14 +44,36 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
             _bankTransactionDao.create(transaction);
             return false;
         }
-        from.balance -= transaction.amount;
+        transaction.amount *= -1;
+        from.balance += transaction.amount;
         _cardDao.update(from);
         _bankTransactionDao.create(transaction);
         return true;
     }
     if (!transaction.fromCardId.has_value() && transaction.toCardId.has_value() && transaction.type=="deposit") {
         std::cout << "Deposit";
-        //_bankTransactionDao.create(transaction);
+        Card to = _cardDao.getById(transaction.toCardId.value()).value();
+        if (to.currencyCode != transaction.currencyCode) {
+            for (ExchangeRate e:_exchangeRateDao.getAll()) {
+                if ((e.baseCurrency == transaction.currencyCode)&&(e.targetCurrency == to.currencyCode)) {
+                    transaction.amount = transaction.amount * e.rate;
+                    transaction.currencyCode = to.currencyCode;
+                }
+            }
+        }
+
+        for (Currency c:_currencyDao.getAll()) {
+            if (c.code == transaction.currencyCode) {
+                transaction.amount = transaction.amount * c.minorUnit;
+            }
+        }
+
+        std::cout << std::endl << transaction.currencyCode << std::endl;
+        std::cout << to.balance << " " << transaction.amount << std::endl;
+
+        to.balance += transaction.amount;
+        _cardDao.update(to);
+        _bankTransactionDao.create(transaction);
         return true;
     }
     if (!transaction.fromCardId.has_value() && !transaction.toCardId.has_value()) {
