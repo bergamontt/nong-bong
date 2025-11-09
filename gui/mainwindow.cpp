@@ -274,6 +274,7 @@ void MainWindow::on_B_backToCard_clicked() {
 void MainWindow::setupTransHistoryScreen() {
     int cardId = ui->W_currentCard->getCardId();
     QWidget* listWidget = new TransactionListWidget(context, cardId);
+    listWidget->setMouseTracking(true);
     ui->transHistoryContainer->layout()->addWidget(listWidget);
 }
 

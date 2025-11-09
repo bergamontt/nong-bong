@@ -1,6 +1,7 @@
 #include "TransactionListModel.h"
 #include "feature/currency/ICurrencyService.h"
 #include "feature/transaction/IBankTransactionService.h"
+#include "feature/card/CardService.h"
 #include <QString>
 #include <cmath>
 
@@ -11,6 +12,14 @@ qint64 tmToEpoch(const tm& t)
     tm copy = t;
     time_t tt = mktime(&copy);
     return static_cast<qint64>(tt);
+}
+
+QString groupedCardNumber(const string& number) {
+    QString s = QString::fromStdString(number);
+    QStringList parts;
+    for (int i = 0; i < s.length(); i += 4)
+        parts << s.mid(i, 4);
+    return parts.join(' ');
 }
 
 TransactionListModel::TransactionListModel(const IContext& context, int cardId, QObject* parent)
@@ -73,6 +82,15 @@ QVariant TransactionListModel::data(const QModelIndex& index, int role) const
         case ColStatus:
             return QString::fromStdString(tx.status);
         }
+    }
+
+    if (role == Qt::ToolTipRole) {
+        if (index.column() == ColCounterparty)
+            return counterpartyText(tx);
+        if (index.column() == ColDescription)
+            return QString::fromStdString(tx.description);
+        if (index.column() == ColComment && tx.comment.has_value())
+            return QString::fromStdString(*tx.comment);
     }
 
     if (role == Qt::TextAlignmentRole) 
@@ -153,21 +171,21 @@ QString TransactionListModel::formatAmount(int amountMinor, const Currency& curr
 QString TransactionListModel::counterpartyText(const BankTransaction& tx) const {
     if (tx.fromCardId && _cardId == *tx.fromCardId) 
     {
-        if (tx.toCardId)
-            return QString("To: card #%1").arg(*tx.toCardId);
-        return QString("To: -");
+        if (tx.toCardId) 
+        {
+            Card card = _context.cardService().getCardById(*tx.toCardId).value();
+            return QString("To: %1").arg(groupedCardNumber(card.cardNumber));
+        }
+        return QString("To: ATM");
     }
     if (tx.toCardId && _cardId == *tx.toCardId) 
     {
         if (tx.fromCardId) 
-            return QString("From: card #%1").arg(*tx.fromCardId);
-        return QString("From: -");
+        {
+            Card card = _context.cardService().getCardById(*tx.fromCardId).value();
+            return QString("From: %1").arg(groupedCardNumber(card.cardNumber));
+        }
+        return QString("From: ATM");
     }
-    if (tx.fromCardId && tx.toCardId)
-        return QString("From #%1 To #%2").arg(*tx.fromCardId).arg(*tx.toCardId);
-    if (tx.fromCardId) 
-        return QString("From #%1").arg(*tx.fromCardId);
-    if (tx.toCardId) 
-        return QString("To #%1").arg(*tx.toCardId);
     return QString("-");
 }
