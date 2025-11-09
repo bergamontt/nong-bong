@@ -41,8 +41,10 @@ private slots:
     void on_B_D500_clicked() const;
     void on_B_D1000_clicked() const;
     void on_B_cancelDeposit_clicked();
-
     void on_B_enterDeposit_clicked() const;
+
+    void on_B_chooseDesign_clicked();
+    void on_B_cancelDesign_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -60,4 +62,6 @@ private:
     void setupWithdrawScreen();
     void setupTransHistoryScreen();
     void setupDepositScreen() const;
+    void setupDesignsScreen() const;
+
 };

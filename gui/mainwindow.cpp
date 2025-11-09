@@ -7,12 +7,12 @@
 #include "TransactionListWidget.h"
 #include <QMessageBox>
 #include <QSizePolicy>
+#include <QButtonGroup>
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QDir>
 #include <qvalidator.h>
-
 #include "feature/user/IUserService.h"
 #include "feature/user/User.h"
 
@@ -80,7 +80,8 @@ void MainWindow::on_B_enterPin_clicked() {
         ui->W_currentCardOnScreen->setCard(context.cardService().getCardById(ui->W_currentCard->getCardId()).value());
         if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
             const QPixmap design1(QString::fromStdString(
-                context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
+                context.cardDesignService().getCardDesignById(
+                    context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
                 value().imageRef));
             ui->W_currentCardOnScreen->setDesignPixmap(design1);
         } else {
@@ -121,15 +122,13 @@ void MainWindow::on_B_enterNewPin_clicked() {
     const QString oldPin = ui->LE_oldPin->text();
     const QString newPin = ui->LE_newPin_1->text();
     const QString newPinConfirm = ui->LE_newPin_2->text();
-    if (newPin.toStdString() == newPinConfirm.toStdString() 
-        && newPin.size() == 4 && newPinConfirm.size() == 4)
-    {
-        const std::string& oldPinStr = oldPin.toStdString();
-        const std::string& newPinStr = newPin.toStdString();
+    if (newPin.toStdString() == newPinConfirm.toStdString()
+        && newPin.size() == 4 && newPinConfirm.size() == 4) {
+        const std::string &oldPinStr = oldPin.toStdString();
+        const std::string &newPinStr = newPin.toStdString();
         const int id = ui->W_currentCard->getCardId();
         const bool success = context.cardService().changeCardPin(id, oldPinStr, newPinStr);
-        if (success) 
-        {
+        if (success) {
             on_B_cancelChange_clicked();
             return;
         }
@@ -208,42 +207,42 @@ void MainWindow::on_B_deposit_clicked() {
 }
 
 void MainWindow::on_B_D20_clicked() const {
-    const int currentAmount = ui->L_amountDeposit->text().toInt()+20;
+    const int currentAmount = ui->L_amountDeposit->text().toInt() + 20;
     ui->L_amountDeposit->clear();
     ui->L_amountDeposit->setText(QString::fromStdString(std::to_string(currentAmount)));
     ui->B_cancelDeposit->setDisabled(true);
 }
 
 void MainWindow::on_B_D50_clicked() const {
-    const int currentAmount = ui->L_amountDeposit->text().toInt()+50;
+    const int currentAmount = ui->L_amountDeposit->text().toInt() + 50;
     ui->L_amountDeposit->clear();
     ui->L_amountDeposit->setText(QString::fromStdString(std::to_string(currentAmount)));
     ui->B_cancelDeposit->setDisabled(true);
 }
 
 void MainWindow::on_B_D100_clicked() const {
-    const int currentAmount = ui->L_amountDeposit->text().toInt()+100;
+    const int currentAmount = ui->L_amountDeposit->text().toInt() + 100;
     ui->L_amountDeposit->setDisabled(true);
     ui->L_amountDeposit->setText(QString::fromStdString(std::to_string(currentAmount)));
     ui->B_cancelDeposit->setDisabled(true);
 }
 
 void MainWindow::on_B_D200_clicked() const {
-    const int currentAmount = ui->L_amountDeposit->text().toInt()+200;
+    const int currentAmount = ui->L_amountDeposit->text().toInt() + 200;
     ui->L_amountDeposit->clear();
     ui->L_amountDeposit->setText(QString::fromStdString(std::to_string(currentAmount)));
     ui->B_cancelDeposit->setDisabled(true);
 }
 
 void MainWindow::on_B_D500_clicked() const {
-    const int currentAmount = ui->L_amountDeposit->text().toInt()+500;
+    const int currentAmount = ui->L_amountDeposit->text().toInt() + 500;
     ui->L_amountDeposit->clear();
     ui->L_amountDeposit->setText(QString::fromStdString(std::to_string(currentAmount)));
     ui->B_cancelDeposit->setDisabled(true);
 }
 
 void MainWindow::on_B_D1000_clicked() const {
-    const int currentAmount = ui->L_amountDeposit->text().toInt()+1000;
+    const int currentAmount = ui->L_amountDeposit->text().toInt() + 1000;
     ui->L_amountDeposit->clear();
     ui->L_amountDeposit->setText(QString::fromStdString(std::to_string(currentAmount)));
     ui->B_cancelDeposit->setDisabled(true);
@@ -283,7 +282,30 @@ void MainWindow::on_B_enterDeposit_clicked() const {
     } else {
         qDebug() << "Deposit FAILURE";
     }
+}
 
+void MainWindow::on_B_transactionHistory_clicked() {
+    setupTransHistoryScreen();
+    animateTransition(ui->cardScreen, ui->transHistoryScreen);
+}
+
+void MainWindow::on_B_backToCard_clicked() {
+    QLayout *layout = ui->transHistoryContainer->layout();
+    QLayoutItem *item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+    animateTransition(ui->transHistoryScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_chooseDesign_clicked() {
+    setupDesignsScreen();
+    animateTransition(ui->cardScreen, ui->designsScreen);
+}
+
+void MainWindow::on_B_cancelDesign_clicked() {
+    animateTransition(ui->designsScreen, ui->cardScreen);
 }
 
 void MainWindow::setupPinScreen() {
@@ -316,11 +338,98 @@ void MainWindow::setupPinChangeScreen() {
     ui->L_newPinInvalid->hide();
 }
 
+void MainWindow::setupDesignsScreen() const {
+    const Card currentCardD = context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value();
+    ui->SA_designs->setWidgetResizable(false);
+    auto *buttonGroup = new QButtonGroup(ui->GL_designs);
+    buttonGroup->setExclusive(true);
+
+    const auto designs = context.cardDesignService().getAllCardDesigns();
+    int currentDesignId = 0;
+    if (context.cardService().getCardById(currentCardD.id).has_value()) {
+        if (context.cardService().getCardById(currentCardD.id).value().designId.has_value()) {
+            currentDesignId = context.cardService().getCardById(currentCardD.id).value().designId.value();
+        }
+    }
+    int totalRows = (designs.size() + 1) / 2;
+    int rowHeight = 220;
+    ui->scrollAreaWidgetContents->setMinimumHeight(totalRows * rowHeight);
+    ui->scrollAreaWidgetContents->setMinimumWidth(2 * 220 + 100);
+    int row = 0, col = 0;
+    for (const auto &d: designs) {
+        auto *btn = new QPushButton();
+        btn->setIcon(QIcon(QString::fromStdString(d.imageRef)));
+        btn->setIconSize(QSize(180, 116));
+        btn->setMinimumSize(QSize(200, 130));
+        btn->setCheckable(true);
+        btn->setStyleSheet("QPushButton { border: 3px solid transparent; border-radius: 10px; }"
+            "QPushButton:checked { border: 3px solid #eae3d8; }");
+        auto *nameLabel = new QLabel(QString::fromStdString(d.name));
+        auto *authorLabel = new QLabel("");
+        if (d.author.has_value()) {
+            authorLabel = new QLabel("by " + QString::fromStdString(d.author.value()));
+        }
+        nameLabel->setAlignment(Qt::AlignCenter);
+        authorLabel->setAlignment(Qt::AlignCenter);
+        btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        nameLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        authorLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        auto *vbox = new QVBoxLayout();
+        vbox->addWidget(btn);
+        vbox->addWidget(nameLabel);
+        vbox->addWidget(authorLabel);
+        auto *cardWidget = new QWidget();
+        cardWidget->setFixedSize(210, 200);
+        cardWidget->setLayout(vbox);
+        ui->GL_designs->addWidget(cardWidget, row, col);
+        buttonGroup->addButton(btn, d.id);
+        if (d.id == currentDesignId) btn->setChecked(true);
+        if (++col == 2) {
+            col = 0;
+            row++;
+        }
+        ui->scrollAreaWidgetContents->adjustSize();
+    }
+    connect(buttonGroup, &QButtonGroup::buttonClicked, this, [this, buttonGroup, currentCardD](QAbstractButton *button) {
+        int id = buttonGroup->id(button);
+        qDebug() << "chosen ID:" << id;
+        auto cardOpt = context.cardService().getCardById(currentCardD.id);
+        if (cardOpt.has_value()) {
+            auto card = cardOpt.value();
+            card.designId = id;
+            context.cardService().updateCard(card);
+            ui->W_currentCardwd->setCard(card);
+            ui->W_currentCard->setCard(card);
+            ui->W_currentCardOnScreen->setCard(card);
+            ui->W_currentCardd->setCard(card);
+        }
+    });
+
+    connect(ui->B_noDesign, &QPushButton::clicked, this, [this, buttonGroup, currentCardD]() {
+        buttonGroup->setExclusive(false);
+        for (auto *b: buttonGroup->buttons()) b->setChecked(false);
+        buttonGroup->setExclusive(true);
+        qDebug() << "no design";
+        auto cardOpt = context.cardService().getCardById(currentCardD.id);
+        if (cardOpt.has_value()) {
+            auto card = cardOpt.value();
+            card.designId = std::nullopt;
+            context.cardService().updateCard(card);
+            ui->W_currentCardwd->setCard(card);
+            ui->W_currentCard->setCard(card);
+            ui->W_currentCardOnScreen->setCard(card);
+            ui->W_currentCardd->setCard(card);
+        }
+    });
+}
+
+
 void MainWindow::setupWithdrawScreen() {
     ui->W_currentCardwd->setCard(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value());
     if (context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.has_value()) {
         const QPixmap design1(QString::fromStdString(
-            context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).
+            context.cardDesignService().getCardDesignById(
+                context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).
             value().imageRef));
         ui->W_currentCardwd->setDesignPixmap(design1);
     } else {
@@ -331,24 +440,9 @@ void MainWindow::setupWithdrawScreen() {
     ui->L_failWithdrawal->hide();
 }
 
-void MainWindow::on_B_transactionHistory_clicked() {
-    setupTransHistoryScreen();
-    animateTransition(ui->cardScreen, ui->transHistoryScreen);
-}
-
-void MainWindow::on_B_backToCard_clicked() {
-    QLayout* layout = ui->transHistoryContainer->layout();
-    QLayoutItem* item;
-    while ((item = layout->takeAt(0)) != nullptr) {
-        delete item->widget();
-        delete item;
-    }
-    animateTransition(ui->transHistoryScreen, ui->cardScreen);
-}
-
 void MainWindow::setupTransHistoryScreen() {
     int cardId = ui->W_currentCard->getCardId();
-    QWidget* listWidget = new TransactionListWidget(context, cardId);
+    QWidget *listWidget = new TransactionListWidget(context, cardId);
     listWidget->setMouseTracking(true);
     ui->transHistoryContainer->layout()->addWidget(listWidget);
 }
@@ -357,7 +451,8 @@ void MainWindow::setupDepositScreen() const {
     ui->W_currentCardd->setCard(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value());
     if (context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.has_value()) {
         const QPixmap design1(QString::fromStdString(
-            context.cardDesignService().getCardDesignById(context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).
+            context.cardDesignService().getCardDesignById(
+                context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).
             value().imageRef));
         ui->W_currentCardd->setDesignPixmap(design1);
     } else {
@@ -384,7 +479,6 @@ void MainWindow::setupDepositScreen() const {
     ui->B_D500->setIconSize(QSize(90, 174));
     ui->B_D1000->setIcon(QIcon(":uah/resources/uah/1000_uah.png"));
     ui->B_D1000->setIconSize(QSize(90, 174));
-
 }
 
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
@@ -521,7 +615,9 @@ void MainWindow::setStyles() const {
 }
 
 void MainWindow::initDesigns() {
-    std::cout << QPixmap(":uah/resources/uah/20_uah.png").isNull();
+    if (context.cardDesignService().getAllCardDesigns().size() > 0) {
+        return;
+    }
     context.cardDesignService().deleteAll();
     CardDesign newDesign;
     newDesign.name = "Church";
@@ -545,6 +641,20 @@ void MainWindow::initDesigns() {
         card = context.cardService().getCardById(4).value();
         card.designId = allDesigns[1].id;
         context.cardService().updateCard(card);
-
     }
+
+    CardDesign newDesign2;
+    newDesign2.name = "Blurred wheel";
+    newDesign2.imageRef = ":/designs/resources/designs/blurred_wheel.jpg";
+    context.cardDesignService().createCardDesign(newDesign2);
+
+    CardDesign newDesign3;
+    newDesign2.name = "KMA";
+    newDesign2.imageRef = ":/designs/resources/designs/kma.jpg";
+    context.cardDesignService().createCardDesign(newDesign2);
+    /*
+        CardDesign newDesign4;
+        newDesign2.name = "Floor pattern";
+        newDesign2.imageRef = ":/designs/resources/designs/floor.jpg";
+        context.cardDesignService().createCardDesign(newDesign2);*/
 }
