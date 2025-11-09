@@ -50,12 +50,12 @@ struct soci::type_conversion<User>
         v.set("id", u.id);
         v.set("first_name", u.firstName);
         v.set("last_name", u.lastName);
-        v.set("email", u.email, !u.email.has_value() ? i_ok : i_null);
+        v.set("email", u.email, u.email.has_value() ? i_ok : i_null);
         v.set("phone", u.phone);
-        v.set("created_at", u.createdAt, !u.createdAt.has_value() ? i_ok : i_null);
+        v.set("created_at", u.createdAt, u.createdAt.has_value() ? i_ok : i_null);
         v.set("password_hash", u.passwordHash);
         v.set("status", u.status);
         v.set("failed_login_count", u.failedLoginCount);
-        v.set("blocked_until", u.blockedUntil, !u.blockedUntil.has_value() ? i_ok : i_null);
+        v.set("blocked_until", u.blockedUntil, u.blockedUntil.has_value() ? i_ok : i_null);
     }
 };

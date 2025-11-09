@@ -22,8 +22,8 @@ namespace user_sql {
 
     inline const auto create =
             "INSERT INTO user ("
-            "id, first_name, last_name, email, phone, created_at, "
+            "first_name, last_name, email, phone, created_at, "
             "password_hash, status, failed_login_count, blocked_until) "
-            "VALUES (:id, :first_name, :last_name, :email, :phone, :created_at, "
+            "VALUES (:first_name, :last_name, :email, :phone, :created_at, "
             ":password_hash, :status, :failed_login_count, :blocked_until)";
 }
