@@ -1,11 +1,12 @@
 add_library(gui_lib
-	BankCardWidget.h
-	BankCardWidget.cpp
-	BankCardList.h
-	BankCardList.cpp
+		BankCardWidget.h
+		BankCardWidget.cpp
+		BankCardList.h
+		BankCardList.cpp
         mainwindow.h
         mainwindow.cpp
         mainwindow.ui
+		resources/resources.qrc
 )
 
 set_target_properties(gui_lib PROPERTIES
@@ -15,7 +16,7 @@ set_target_properties(gui_lib PROPERTIES
 )
 
 target_link_libraries(gui_lib PRIVATE
-	Qt6::Widgets
+		Qt6::Widgets
         soci_core
 )
 

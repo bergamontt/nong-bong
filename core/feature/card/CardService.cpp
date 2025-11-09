@@ -1,8 +1,5 @@
 #include "CardService.h"
-
 #include <iostream>
-#include <qlogging.h>
-
 #include "Hasher.h"
 
 CardService::CardService(ICardDao &dao)

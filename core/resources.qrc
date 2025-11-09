@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/designs">
-        <file>resources/designs/church1.jpg</file>
-        <file>resources/designs/spiral_staircase.jpg</file>
-        <file>resources/designs/blurred_wheel.jpg</file>
-
-    </qresource>
-</RCC>
