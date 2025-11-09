@@ -31,8 +31,10 @@ namespace card_sql {
             "WHERE id = :id";
 
     inline const auto create =
-            "INSERT INTO card (id, user_id, card_number, allow_credit, "
+            "INSERT INTO card (user_id, card_number, allow_credit, "
             "credit_limit, currency_code, balance, daily_limit, design_id, "
             "pin_hash, status, failed_access_count, blocked_until) "
-            "VALUES (:c)";
+            "VALUES (:user_id, :card_number, :allow_credit, "
+            ":credit_limit, :currency_code, :balance, :daily_limit, :design_id, "
+            ":pin_hash, :status, :failed_access_count, :blocked_until)";
 }

@@ -10,8 +10,6 @@ std::optional<Card> CardDao::doGetById(int id) const
     Card res;
     sql << card_sql::getById,
         soci::use(id, "id"), soci::into(res);
-    if (!sql.got_data())
-        throw runtime_error("Card not found: " + id);
     return res;
 }
 
@@ -57,6 +55,7 @@ void CardDao::doUpdatePin(const Card& card) const
 void CardDao::doCreate(const Card& card) const
 {
     soci::session sql(_pool);
+    std::string statusStr = statusToString(card.status);
     sql << card_sql::create,
         soci::use(card);
 }

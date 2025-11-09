@@ -3,6 +3,8 @@ add_executable(core_tests
         UserDaoTest.cpp
         CardDesignDaoTest.cpp
         CurrencyDaoTest.cpp
+        ExchangeRateDaoTest.cpp
+        CardDaoTest.cpp
 )
 
 target_link_libraries(core_tests PRIVATE
@@ -12,7 +14,7 @@ target_link_libraries(core_tests PRIVATE
 )
 
 target_include_directories(core_tests PRIVATE
-        ${CMAKE_SOURCE_DIR}/external/doctest
+        ${CMAKE_SOURCE_DIR}/external
 )
 
 enable_testing()

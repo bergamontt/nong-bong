@@ -9,9 +9,7 @@ void CurrencyDao::doCreate(const Currency& currency) const
 {
     soci::session sql(_pool);
     sql << currency_sql::create,
-        soci::use(currency.code),
-        soci::use(currency.name),
-        soci::use(currency.minorUnit);
+        soci::use(currency);
 }
 
 Currency CurrencyDao::doGetCurrencyByCode(const string& code) const

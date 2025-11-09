@@ -3,6 +3,14 @@
 
 using namespace std;
 
+
+void ExchangeRateDao::doCreate(const ExchangeRate& rate) const
+{
+    soci::session sql(_pool);
+    sql << exchange_rate_sql::create,
+        soci::use(rate);
+}
+
 ExchangeRate ExchangeRateDao::doGetById(int id) const
 {
     soci::session sql(_pool);
