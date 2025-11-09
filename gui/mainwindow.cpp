@@ -98,6 +98,13 @@ void MainWindow::on_B_enterPin_clicked() {
     }
 }
 
+void MainWindow::on_B_cancelPin_clicked() 
+{
+    ui->L_accessDenied->hide();
+    ui->LE_pin->clear();
+    animateTransition(ui->pinScreen, ui->dashboardScreen);
+}
+
 void MainWindow::on_B_logout_clicked() {
     ui->LE_phone->clear();
     ui->LE_password->clear();
@@ -344,6 +351,11 @@ void MainWindow::on_B_backToCard_clicked() {
         delete item;
     }
     animateTransition(ui->transHistoryScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_toCardList_clicked()
+{
+    animateTransition(ui->cardScreen, ui->dashboardScreen);
 }
 
 void MainWindow::setupTransHistoryScreen() {
