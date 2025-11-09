@@ -91,7 +91,7 @@ inline void DBTestFixture::createSchema(soci::session& sql)
             amount INTEGER NOT NULL CHECK (amount > 0),
             currency_code TEXT NOT NULL REFERENCES currency(code),
             frequency TEXT NOT NULL CHECK (frequency IN ('daily','weekly','monthly')),
-            next_run DATETIME,
+            next_tun DATETIME,
             active INTEGER NOT NULL DEFAULT 1,
             description TEXT NOT NULL,
             comment TEXT
