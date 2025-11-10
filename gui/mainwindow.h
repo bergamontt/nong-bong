@@ -51,6 +51,12 @@ private slots:
     void on_B_chooseDesign_clicked();
     void on_B_cancelDesign_clicked();
 
+    void on_B_register_clicked();
+    void on_B_cancelRegister_clicked();
+    void on_B_enterRegister_clicked();
+
+    void on_B_startWork_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::map<std::string, std::string> users;
@@ -68,5 +74,6 @@ private:
     void setupTransHistoryScreen();
     void setupDepositScreen() const;
     void setupDesignsScreen() const;
+    void setupRegisterScreen() const;
 
 };

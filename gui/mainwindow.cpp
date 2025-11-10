@@ -13,6 +13,8 @@
 #include <QParallelAnimationGroup>
 #include <QDir>
 #include <qvalidator.h>
+#include <regex>
+
 #include "feature/user/IUserService.h"
 #include "feature/user/User.h"
 
@@ -324,6 +326,83 @@ void MainWindow::on_B_cancelDesign_clicked() {
     animateTransition(ui->designsScreen, ui->cardScreen);
 }
 
+void MainWindow::on_B_register_clicked() {
+    setupRegisterScreen();
+    animateTransition(ui->loginScreen, ui->registerScreen);
+}
+
+void MainWindow::on_B_cancelRegister_clicked() {
+    ui->L_fillCorrectly->hide();
+    ui->LE_phone->clear();
+    ui->LE_password->clear();
+    animateTransition(ui->registerScreen, ui->loginScreen);
+}
+
+void MainWindow::on_B_enterRegister_clicked() {
+    const std::string regFirstName = ui->LE_firstName->text().toStdString();
+    const std::string regLastName = ui->LE_lastName->text().toStdString();
+    const std::string regEmail = ui->LE_email->text().toStdString();
+    const std::string regPhone = ui->LE_phoneNumber->text().toStdString();
+    const std::string regPassword = ui->LE_password_2->text().toStdString();
+
+    if (regFirstName.empty() || regLastName.empty() || regPhone.empty() || regPassword.empty()) {
+        ui->L_fillCorrectly->setText("Fields marked with * are required");
+        ui->L_fillCorrectly->show();
+        shakeLabel(ui->L_fillCorrectly);
+        return;
+    }
+
+    if (context.userService().getUserByPhone(regPhone).has_value()) {
+        ui->L_fillCorrectly->setText("User with this phone number is already registered");
+        ui->L_fillCorrectly->show();
+        shakeLabel(ui->L_fillCorrectly);
+        return;
+    }
+
+    if (regPassword.size()<8) {
+        ui->L_fillCorrectly->setText("Your password is too short (minimum 8 symbols required)");
+        ui->L_fillCorrectly->show();
+        shakeLabel(ui->L_fillCorrectly);
+        return;
+    }
+
+    auto regUser = User();
+    regUser.firstName = regFirstName;
+    regUser.lastName = regLastName;
+    regUser.phone = regPhone;
+    regUser.passwordHash = regPassword;
+    regUser.status = "active";
+    if (!regEmail.empty()) {
+        const std::regex pattern(R"(^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$)");
+        if (!std::regex_match(regEmail, pattern)) {
+            ui->L_fillCorrectly->setText("Please enter a valid email (or erase completely, it is not required)");
+            ui->L_fillCorrectly->show();
+            shakeLabel(ui->L_fillCorrectly);
+            return;
+        }
+        regUser.email = regEmail;
+    }
+    context.userService().createUser(regUser);
+
+    ui->LE_firstName->clear();
+    ui->LE_lastName->clear();
+    ui->LE_email->clear();
+    ui->LE_phoneNumber->clear();
+    ui->LE_password_2->clear();
+
+    ui->L_fillCorrectly->hide();
+
+    animateTransition(ui->registerScreen, ui->thanksScreen);
+}
+
+void MainWindow::on_B_startWork_clicked() {
+    ui->L_fillCorrectly->hide();
+    ui->LE_phone->clear();
+    ui->LE_password->clear();
+    animateTransition(ui->thanksScreen, ui->loginScreen);
+}
+
+
 void MainWindow::setupPinScreen() {
     ui->LE_pin->setEchoMode(QLineEdit::Password);
     ui->LE_pin->setMaxLength(4);
@@ -352,6 +431,27 @@ void MainWindow::setupPinChangeScreen() {
     sp.setRetainSizeWhenHidden(true);
     ui->L_newPinInvalid->setSizePolicy(sp);
     ui->L_newPinInvalid->hide();
+}
+
+void MainWindow::setupRegisterScreen() const {
+    ui->LE_firstName->clear();
+    ui->LE_lastName->clear();
+    ui->LE_email->clear();
+    ui->LE_phoneNumber->clear();
+    ui->LE_password_2->clear();
+
+    ui->LE_firstName->setValidator(
+        new QRegularExpressionValidator(QRegularExpression("^[A-Za-zА-Яа-яЇїІіЄєҐґ'-]{2,20}$"), ui->LE_firstName));
+    ui->LE_lastName->setValidator(
+        new QRegularExpressionValidator(QRegularExpression("^[A-Za-zА-Яа-яЇїІіЄєҐґ'-]{2,20}$"), ui->LE_lastName));
+    ui->LE_email->setValidator(
+        new QRegularExpressionValidator(QRegularExpression("^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,}$"), ui->LE_email));
+    ui->LE_phoneNumber->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
+    ui->LE_password_2->setValidator(new QRegularExpressionValidator(QRegularExpression("^.{6,}$"), ui->LE_password_2));
+
+    ui->L_fillCorrectly->clear();
+    ui->L_fillCorrectly->setText("FILL ALL THE FIELDS CORRECTLY, PLEASE");
+    ui->L_fillCorrectly->hide();
 }
 
 void MainWindow::setupDesignsScreen() const {
@@ -591,11 +691,15 @@ void MainWindow::shakeLabel(QLabel *label) {
 
 void MainWindow::setStyles() const {
     ui->L_welcome->setObjectName("welcomeLabel");
+    ui->L_welcome_2->setObjectName("welcome2Label");
     ui->L_welcomeUser->setObjectName("welcomeUserLabel");
     ui->L_accessDenied->setObjectName("accessDeniedLabel");
     ui->L_cashWithdrawal->setObjectName("cashWithdrawalLabel");
     ui->L_failWithdrawal->setObjectName("failWithdrawalLabel");
     ui->L_cashDepositing->setObjectName("cashDepositingLabel");
+    ui->L_fillCorrectly->setObjectName("fillCorrectlyLabel");
+    ui->L_join->setObjectName("joinLabel");
+
 
     qApp->setStyleSheet(R"(
         QMainWindow { background-color: #57735d; }
@@ -612,7 +716,25 @@ void MainWindow::setStyles() const {
             padding: 10px 20px;
             qproperty-alignment: 'AlignCenter';
         }
+        QLabel#welcome2Label {
+            color: #222220;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #eae4d9;
+            border-radius: 20px;
+            padding: 10px 20px;
+            qproperty-alignment: 'AlignCenter';
+        }
         QLabel#welcomeUserLabel {
+            color: #805535;
+            font-size: 15px;
+            font-weight: bold;
+            background-color: #eae4d9;
+            border-radius: 20px;
+            padding: 10px 20px;
+            qproperty-alignment: 'AlignCenter';
+        }
+        QLabel#joinLabel {
             color: #805535;
             font-size: 15px;
             font-weight: bold;
@@ -638,6 +760,12 @@ void MainWindow::setStyles() const {
             qproperty-alignment: 'AlignCenter';
         }
         QLabel#failWithdrawalLabel {
+            color: #800000;
+            font-size: 15px;
+            font-weight: bold;
+            qproperty-alignment: 'AlignCenter';
+        }
+        QLabel#fillCorrectlyLabel {
             color: #800000;
             font-size: 15px;
             font-weight: bold;
