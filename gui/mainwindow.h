@@ -59,6 +59,8 @@ private slots:
     void on_B_chooseDesign_clicked();
     void on_B_cancelDesign_clicked();
 
+    void on_B_deleteCard_clicked();
+
     void on_B_register_clicked();
     void on_B_cancelRegister_clicked();
     void on_B_enterRegister_clicked();
