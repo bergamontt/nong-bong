@@ -25,31 +25,35 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
     if (transaction.fromCardId.has_value() && !transaction.toCardId.has_value() && transaction.type=="withdrawal") {
         std::cout << "Withdrawal";
         Card from = _cardDao.getById(transaction.fromCardId.value()).value();
+        
+        for (Currency c : _currencyDao.getAll()) {
+            if (c.code == transaction.currencyCode) {
+                transaction.amount *= c.minorUnit;
+            }
+        }
+        int fromLost = transaction.amount;
         if (from.currencyCode != transaction.currencyCode) {
             for (ExchangeRate e:_exchangeRateDao.getAll()) {
                 //std::cout << e.id << " " << e.baseCurrency << " "<< e.targetCurrency << " "<< e.rate << " " << std::endl;
                 if ((e.baseCurrency == transaction.currencyCode)&&(e.targetCurrency == from.currencyCode)) {
-                    transaction.amount = transaction.amount * e.rate;
-                    transaction.currencyCode = from.currencyCode;
+                    fromLost *= e.rate;
                 }
-            }
-        }
-
-        for (Currency c:_currencyDao.getAll()) {
-            if (c.code == transaction.currencyCode) {
-                transaction.amount = transaction.amount * c.minorUnit;
             }
         }
 
         std::cout << std::endl << transaction.currencyCode << std::endl;
         std::cout << from.balance << " " << transaction.amount << std::endl;
 
-        if (from.balance<transaction.amount) {
+        int allowed = from.balance;
+        if (from.allowCredit)
+            allowed += from.creditLimit.value();
+        if (allowed < transaction.amount) {
             transaction.status = "failed";
             _bankTransactionDao.create(transaction);
             return false;
         }
-        from.balance -= transaction.amount;
+
+        from.balance -= fromLost;
         _cardDao.update(from);
         _bankTransactionDao.create(transaction);
         return true;
@@ -57,25 +61,25 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
     if (!transaction.fromCardId.has_value() && transaction.toCardId.has_value() && transaction.type=="deposit") {
         std::cout << "Deposit";
         Card to = _cardDao.getById(transaction.toCardId.value()).value();
+        
+        for (Currency c : _currencyDao.getAll()) {
+            if (c.code == transaction.currencyCode) {
+                transaction.amount = transaction.amount * c.minorUnit;
+            }
+        }
+        int toReceived = transaction.amount;
         if (to.currencyCode != transaction.currencyCode) {
             for (ExchangeRate e:_exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode)&&(e.targetCurrency == to.currencyCode)) {
-                    transaction.amount = transaction.amount * e.rate;
-                    transaction.currencyCode = to.currencyCode;
+                    toReceived *= e.rate;
                 }
-            }
-        }
-
-        for (Currency c:_currencyDao.getAll()) {
-            if (c.code == transaction.currencyCode) {
-                transaction.amount = transaction.amount * c.minorUnit;
             }
         }
 
         std::cout << std::endl << transaction.currencyCode << std::endl;
         std::cout << to.balance << " " << transaction.amount << std::endl;
 
-        to.balance += transaction.amount;
+        to.balance += toReceived;
         _cardDao.update(to);
         _bankTransactionDao.create(transaction);
         return true;
@@ -92,13 +96,13 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
         int fromLost = transaction.amount;
         for (Currency c : _currencyDao.getAll()) {
             if (c.code == from.currencyCode) {
-                fromLost = fromLost * c.minorUnit;
+                fromLost *= c.minorUnit;
             }
         }
         if (from.currencyCode != transaction.currencyCode) {
             for (ExchangeRate e : _exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
-                    fromLost = fromLost * e.rate;
+                    fromLost *= e.rate;
                 }
             }
         }
@@ -106,13 +110,13 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
         int toReceived = transaction.amount;
         for (Currency c : _currencyDao.getAll()) {
             if (c.code == to.currencyCode) {
-                toReceived = toReceived * c.minorUnit;
+                toReceived *= c.minorUnit;
             }
         }
         if (from.currencyCode != transaction.currencyCode) {
             for (ExchangeRate e : _exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
-                    fromLost = fromLost * e.rate;
+                    fromLost *= e.rate;
                 }
             }
         }
@@ -125,6 +129,15 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
 
         std::cout << std::endl << transaction.currencyCode << std::endl;
         std::cout << to.balance << " " << transaction.amount << std::endl;
+
+        int allowed = from.balance;
+        if (from.allowCredit)
+            allowed += from.creditLimit.value();
+        if (allowed < transaction.amount) {
+            transaction.status = "failed";
+            _bankTransactionDao.create(transaction);
+            return false;
+        }
 
         to.balance += toReceived;
         from.balance -= fromLost;
