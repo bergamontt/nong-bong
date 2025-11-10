@@ -78,7 +78,9 @@ private slots:
     void on_B_S1000_clicked() const;
     void on_B_backScheduledTransfer_clicked();
     void on_B_enterScheduledTransfer_clicked() const;
-    void on_B_myScheduledPayments_clicked();
+
+    void on_B_viewScheduledPayments_clicked();
+    void on_B_backToScheduledTransfer_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -100,6 +102,7 @@ private:
     void setupTransferScreen();
     void setupRegisterScreen() const;
     void setupScheduledTransferScreen();
+    void setupViewScheduledPaymentsScreen();
     void setupCreateCardScreen();
 
 };

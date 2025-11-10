@@ -8,6 +8,7 @@
 #include "ui_mainwindow.h"
 #include "BankCardList.h"
 #include "TransactionListWidget.h"
+#include "ScheduledTransferListWidget.h"
 #include <QMessageBox>
 #include <QSizePolicy>
 #include <QButtonGroup>
@@ -37,6 +38,7 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->W_currentCard->setContext(context);
     ui->W_currentCard_2->setContext(context);
     ui->W_currentCard_3->setContext(context);
+    ui->W_currentCard_4->setContext(context);
     ui->W_currentCardd->setContext(context);
     ui->W_currentCardwd->setContext(context);
     ui->W_currentCardOnScreen->setContext(context);
@@ -241,6 +243,7 @@ void MainWindow::on_B_enterWithdraw_clicked() const {
         ui->W_currentCard->setCardId(cardId);
         ui->W_currentCard_2->setCardId(cardId);
         ui->W_currentCard_3->setCardId(cardId);
+        ui->W_currentCard_4->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
         ui->W_currentCardd->setCardId(cardId);
         ui->W_currentCard_sp->setCardId(cardId);
@@ -329,6 +332,7 @@ void MainWindow::on_B_enterDeposit_clicked() const {
         ui->W_currentCard->setCardId(cardId);
         ui->W_currentCard_2->setCardId(cardId);
         ui->W_currentCard_3->setCardId(cardId);
+        ui->W_currentCard_4->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
         ui->W_currentCard_sp->setCardId(cardId);
 
@@ -353,6 +357,23 @@ void MainWindow::on_B_backToCard_clicked() {
         delete item;
     }
     animateTransition(ui->transHistoryScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_viewScheduledPayments_clicked()
+{
+    setupViewScheduledPaymentsScreen();
+    animateTransition(ui->scheduledTransferScreen, ui->scheduledPaymentsScreen);
+}
+
+void MainWindow::on_B_backToScheduledTransfer_clicked()
+{
+    QLayout* layout = ui->scheduledPaymentsContainer->layout();
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+    animateTransition(ui->scheduledPaymentsScreen, ui->scheduledTransferScreen);
 }
 
 void MainWindow::on_B_chooseDesign_clicked() {
@@ -714,6 +735,7 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
         ui->W_currentCard->setCardId(cardId);
         ui->W_currentCard_2->setCardId(cardId);
         ui->W_currentCard_3->setCardId(cardId);
+        ui->W_currentCard_4->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
         ui->W_currentCardd->setCardId(cardId);
         ui->W_currentCard_sp->setCardId(cardId);
@@ -727,12 +749,6 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
         shakeLabel(ui->L_failScheduledTransfer);
     }
 }
-
-void MainWindow::on_B_myScheduledPayments_clicked() {
-    //
-    //animateTransition(ui->scheduledTransferScreen,);
-}
-
 
 void MainWindow::setupPinScreen() {
     ui->LE_pin->clear();
@@ -1050,6 +1066,26 @@ void MainWindow::setupScheduledTransferScreen() {
     ui->L_failScheduledTransfer->setText("FAIL");
     ui->L_failScheduledTransfer->hide();
     ui->LE_scheduledTransferDest->setInputMask(R"(9999 9999 9999 9999)");
+}
+
+void MainWindow::setupViewScheduledPaymentsScreen()
+{
+    int cardId = ui->W_currentCard->getCardId();
+    Card card = context.cardService().getCardById(cardId).value();
+    QWidget* listWidget = new ScheduledTransferListWidget(context, cardId);
+    ui->W_currentCard_4->setCardId(cardId);
+    if (card.designId.has_value()) {
+        const QPixmap design(QString::fromStdString(
+            context.cardDesignService()
+            .getCardDesignById(card.designId.value()).
+            value().imageRef));
+        ui->W_currentCard_4->setDesignPixmap(design);
+    }
+    else {
+        ui->W_currentCard_4->setDesignPixmap();
+    }
+    listWidget->setMouseTracking(true);
+    ui->scheduledPaymentsContainer->layout()->addWidget(listWidget);
 }
 
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {

@@ -7,6 +7,10 @@ add_library(gui_lib
 		TransactionListModel.cpp
 		TransactionListWidget.h
 		TransactionListWidget.cpp
+		ScheduledTransferListModel.h
+		ScheduledTransferListModel.cpp
+		ScheduledTransferListWidget.h
+		ScheduledTransferListWidget.cpp
         mainwindow.h
         mainwindow.cpp
         mainwindow.ui
