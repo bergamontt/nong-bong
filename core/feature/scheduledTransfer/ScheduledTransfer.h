@@ -31,9 +31,9 @@ struct soci::type_conversion<ScheduledTransfer>
         s.amount = v.get<int>("amount");
         s.currencyCode = v.get<std::string>("currency_code");
         s.frequency = v.get<std::string>("frequency");
-        s.nextTun = (v.get_indicator("next_tun") == i_null)
+        s.nextTun = (v.get_indicator("next_run") == i_null)
             ? std::nullopt
-            : std::make_optional(v.get<std::tm>("next_tun"));
+            : std::make_optional(v.get<std::tm>("next_run"));
         s.active = v.get<int>("active");
         s.description = v.get<std::string>("description");
         s.comment = (v.get_indicator("comment") == i_null)
@@ -49,7 +49,7 @@ struct soci::type_conversion<ScheduledTransfer>
         v.set("amount", s.amount);
         v.set("currency_code", s.currencyCode);
         v.set("frequency", s.frequency);
-        v.set("next_tun", s.nextTun, s.nextTun.has_value() ? i_ok : i_null);
+        v.set("next_run", s.nextTun, s.nextTun.has_value() ? i_ok : i_null);
         v.set("active", s.active);
         v.set("description", s.description);
         v.set("comment", s.comment, s.comment.has_value() ? i_ok : i_null);

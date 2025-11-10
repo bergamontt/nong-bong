@@ -65,6 +65,14 @@ private slots:
 
     void on_B_startWork_clicked();
 
+    void on_B_regularPayment_clicked();
+    void on_B_S100_clicked() const;
+    void on_B_S200_clicked() const;
+    void on_B_S500_clicked() const;
+    void on_B_S1000_clicked() const;
+    void on_B_backScheduledTransfer_clicked();
+    void on_B_enterScheduledTransfer_clicked() const;
+
 private:
     Ui::MainWindow *ui;
     std::map<std::string, std::string> users;
@@ -84,5 +92,6 @@ private:
     void setupDesignsScreen() const;
     void setupTransferScreen();
     void setupRegisterScreen() const;
+    void setupScheduledTransferScreen();
 
 };

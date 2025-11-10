@@ -14,9 +14,9 @@ namespace scheduled_transfer_sql
     inline const auto create =
         "INSERT INTO scheduled_transfer ("
         "from_card_id, to_card_id, amount, currency_code, frequency, "
-        "next_tun, active, description, comment) "
+        "next_run, active, description, comment) "
         "VALUES (:from_card_id, :to_card_id, :amount, :currency_code, :frequency, "
-        ":next_tun, :active, :description, :comment)";
+        ":next_run, :active, :description, :comment)";
 
     inline const auto update =
         "UPDATE scheduled_transfer SET "
@@ -25,7 +25,7 @@ namespace scheduled_transfer_sql
         "amount = :amount, "
         "currency_code = :currency_code, "
         "frequency = :frequency, "
-        "next_tun = :next_tun, "
+        "next_run = :next_run, "
         "active = :active, "
         "description = :description, "
         "comment = :comment "

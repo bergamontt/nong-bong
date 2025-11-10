@@ -135,9 +135,56 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
     }
     if (transaction.type=="payment") {
         std::cout << "Payment";
-        //_bankTransactionDao.create(transaction);
+        Card to = _cardDao.getById(transaction.toCardId.value()).value();
+        Card from = _cardDao.getById(transaction.fromCardId.value()).value();
+
+        int fromLost = transaction.amount;
+        for (Currency c : _currencyDao.getAll()) {
+            if (c.code == from.currencyCode) {
+                fromLost = fromLost * c.minorUnit;
+            }
+        }
+        if (from.currencyCode != transaction.currencyCode) {
+            for (ExchangeRate e : _exchangeRateDao.getAll()) {
+                if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
+                    fromLost = fromLost * e.rate;
+                }
+            }
+        }
+
+        int toReceived = transaction.amount;
+        for (Currency c : _currencyDao.getAll()) {
+            if (c.code == to.currencyCode) {
+                toReceived = toReceived * c.minorUnit;
+            }
+        }
+        if (from.currencyCode != transaction.currencyCode) {
+            for (ExchangeRate e : _exchangeRateDao.getAll()) {
+                if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
+                    fromLost = fromLost * e.rate;
+                }
+            }
+        }
+
+        for (Currency c : _currencyDao.getAll()) {
+            if (c.code == transaction.currencyCode) {
+                transaction.amount = transaction.amount * c.minorUnit;
+            }
+        }
+
+        std::cout << std::endl << transaction.currencyCode << std::endl;
+        std::cout << to.balance << " " << transaction.amount << std::endl;
+
+        to.balance += toReceived;
+        from.balance -= fromLost;
+        _cardDao.update(to);
+        _cardDao.update(from);
+        _bankTransactionDao.create(transaction);
+
+
+
         return true;
     }
     std::cout << "ERROR type";
-    return true;
+    return false;
 }

@@ -38,6 +38,7 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->W_currentCardd->setContext(context);
     ui->W_currentCardwd->setContext(context);
     ui->W_currentCardOnScreen->setContext(context);
+    ui->W_currentCard_sp->setContext(context);
 }
 
 MainWindow::~MainWindow() {
@@ -214,6 +215,8 @@ void MainWindow::on_B_enterWithdraw_clicked() const {
         ui->W_currentCard_3->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
         ui->W_currentCardd->setCardId(cardId);
+        ui->W_currentCard_sp->setCardId(cardId);
+
         ui->LE_enteredAmount->clear();
     } else {
         qDebug() << "Transaction FAILURE";
@@ -299,6 +302,7 @@ void MainWindow::on_B_enterDeposit_clicked() const {
         ui->W_currentCard_2->setCardId(cardId);
         ui->W_currentCard_3->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
+        ui->W_currentCard_sp->setCardId(cardId);
 
         ui->B_cancelDeposit->setDisabled(false);
         ui->L_amountDeposit->clear();
@@ -399,6 +403,7 @@ void MainWindow::on_B_enterTransfer_clicked() const {
         ui->W_currentCard_3->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
         ui->W_currentCardd->setCardId(cardId);
+        ui->W_currentCard_sp->setCardId(cardId);
         ui->LE_enteredAmount->clear();
     }
     else
@@ -485,8 +490,151 @@ void MainWindow::on_B_startWork_clicked() {
     animateTransition(ui->thanksScreen, ui->loginScreen);
 }
 
+void MainWindow::on_B_regularPayment_clicked() {
+    setupScheduledTransferScreen();
+    animateTransition(ui->cardScreen, ui->scheduledTransferScreen);
+}
+
+void MainWindow::on_B_S100_clicked() const {
+    ui->LE_enteredScheduledTransferAmount->clear();
+    ui->LE_enteredScheduledTransferAmount->insert("100");
+}
+
+void MainWindow::on_B_S200_clicked() const {
+    ui->LE_enteredScheduledTransferAmount->clear();
+    ui->LE_enteredScheduledTransferAmount->insert("200");
+}
+
+void MainWindow::on_B_S500_clicked() const {
+    ui->LE_enteredScheduledTransferAmount->clear();
+    ui->LE_enteredScheduledTransferAmount->insert("500");
+}
+
+void MainWindow::on_B_S1000_clicked() const {
+    ui->LE_enteredScheduledTransferAmount->clear();
+    ui->LE_enteredScheduledTransferAmount->insert("1000");
+}
+
+void MainWindow::on_B_backScheduledTransfer_clicked() {
+    ui->LE_enteredScheduledTransferAmount->clear();
+    ui->LE_scheduledTransferDest->clear();
+    ui->L_failScheduledTransfer->hide();
+    animateTransition(ui->scheduledTransferScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_enterScheduledTransfer_clicked() const {
+    QString dest = ui->LE_scheduledTransferDest->text();
+    dest.remove(' ');
+    optional<Card> card = context.cardService().getCardByNumber(dest.toStdString());
+
+    if (dest.size() < 16 || !card)
+    {
+        qDebug() << "Scheduled payment FAILURE";
+        ui->L_failScheduledTransfer->text().clear();
+        ui->L_failScheduledTransfer->setText("Enter a valid card number");
+        ui->L_failScheduledTransfer->show();
+        shakeLabel(ui->L_failScheduledTransfer);
+        return;
+    }
+
+    if (ui->LE_enteredScheduledTransferAmount->text().isEmpty())
+    {
+        qDebug() << "Scheduled payment FAILURE";
+        ui->L_failScheduledTransfer->text().clear();
+        ui->L_failScheduledTransfer->setText("Enter an amount");
+        ui->L_failScheduledTransfer->show();
+        shakeLabel(ui->L_failScheduledTransfer);
+        return;
+    }
+    ui->L_failScheduledTransfer->text().clear();
+    ui->L_failScheduledTransfer->setText("FAIL");
+
+    const int enteredAmount = ui->LE_enteredScheduledTransferAmount->text().toInt();
+    auto newTransaction = BankTransaction();
+    newTransaction.type = "payment";
+    newTransaction.fromCardId = ui->W_currentCard_sp->getCardId();
+    newTransaction.toCardId = card.value().id;
+    newTransaction.amount = enteredAmount;
+    newTransaction.currencyCode = "UAH";
+    newTransaction.description = "Sch payment";
+    newTransaction.comment = "";
+    newTransaction.status = "completed";
+
+    if (context.bankTransactionService().createBankTransaction(newTransaction))
+    {
+        qDebug() << "Sch Transaction SUCCESS";
+        auto newSchTransfer = ScheduledTransfer();
+        newSchTransfer.fromCardId = ui->W_currentCard_sp->getCardId();
+        newSchTransfer.toCardId = card.value().id;
+        newSchTransfer.amount = enteredAmount;
+        newSchTransfer.currencyCode = "UAH";
+        newSchTransfer.description = "Sch payment";
+        newSchTransfer.comment = "";
+        newSchTransfer.active = 1;
+        if (ui->RB_daily->isChecked()) {
+            newSchTransfer.frequency = "daily";
+        }
+        if (ui->RB_weekly->isChecked()) {
+            newSchTransfer.frequency = "weekly";
+        }
+        if (ui->RB_monthly->isChecked()) {
+            newSchTransfer.frequency = "monthly";
+        }
+        const std::time_t nowTime = std::time(nullptr);
+        std::tm now{};
+        localtime_s(&now, &nowTime);
+        newSchTransfer.nextTun = now;
+        if (newSchTransfer.frequency=="daily") {
+            std::time_t newT = std::mktime(&newSchTransfer.nextTun.value());
+            newT += 1 * 24 * 60 * 60;
+            localtime_s(&newSchTransfer.nextTun.value(), &newT);
+        }
+        if (newSchTransfer.frequency=="weekly") {
+            std::time_t newT = std::mktime(&newSchTransfer.nextTun.value());
+            newT += 7 * 24 * 60 * 60;
+            localtime_s(&newSchTransfer.nextTun.value(), &newT);
+        }
+        if (newSchTransfer.frequency=="monthly") {
+            newSchTransfer.nextTun.value().tm_mon += 1;
+            std::mktime(&newSchTransfer.nextTun.value());
+        }
+        if (newSchTransfer.nextTun.has_value()) {
+            std::cout << std::put_time(&newSchTransfer.nextTun.value(), "%Y-%m-%d %H:%M:%S") << std::endl;
+        }
+
+        context.scheduledTransferService().createScheduledTransfer(newSchTransfer);
+
+
+        ui->L_failScheduledTransfer->hide();
+        int cardId = ui->W_currentCard_sp->getCardId();
+        for (ScheduledTransfer s :context.scheduledTransferService().getAllScheduledTransfersFromCardId(cardId)) {
+            cout << s.id << " " << s.amount << " " << s.fromCardId << " " << s.toCardId << " " << s.currencyCode << " " << s.description << " " << s.frequency << " " << s.active << endl;
+            if (s.nextTun.has_value()) {
+                std::cout << std::put_time(&s.nextTun.value(), "%Y-%m-%d %H:%M:%S") << std::endl;
+            }
+        }
+
+
+        ui->W_currentCardwd->setCardId(cardId);
+        ui->W_currentCard->setCardId(cardId);
+        ui->W_currentCard_2->setCardId(cardId);
+        ui->W_currentCard_3->setCardId(cardId);
+        ui->W_currentCardOnScreen->setCardId(cardId);
+        ui->W_currentCardd->setCardId(cardId);
+        ui->W_currentCard_sp->setCardId(cardId);
+
+        ui->LE_enteredScheduledTransferAmount->clear();
+    }
+    else
+    {
+        qDebug() << "Sch Transaction FAILURE";
+        ui->L_failScheduledTransfer->show();
+        shakeLabel(ui->L_failScheduledTransfer);
+    }
+}
 
 void MainWindow::setupPinScreen() {
+    ui->LE_pin->clear();
     ui->LE_pin->setEchoMode(QLineEdit::Password);
     ui->LE_pin->setMaxLength(4);
     ui->LE_pin->setValidator(new QIntValidator(0, 9999, this));
@@ -602,6 +750,7 @@ void MainWindow::setupDesignsScreen() const {
                     ui->W_currentCardwd->setCardId(card.id);
                     ui->W_currentCard->setCardId(card.id);
                     ui->W_currentCard_2->setCardId(card.id);
+                    ui->W_currentCard_sp->setCardId(card.id);
                     ui->W_currentCardOnScreen->setCardId(card.id);
                     if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.
                         has_value()) {
@@ -632,6 +781,7 @@ void MainWindow::setupDesignsScreen() const {
             ui->W_currentCard->setCardId(card.id);
             ui->W_currentCard_2->setCardId(card.id);
             ui->W_currentCardOnScreen->setCardId(card.id);
+            ui->W_currentCard_sp->setCardId(card.id);
             if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
                 const QPixmap design1(QString::fromStdString(
                     context.cardDesignService().getCardDesignById(
@@ -736,6 +886,30 @@ void MainWindow::setupDepositScreen() const {
     ui->B_D500->setIconSize(QSize(90, 174));
     ui->B_D1000->setIcon(QIcon(":uah/resources/uah/1000_uah.png"));
     ui->B_D1000->setIconSize(QSize(90, 174));
+}
+
+void MainWindow::setupScheduledTransferScreen() {
+    ui->RB_daily->setChecked(true);
+    ui->RB_weekly->setChecked(false);
+    ui->RB_monthly->setChecked(false);
+    int cardId = ui->W_currentCardOnScreen->getCardId();
+    Card card = context.cardService().getCardById(cardId).value();
+    ui->W_currentCard_sp->setCardId(cardId);
+    if (card.designId.has_value()) {
+        const QPixmap design(QString::fromStdString(
+            context.cardDesignService().getCardDesignById(card.designId.value()).
+            value().imageRef));
+        ui->W_currentCard_sp->setDesignPixmap(design);
+    }
+    else {
+        ui->W_currentCard_sp->setDesignPixmap();
+    }
+    ui->LE_enteredScheduledTransferAmount->clear();
+    ui->LE_enteredScheduledTransferAmount->setValidator(new QIntValidator(0, 10000, this));
+    ui->L_failScheduledTransfer->text().clear();
+    ui->L_failScheduledTransfer->setText("FAIL");
+    ui->L_failScheduledTransfer->hide();
+    ui->LE_scheduledTransferDest->setInputMask(R"(9999 9999 9999 9999)");
 }
 
 bool MainWindow::authenticate(const std::string &phone, const std::string &password) const {
