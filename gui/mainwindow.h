@@ -46,6 +46,14 @@ private slots:
     void on_B_cancelDeposit_clicked();
     void on_B_enterDeposit_clicked() const;
 
+    void on_B_transfer_clicked();
+    void on_B_T100_clicked() const;
+    void on_B_T200_clicked() const;
+    void on_B_T500_clicked() const;
+    void on_B_T1000_clicked() const;
+    void on_B_cancelTransfer_clicked();
+    void on_B_enterTransfer_clicked() const;
+
     void on_B_toCardList_clicked();
 
     void on_B_chooseDesign_clicked();
@@ -68,5 +76,5 @@ private:
     void setupTransHistoryScreen();
     void setupDepositScreen() const;
     void setupDesignsScreen() const;
-
+    void setupTransferScreen();
 };

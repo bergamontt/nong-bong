@@ -5,6 +5,9 @@ namespace card_sql
     inline const auto getById =
             "SELECT * FROM card WHERE id = :id";
 
+    inline const auto getByNumber =
+        "SELECT * FROM card WHERE card_number = :number";
+
     inline const auto getByUserId =
             "SELECT * FROM card WHERE user_id = ?";
 

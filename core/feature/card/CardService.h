@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include "Card.h"
 #include "ICardDao.h"
 #include "ICardService.h"
@@ -14,6 +15,7 @@ private:
     ICardDao& _cardDao;
 
     [[nodiscard]] std::optional<Card> doGetCardById(int id) const override;
+    [[nodiscard]] std::optional<Card> doGetCardByNumber(const std::string& number) const override;
 
     [[nodiscard]] std::vector<Card> doGetAllActiveCardsByUserId(int id) const override;
     [[nodiscard]] std::vector<Card> doGetAllBlockedCardsByUserId(int id) const override;

@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 #include "Card.h"
 
@@ -6,6 +7,7 @@ class ICardService
 {
 public:
     [[nodiscard]] std::optional<Card> getCardById(int id) const;
+    [[nodiscard]] std::optional<Card> getCardByNumber(const std::string& number) const;
 
     [[nodiscard]] std::vector<Card> getAllActiveCardsByUserId(int id) const;
     [[nodiscard]] std::vector<Card> getAllBlockedCardsByUserId(int id) const;
@@ -24,6 +26,7 @@ protected:
 
 private:
     [[nodiscard]] virtual std::optional<Card> doGetCardById(int id) const = 0;
+    [[nodiscard]] virtual std::optional<Card> doGetCardByNumber(const std::string& number) const = 0;
 
     [[nodiscard]] virtual std::vector<Card> doGetAllActiveCardsByUserId(int id) const = 0;
     [[nodiscard]] virtual std::vector<Card> doGetAllBlockedCardsByUserId(int id) const = 0;
@@ -38,7 +41,8 @@ private:
     [[nodiscard]] virtual bool doChangeCardPin(int id, const std::string& oldPin, const std::string& newPin) const = 0;
 };
 
-inline std::optional<Card> ICardService::getCardById(const int id) const{ return doGetCardById(id); }
+inline std::optional<Card> ICardService::getCardById(const int id) const { return doGetCardById(id); }
+inline std::optional<Card> ICardService::getCardByNumber(const std::string& number) const { return doGetCardByNumber(number); }
 
 inline std::vector<Card> ICardService::getAllActiveCardsByUserId(const int id) const{ return doGetAllActiveCardsByUserId(id); }
 inline std::vector<Card> ICardService::getAllBlockedCardsByUserId(const int id) const{ return doGetAllBlockedCardsByUserId(id); }
