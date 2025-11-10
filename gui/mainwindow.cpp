@@ -667,6 +667,15 @@ void MainWindow::on_B_toCardList_clicked()
     animateTransition(ui->cardScreen, ui->dashboardScreen);
 }
 
+void MainWindow::on_B_deleteCard_clicked()
+{
+    int cardId = ui->W_currentCardOnScreen->getCardId();
+    Card card = context.cardService().getCardById(cardId).value();
+    card.status = Card::Status::deleted;
+    context.cardService().updateCard(card);
+    animateTransition(ui->cardScreen, ui->dashboardScreen);
+}
+
 void MainWindow::setupTransferScreen() {
     int cardId = ui->W_currentCardOnScreen->getCardId();
     Card card = context.cardService().getCardById(cardId).value();
