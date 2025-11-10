@@ -670,7 +670,7 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
     newTransaction.type = "payment";
     newTransaction.fromCardId = ui->W_currentCard_sp->getCardId();
     newTransaction.toCardId = card.value().id;
-    newTransaction.amount = enteredAmount;
+    newTransaction.amount = enteredAmount * 100;
     newTransaction.currencyCode = "UAH";
     newTransaction.description = "Sch payment";
     newTransaction.comment = "";
