@@ -1,6 +1,9 @@
 #include "CardService.h"
+#include <string>
 #include <iostream>
 #include "Hasher.h"
+
+using namespace std;
 
 CardService::CardService(ICardDao &dao)
     : _cardDao(dao)
@@ -9,6 +12,11 @@ CardService::CardService(ICardDao &dao)
 std::optional<Card> CardService::doGetCardById(const int id) const
 {
     return _cardDao.getById(id);
+}
+
+std::optional<Card> CardService::doGetCardByNumber(const string& number) const
+{
+    return _cardDao.getByNumber(number);
 }
 
 std::vector<Card> CardService::doGetAllActiveCardsByUserId(const int id) const

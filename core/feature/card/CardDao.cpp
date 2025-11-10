@@ -1,3 +1,4 @@
+#include <string>
 #include "CardDao.h"
 #include "CardSql.h"
 #include <iostream>
@@ -11,6 +12,18 @@ std::optional<Card> CardDao::doGetById(int id) const
     sql << card_sql::getById,
         soci::use(id, "id"), soci::into(res);
     return res;
+}
+
+std::optional<Card> CardDao::doGetByNumber(const string& number) const
+{
+    soci::session sql(_pool);
+    soci::rowset<Card> rs = (sql.prepare << card_sql::getByNumber,
+        soci::use(number, "number"));
+    auto it = rs.begin();
+    if (it == rs.end()) {
+        return nullopt;
+    }
+    return *it;
 }
 
 std::vector<Card> CardDao::doGetByUserId(int id) const 

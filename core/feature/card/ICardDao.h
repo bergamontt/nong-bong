@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 #include "Card.h"
 
@@ -6,6 +7,7 @@ class ICardDao
 {
 public:
     std::optional<Card> getById(int id) const;
+    std::optional<Card> getByNumber(const std::string& number) const;
     std::vector<Card> getByUserId(int id) const;
     std::vector<Card> getByUserIdAndStatus(int id, Card::Status status) const;
     void update(const Card& card) const;
@@ -14,6 +16,7 @@ public:
     virtual ~ICardDao() = 0;
 private:
     virtual std::optional<Card> doGetById(int id) const = 0;
+    virtual std::optional<Card> doGetByNumber(const std::string& number) const = 0;
     virtual std::vector<Card> doGetByUserId(int id) const = 0;
     virtual std::vector<Card> doGetByUserIdAndStatus(int id, Card::Status status) const = 0;
     virtual void doUpdate(const Card& card) const = 0;
@@ -24,6 +27,11 @@ private:
 inline std::optional<Card> ICardDao::getById(const int id) const
 {
     return doGetById(id);
+}
+
+inline std::optional<Card> ICardDao::getByNumber(const std::string& number) const
+{
+    return doGetByNumber(number);
 }
 
 inline std::vector<Card> ICardDao::getByUserId(const int id) const

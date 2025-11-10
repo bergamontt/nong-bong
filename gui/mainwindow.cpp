@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include <iostream>
+#include <optional>
 
 #include "ui_mainwindow.h"
 #include "BankCardList.h"
@@ -18,6 +19,8 @@
 #include "feature/user/IUserService.h"
 #include "feature/user/User.h"
 
+using namespace std;
+
 MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow),
                                                              context(context) {
     ui->setupUi(this);
@@ -31,6 +34,7 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
 
     ui->W_currentCard->setContext(context);
     ui->W_currentCard_2->setContext(context);
+    ui->W_currentCard_3->setContext(context);
     ui->W_currentCardd->setContext(context);
     ui->W_currentCardwd->setContext(context);
     ui->W_currentCardOnScreen->setContext(context);
@@ -207,6 +211,7 @@ void MainWindow::on_B_enterWithdraw_clicked() const {
         ui->W_currentCardwd->setCardId(cardId);
         ui->W_currentCard->setCardId(cardId);
         ui->W_currentCard_2->setCardId(cardId);
+        ui->W_currentCard_3->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
         ui->W_currentCardd->setCardId(cardId);
         ui->LE_enteredAmount->clear();
@@ -292,6 +297,7 @@ void MainWindow::on_B_enterDeposit_clicked() const {
         ui->W_currentCardwd->setCardId(cardId);
         ui->W_currentCard->setCardId(cardId);
         ui->W_currentCard_2->setCardId(cardId);
+        ui->W_currentCard_3->setCardId(cardId);
         ui->W_currentCardOnScreen->setCardId(cardId);
 
         ui->B_cancelDeposit->setDisabled(false);
@@ -324,6 +330,83 @@ void MainWindow::on_B_chooseDesign_clicked() {
 
 void MainWindow::on_B_cancelDesign_clicked() {
     animateTransition(ui->designsScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_transfer_clicked() {
+    setupTransferScreen();
+    animateTransition(ui->cardScreen, ui->transferScreen);
+}
+
+void MainWindow::on_B_T100_clicked() const {
+    ui->LE_enteredTransferAmount->clear();
+    ui->LE_enteredTransferAmount->insert("100");
+}
+
+void MainWindow::on_B_T200_clicked() const {
+    ui->LE_enteredTransferAmount->clear();
+    ui->LE_enteredTransferAmount->insert("200");
+}
+
+void MainWindow::on_B_T500_clicked() const {
+    ui->LE_enteredTransferAmount->clear();
+    ui->LE_enteredTransferAmount->insert("500");
+}
+
+void MainWindow::on_B_T1000_clicked() const {
+    ui->LE_enteredTransferAmount->clear();
+    ui->LE_enteredTransferAmount->insert("1000");
+}
+
+void MainWindow::on_B_cancelTransfer_clicked() {
+    ui->LE_enteredTransferAmount->clear();
+    ui->LE_transferDest->clear();
+    ui->L_failTransfer->hide();
+    animateTransition(ui->transferScreen, ui->cardScreen);
+}
+
+void MainWindow::on_B_enterTransfer_clicked() const {
+    QString dest = ui->LE_transferDest->text();
+    dest.remove(' ');
+    optional<Card> card = context.cardService().getCardByNumber(dest.toStdString());
+
+    if (dest.size() < 16 || !card)
+    {
+        qDebug() << "Transaction FAILURE";
+        ui->L_failTransfer->show();
+        shakeLabel(ui->L_failTransfer);
+        return;
+    }
+
+    const int enteredAmount = ui->LE_enteredTransferAmount->text().toInt();
+    auto newTransaction = BankTransaction();
+    newTransaction.type = "transfer";
+    newTransaction.fromCardId = ui->W_currentCard_3->getCardId();
+    newTransaction.toCardId = card.value().id;
+    newTransaction.amount = enteredAmount;
+    newTransaction.currencyCode = "UAH";
+    newTransaction.description = "transfer";
+    newTransaction.comment = "";
+    newTransaction.status = "completed";
+
+    if (context.bankTransactionService().createBankTransaction(newTransaction))
+    {
+        qDebug() << "Transaction SUCCESS";
+        ui->L_failTransfer->hide();
+        int cardId = ui->W_currentCard_3->getCardId();
+        ui->W_currentCardwd->setCardId(cardId);
+        ui->W_currentCard->setCardId(cardId);
+        ui->W_currentCard_2->setCardId(cardId);
+        ui->W_currentCard_3->setCardId(cardId);
+        ui->W_currentCardOnScreen->setCardId(cardId);
+        ui->W_currentCardd->setCardId(cardId);
+        ui->LE_enteredAmount->clear();
+    }
+    else
+    {
+        qDebug() << "Transaction FAILURE";
+        ui->L_failTransfer->show();
+        shakeLabel(ui->L_failTransfer);
+    }
 }
 
 void MainWindow::on_B_register_clicked() {
@@ -579,8 +662,28 @@ void MainWindow::setupWithdrawScreen() {
     ui->L_failWithdrawal->hide();
 }
 
-void MainWindow::on_B_toCardList_clicked() {
+void MainWindow::on_B_toCardList_clicked()
+{
     animateTransition(ui->cardScreen, ui->dashboardScreen);
+}
+
+void MainWindow::setupTransferScreen() {
+    int cardId = ui->W_currentCardOnScreen->getCardId();
+    Card card = context.cardService().getCardById(cardId).value();
+    ui->W_currentCard_3->setCardId(cardId);
+    if (card.designId.has_value()) {
+        const QPixmap design(QString::fromStdString(
+            context.cardDesignService().getCardDesignById(card.designId.value()).
+            value().imageRef));
+        ui->W_currentCard_3->setDesignPixmap(design);
+    }
+    else {
+        ui->W_currentCard_3->setDesignPixmap();
+    }
+    ui->LE_enteredTransferAmount->clear();
+    ui->LE_enteredTransferAmount->setValidator(new QIntValidator(0, 10000, this));
+    ui->L_failTransfer->hide();
+    ui->LE_transferDest->setInputMask(R"(9999 9999 9999 9999)");
 }
 
 void MainWindow::setupTransHistoryScreen() {
@@ -696,6 +799,7 @@ void MainWindow::setStyles() const {
     ui->L_accessDenied->setObjectName("accessDeniedLabel");
     ui->L_cashWithdrawal->setObjectName("cashWithdrawalLabel");
     ui->L_failWithdrawal->setObjectName("failWithdrawalLabel");
+    ui->L_failTransfer->setObjectName("failTransferLabel");
     ui->L_cashDepositing->setObjectName("cashDepositingLabel");
     ui->L_fillCorrectly->setObjectName("fillCorrectlyLabel");
     ui->L_join->setObjectName("joinLabel");
@@ -766,6 +870,12 @@ void MainWindow::setStyles() const {
             qproperty-alignment: 'AlignCenter';
         }
         QLabel#fillCorrectlyLabel {
+            color: #800000;
+            font-size: 15px;
+            font-weight: bold;
+            qproperty-alignment: 'AlignCenter';
+        }
+        QLabel#failTransferLabel {
             color: #800000;
             font-size: 15px;
             font-weight: bold;
