@@ -65,6 +65,10 @@ private slots:
     void on_B_cancelRegister_clicked();
     void on_B_enterRegister_clicked();
 
+    void on_B_createCard_clicked();
+    void on_B_cancelCreateCard_clicked();
+    void on_B_enterCreateCard_clicked();
+
     void on_B_startWork_clicked();
 
     void on_B_regularPayment_clicked();
@@ -77,7 +81,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    std::map<std::string, std::string> users;
+    int currUserId = -1;
     IContext& context;
     bool authenticate(const std::string& phone, const std::string& password) const;
     void animateTransition(QWidget* from, QWidget* to, int initY = 0, std::function<void()> onFinished = nullptr);
@@ -95,5 +99,6 @@ private:
     void setupTransferScreen();
     void setupRegisterScreen() const;
     void setupScheduledTransferScreen();
+    void setupCreateCardScreen();
 
 };

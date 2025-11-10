@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <optional>
+#include <random>
+#include <algorithm>
 
 #include "ui_mainwindow.h"
 #include "BankCardList.h"
@@ -52,6 +54,7 @@ void MainWindow::on_B_enter_clicked() {
     if (authenticate(enteredPhone.toStdString(), enteredPassword.toStdString())) {
         const IUserService &userService = context.userService();
         const User user = userService.getUserByPhone(enteredPhone.toStdString()).value();
+        currUserId = user.id;
         ui->L_welcomeUser->setText("Welcome!");
         animateTransition(ui->loginScreen, ui->dashboardScreen);
 
@@ -121,6 +124,7 @@ void MainWindow::on_B_cancelPin_clicked() {
 void MainWindow::on_B_logout_clicked() {
     ui->LE_phone->clear();
     ui->LE_password->clear();
+    currUserId = -1;
 
     QLayoutItem *item;
     while ((item = ui->cardList->takeAt(0)) != nullptr) {
@@ -483,6 +487,66 @@ void MainWindow::on_B_enterRegister_clicked() {
     animateTransition(ui->registerScreen, ui->thanksScreen);
 }
 
+void MainWindow::on_B_createCard_clicked() 
+{
+    setupCreateCardScreen();
+    animateTransition(ui->dashboardScreen, ui->createCardScreen);
+}
+
+void MainWindow::on_B_cancelCreateCard_clicked() 
+{
+    ui->selectCurrency->setCurrentIndex(-1);
+    ui->selectCurrency->clear();
+    ui->CB_isCredit->setChecked(false);
+    ui->LE_cardPin->clear();
+    ui->LE_confirmCardPin->clear();
+    ui->L_invalidCard->hide();
+    animateTransition(ui->createCardScreen, ui->dashboardScreen);
+}
+
+string randomCardNum() {
+    string result;
+    result.reserve(16);
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dist(0, 9);
+    for (int i = 0; i < 16; ++i) {
+        result += '0' + dist(gen);
+    }
+    return result;
+}
+
+void MainWindow::on_B_enterCreateCard_clicked() 
+{
+    const QString pin = ui->LE_cardPin->text();
+    const QString pinConfirm = ui->LE_confirmCardPin->text();
+    if (pin.toStdString() == pinConfirm.toStdString()
+        && pin.size() == 4 && pinConfirm.size() == 4) {
+        const std::string& pinStr = pin.toStdString();
+        const std::string& curr = ui->selectCurrency->currentText().toStdString();
+        bool checked = ui->CB_isCredit->isChecked();
+
+        Card card;
+        card.userId = currUserId;
+        card.cardNumber = randomCardNum();
+        card.allowCredit = checked;
+        if (checked)
+            card.creditLimit = 100000;
+        card.currencyCode = curr;
+        card.balance = 0;
+        card.dailyLimit = 100000;
+        card.pinHash = pinStr;
+        card.status = Card::Status::active;
+        card.failedAccessCount = 0;
+
+        context.cardService().createCard(card);
+        on_B_cancelCreateCard_clicked();
+        return;
+    }
+    ui->L_invalidCard->show();
+    shakeLabel(ui->L_invalidCard);
+}
+
 void MainWindow::on_B_startWork_clicked() {
     ui->L_fillCorrectly->hide();
     ui->LE_phone->clear();
@@ -683,6 +747,33 @@ void MainWindow::setupRegisterScreen() const {
     ui->L_fillCorrectly->clear();
     ui->L_fillCorrectly->setText("FILL ALL THE FIELDS CORRECTLY, PLEASE");
     ui->L_fillCorrectly->hide();
+}
+
+void MainWindow::setupCreateCardScreen()
+{
+    vector<Currency> currencies = context.currencyService().getAllCurrencies();
+    vector<string> codes;
+    codes.reserve(currencies.size());
+    transform(currencies.begin(), currencies.end(),
+        back_inserter(codes),
+        [](const Currency& c) { return c.code; });
+    QStringList items;
+    for (const auto& code : codes) {
+        items << QString::fromStdString(code);
+    }
+    ui->selectCurrency->addItems(items);
+
+    ui->LE_cardPin->setEchoMode(QLineEdit::Password);
+    ui->LE_cardPin->setMaxLength(4);
+    ui->LE_cardPin->setValidator(new QIntValidator(0, 9999, this));
+    ui->LE_cardPin->setPlaceholderText("Card PIN");
+
+    ui->LE_confirmCardPin->setEchoMode(QLineEdit::Password);
+    ui->LE_confirmCardPin->setMaxLength(4);
+    ui->LE_confirmCardPin->setValidator(new QIntValidator(0, 9999, this));
+    ui->LE_confirmCardPin->setPlaceholderText("Confirm PIN");
+
+    ui->L_invalidCard->hide();
 }
 
 void MainWindow::setupDesignsScreen() const {
@@ -985,6 +1076,7 @@ void MainWindow::setStyles() const {
     ui->L_failTransfer->setObjectName("failTransferLabel");
     ui->L_cashDepositing->setObjectName("cashDepositingLabel");
     ui->L_fillCorrectly->setObjectName("fillCorrectlyLabel");
+    ui->L_invalidCard->setObjectName("invalidCardLabel");
     ui->L_join->setObjectName("joinLabel");
 
 
@@ -1058,6 +1150,12 @@ void MainWindow::setStyles() const {
             font-weight: bold;
             qproperty-alignment: 'AlignCenter';
         }
+        QLabel#invalidCardLabel {
+            color: #800000;
+            font-size: 15px;
+            font-weight: bold;
+            qproperty-alignment: 'AlignCenter';
+        }
         QLabel#failTransferLabel {
             color: #800000;
             font-size: 15px;
@@ -1085,6 +1183,50 @@ void MainWindow::setStyles() const {
             color: #eae3d8;
             padding: 4px;
             border: none;
+        }
+
+        QComboBox {
+            background-color: #222222;
+            color: #eae3d9;
+            border: 3px solid #805535;
+            font-weight: bold;
+            font-size: 10pt;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        QComboBox QAbstractItemView {
+            background-color: #222222;
+            color: #eae3d9;
+            selection-background-color: #805535;
+            selection-color: #ffffff;
+            border: 2px solid #805535;
+            border-radius: 5px;
+        }
+
+        QCheckBox {
+            color: #eae3d8;
+            font-size: 16px;
+            font-weight: bold;
+            spacing: 8px;
+        }
+
+        QCheckBox::indicator {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #805535;
+            border-radius: 3px;
+            background-color: #222222;
+        }
+
+        QCheckBox::indicator:checked {
+            background-color: #805535;
+            border-color: #805535;
+            image: url(:/svg/resources/svg/check.svg);
+        }
+
+        QCheckBox::indicator:hover {
+            border-color: #a56b45;
         }
     )");
 }

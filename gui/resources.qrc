@@ -14,4 +14,7 @@
         <file>resources/uah/500_uah.png</file>
         <file>resources/uah/1000_uah.png</file>
     </qresource>
+    <qresource prefix="/svg">
+        <file>resources/svg/check.svg</file>
+    </qresource>
 </RCC>
