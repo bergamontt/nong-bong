@@ -1,8 +1,9 @@
 #include "ScheduledTransferService.h"
 
-ScheduledTransferService::ScheduledTransferService(IScheduledTransferDao& dao, IBankTransactionDao& transactionDao) :
+ScheduledTransferService::ScheduledTransferService(IScheduledTransferDao& dao, IBankTransactionDao& transactionDao, IBankTransactionService& bankTransactionService) :
     _scheduledTransferDao(dao),
-    _transactionDao(transactionDao)
+    _transactionDao(transactionDao),
+    _bankTransactionService(bankTransactionService)
 {}
 
 std::optional<ScheduledTransfer> ScheduledTransferService::doGetScheduledTransferById(int id) const {
@@ -33,10 +34,18 @@ void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm
 
     for (const auto& t : transfers) {
         ScheduledTransfer transfer = t;
-        BankTransaction transaction(0,t.nextTun.value(), "payment", t.fromCardId,t.toCardId, t.amount, t.currencyCode, t.description, t.comment, "completed");
-        _transactionDao.create(transaction);
-        //TODO: make not only "payment" (add field "type" to ScheduledTransfer)
-        //TODO: make not only "completed" (logic to service Transfer)
+        BankTransaction transaction = BankTransaction();
+        transaction.createdAt = t.nextTun.value();
+        transaction.type = "payment";
+        transaction.fromCardId = t.fromCardId;
+        transaction.toCardId = t.toCardId;
+        transaction.amount = t.amount;
+        transaction.currencyCode = t.currencyCode;
+        transaction.description = t.description;
+        transaction.comment = "";
+        transaction.status = "completed";
+
+        _bankTransactionService.createBankTransaction(transaction);
 
         if (transfer.frequency=="daily") {
             std::time_t newT = std::mktime(&transfer.nextTun.value());

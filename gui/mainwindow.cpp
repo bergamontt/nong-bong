@@ -41,6 +41,25 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->W_currentCardwd->setContext(context);
     ui->W_currentCardOnScreen->setContext(context);
     ui->W_currentCard_sp->setContext(context);
+
+    auto *scheduledTransferTimer = new QTimer(this);
+    connect(scheduledTransferTimer, &QTimer::timeout, this, [this, &context]() {
+        try {
+            std::time_t nowTime = std::time(nullptr);
+            std::tm now{};
+            localtime_s(&now, &nowTime);
+            qDebug() << "All scheduled payments are executed";
+            context.scheduledTransferService().executeAllScheduledTransfersByNow(now);
+        }
+        catch (const std::exception &ex) {
+            qDebug() << "Exception in scheduled transfer tick:" << ex.what();
+        }
+        catch (...) {
+            qDebug() << "Unknown exception in scheduled transfer tick.";
+        }
+    });
+
+    scheduledTransferTimer->start(120'000);
 }
 
 MainWindow::~MainWindow() {
@@ -56,6 +75,7 @@ void MainWindow::on_B_enter_clicked() {
         const User user = userService.getUserByPhone(enteredPhone.toStdString()).value();
         currUserId = user.id;
         ui->L_welcomeUser->setText("Welcome!");
+        ui->B_createCard->show();
         animateTransition(ui->loginScreen, ui->dashboardScreen);
 
         auto cardList = new BankCardList(context, user.id,
@@ -75,11 +95,13 @@ void MainWindow::on_B_enter_clicked() {
                         }
                         ui->B_nextCard->hide();
                         ui->B_prevCard->hide();
+                        ui->B_createCard->hide();
                         setupPinScreen();
                         cardList->hideLeftRight();
                         animateTransition(ui->dashboardScreen, ui->pinScreen, 340, [this] {
                             ui->B_nextCard->show();
                             ui->B_prevCard->show();
+                            ui->B_createCard->show();
                         });
                     }
                 });
@@ -110,6 +132,7 @@ void MainWindow::on_B_enterPin_clicked() {
         ui->LE_pin->clear();
         shakeLabel(ui->L_accessDenied);
         if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status == Card::blocked) {
+            ui->B_createCard->show();
             animateTransition(ui->pinScreen, ui->dashboardScreen);
         }
     }
@@ -118,6 +141,7 @@ void MainWindow::on_B_enterPin_clicked() {
 void MainWindow::on_B_cancelPin_clicked() {
     ui->L_accessDenied->hide();
     ui->LE_pin->clear();
+    ui->B_createCard->show();
     animateTransition(ui->pinScreen, ui->dashboardScreen);
 }
 
@@ -369,11 +393,14 @@ void MainWindow::on_B_cancelTransfer_clicked() {
     ui->LE_enteredTransferAmount->clear();
     ui->LE_transferDest->clear();
     ui->L_failTransfer->hide();
+    ui->LE_enteredComment->clear();
     animateTransition(ui->transferScreen, ui->cardScreen);
 }
 
 void MainWindow::on_B_enterTransfer_clicked() const {
     QString dest = ui->LE_transferDest->text();
+    std::string comm = ui->LE_enteredComment->text().toStdString();
+
     dest.remove(' ');
     optional<Card> card = context.cardService().getCardByNumber(dest.toStdString());
 
@@ -394,6 +421,9 @@ void MainWindow::on_B_enterTransfer_clicked() const {
     newTransaction.currencyCode = "UAH";
     newTransaction.description = "transfer";
     newTransaction.comment = "";
+    if (comm.size()>0) {
+        newTransaction.comment = comm;
+    }
     newTransaction.status = "completed";
 
     if (context.bankTransactionService().createBankTransaction(newTransaction))
@@ -501,6 +531,7 @@ void MainWindow::on_B_cancelCreateCard_clicked()
     ui->LE_cardPin->clear();
     ui->LE_confirmCardPin->clear();
     ui->L_invalidCard->hide();
+    ui->B_createCard->show();
     animateTransition(ui->createCardScreen, ui->dashboardScreen);
 }
 
@@ -696,6 +727,12 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
         shakeLabel(ui->L_failScheduledTransfer);
     }
 }
+
+void MainWindow::on_B_myScheduledPayments_clicked() {
+    //
+    //animateTransition(ui->scheduledTransferScreen,);
+}
+
 
 void MainWindow::setupPinScreen() {
     ui->LE_pin->clear();
@@ -905,6 +942,7 @@ void MainWindow::setupWithdrawScreen() {
 
 void MainWindow::on_B_toCardList_clicked()
 {
+    ui->B_createCard->show();
     animateTransition(ui->cardScreen, ui->dashboardScreen);
 }
 
@@ -914,6 +952,7 @@ void MainWindow::on_B_deleteCard_clicked()
     Card card = context.cardService().getCardById(cardId).value();
     card.status = Card::Status::deleted;
     context.cardService().updateCard(card);
+    ui->B_createCard->show();
     animateTransition(ui->cardScreen, ui->dashboardScreen);
 }
 
@@ -931,6 +970,7 @@ void MainWindow::setupTransferScreen() {
         ui->W_currentCard_3->setDesignPixmap();
     }
     ui->LE_enteredTransferAmount->clear();
+    ui->LE_enteredComment->clear();
     ui->LE_enteredTransferAmount->setValidator(new QIntValidator(0, 10000, this));
     ui->L_failTransfer->hide();
     ui->LE_transferDest->setInputMask(R"(9999 9999 9999 9999)");

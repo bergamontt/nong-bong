@@ -78,6 +78,7 @@ private slots:
     void on_B_S1000_clicked() const;
     void on_B_backScheduledTransfer_clicked();
     void on_B_enterScheduledTransfer_clicked() const;
+    void on_B_myScheduledPayments_clicked();
 
 private:
     Ui::MainWindow *ui;
