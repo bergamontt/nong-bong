@@ -3,22 +3,22 @@
 
 using namespace std;
 
-User UserDao::doGetById(int id) const
+std::optional<User> UserDao::doGetById(int id) const
 {
     soci::session sql(_pool);
     User res;
     sql << user_sql::getById,
         soci::use(id, "id"), soci::into(res);
-    return res;
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
 
-User UserDao::doGetByPhone(const std::string& phone) const
+std::optional<User> UserDao::doGetByPhone(const std::string& phone) const
 {
     soci::session sql(_pool);
     User res;
     sql << user_sql::getByPhone,
         soci::use(phone, "phone"), soci::into(res);
-    return res;
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
 
 void UserDao::doUpdate(const User& user) const

@@ -1,6 +1,7 @@
 add_executable(core_tests
         main.cpp
         user/UserDaoTest.cpp
+        user/UserServiceTest.cpp
         cardDesign/CardDesignDaoTest.cpp
         currency/CurrencyDaoTest.cpp
         exchangeRate/ExchangeRateDaoTest.cpp

@@ -18,39 +18,51 @@ TEST_CASE_FIXTURE(DBTestFixture, "UserDao API test")
     SUBCASE("Create should insert valid user")
     {
         CHECK_NOTHROW(dao.create(user));
-        User retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.firstName, user.firstName);
-        CHECK_EQ(retrieved.lastName, user.lastName);
-        CHECK_EQ(retrieved.phone, user.phone);
-        CHECK_EQ(retrieved.passwordHash, user.passwordHash);
-        CHECK_EQ(retrieved.status, user.status);
-        CHECK_EQ(retrieved.failedLoginCount, user.failedLoginCount);
+        auto retrieved = dao.getById(1);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->firstName, user.firstName);
+        CHECK_EQ(retrieved->lastName, user.lastName);
+        CHECK_EQ(retrieved->phone, user.phone);
+        CHECK_EQ(retrieved->passwordHash, user.passwordHash);
+        CHECK_EQ(retrieved->status, user.status);
+        CHECK_EQ(retrieved->failedLoginCount, user.failedLoginCount);
     }
 
-    SUBCASE("Get by id should return user with the given id")
+    SUBCASE("Get by id should return user with given id if such user exists")
     {
         dao.create(user);
-        User retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.id, user.id);
+        auto retrieved = dao.getById(user.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->id, user.id);
+    }
+
+    SUBCASE("Get by id should return no value unless such user exists")
+    {
+        auto retrieved = dao.getById(user.id);
+        CHECK_FALSE(retrieved.has_value());
     }
 
     SUBCASE("Get by phone should return user with the given phone")
     {
         dao.create(user);
-        User retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.phone, user.phone);
+        auto retrieved = dao.getById(user.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->phone, user.phone);
     }
 
-    SUBCASE("Update should save modified data")
+    SUBCASE("Update should save modified data to database")
     {
         dao.create(user);
-        User retrieved = dao.getById(1);
-        retrieved.firstName = "Changed Name";
-        retrieved.lastName = "Changed Last Name";
-        CHECK_NOTHROW(dao.update(retrieved));
-        User updated = dao.getById(1);
-        CHECK_EQ(updated.firstName, retrieved.firstName);
-        CHECK_EQ(updated.lastName, retrieved.lastName);
+        auto retrieved = dao.getById(1);
+        retrieved->firstName = "Changed Name";
+        retrieved->lastName = "Changed Last Name";
+
+        CHECK_NOTHROW(dao.update(*retrieved));
+        auto updated = dao.getById(1);
+
+        CHECK(updated.has_value());
+        CHECK_EQ(updated->firstName, retrieved->firstName);
+        CHECK_EQ(updated->lastName, retrieved->lastName);
     }
 
 }
