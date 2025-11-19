@@ -1,39 +1,45 @@
 #include "BankTransactionService.h"
-
 #include <iostream>
-
 #include "ICurrencyDao.h"
 
-BankTransactionService::BankTransactionService(IBankTransactionDao& dao, ICardDao& cardDao, IExchangeRateDao& exchangeRateDao, ICurrencyDao& currencyDao) :
-    _bankTransactionDao(dao), _cardDao(cardDao), _exchangeRateDao(exchangeRateDao), _currencyDao(currencyDao)
+BankTransactionService::BankTransactionService(
+    IBankTransactionDao& dao, ICardDao& cardDao, IExchangeRateDao& exchangeRateDao, ICurrencyDao& currencyDao
+)
+    : _bankTransactionDao(dao)
+    , _cardDao(cardDao)
+    , _exchangeRateDao(exchangeRateDao)
+    , _currencyDao(currencyDao)
 {}
 
-std::optional<BankTransaction> BankTransactionService::doGetBankTransactionById(int id) const {
+std::optional<BankTransaction> BankTransactionService::doGetBankTransactionById(const int id) const
+{
     return _bankTransactionDao.getById(id);
 }
 
-std::vector<BankTransaction> BankTransactionService::doGetAllBankTransactionsFromCardId(int id) const {
+std::vector<BankTransaction> BankTransactionService::doGetAllBankTransactionsFromCardId(const int id) const
+{
     return _bankTransactionDao.getByFromCardId(id);
 }
 
-std::vector<BankTransaction> BankTransactionService::doGetBankTransactionByUserCardId(int id) const
+std::vector<BankTransaction> BankTransactionService::doGetBankTransactionByUserCardId(const int id) const
 {
     return _bankTransactionDao.getByUserCardId(id);
 }
 
-bool BankTransactionService::doCreateBankTransaction(BankTransaction& transaction) {
+bool BankTransactionService::doCreateBankTransaction(BankTransaction& transaction)
+{
     if (transaction.fromCardId.has_value() && !transaction.toCardId.has_value() && transaction.type=="withdrawal") {
         std::cout << "Withdrawal";
         Card from = _cardDao.getById(transaction.fromCardId.value()).value();
         
-        for (Currency c : _currencyDao.getAll()) {
+        for (const Currency& c : _currencyDao.getAll()) {
             if (c.code == transaction.currencyCode) {
                 transaction.amount *= c.minorUnit;
             }
         }
         int fromLost = transaction.amount;
         if (from.currencyCode != transaction.currencyCode) {
-            for (ExchangeRate e:_exchangeRateDao.getAll()) {
+            for (const ExchangeRate& e:_exchangeRateDao.getAll()) {
                 //std::cout << e.id << " " << e.baseCurrency << " "<< e.targetCurrency << " "<< e.rate << " " << std::endl;
                 if ((e.baseCurrency == transaction.currencyCode)&&(e.targetCurrency == from.currencyCode)) {
                     fromLost *= e.rate;
@@ -69,7 +75,7 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
         }
         int toReceived = transaction.amount;
         if (to.currencyCode != transaction.currencyCode) {
-            for (ExchangeRate e:_exchangeRateDao.getAll()) {
+            for (const ExchangeRate& e:_exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode)&&(e.targetCurrency == to.currencyCode)) {
                     toReceived *= e.rate;
                 }
@@ -94,13 +100,13 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
         Card from = _cardDao.getById(transaction.fromCardId.value()).value();
         
         int fromLost = transaction.amount;
-        for (Currency c : _currencyDao.getAll()) {
+        for (const Currency& c : _currencyDao.getAll()) {
             if (c.code == from.currencyCode) {
                 fromLost *= c.minorUnit;
             }
         }
         if (from.currencyCode != transaction.currencyCode) {
-            for (ExchangeRate e : _exchangeRateDao.getAll()) {
+            for (const ExchangeRate& e : _exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
                     fromLost *= e.rate;
                 }
@@ -108,20 +114,20 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
         }
 
         int toReceived = transaction.amount;
-        for (Currency c : _currencyDao.getAll()) {
+        for (const Currency& c : _currencyDao.getAll()) {
             if (c.code == to.currencyCode) {
                 toReceived *= c.minorUnit;
             }
         }
         if (from.currencyCode != transaction.currencyCode) {
-            for (ExchangeRate e : _exchangeRateDao.getAll()) {
+            for (const ExchangeRate& e : _exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
                     fromLost *= e.rate;
                 }
             }
         }
 
-        for (Currency c : _currencyDao.getAll()) {
+        for (const Currency& c : _currencyDao.getAll()) {
             if (c.code == transaction.currencyCode) {
                 transaction.amount = transaction.amount * c.minorUnit;
             }
@@ -152,13 +158,13 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
         Card from = _cardDao.getById(transaction.fromCardId.value()).value();
 
         int fromLost = transaction.amount;
-        for (Currency c : _currencyDao.getAll()) {
+        for (const Currency& c : _currencyDao.getAll()) {
             if (c.code == from.currencyCode) {
                 fromLost = fromLost * c.minorUnit;
             }
         }
         if (from.currencyCode != transaction.currencyCode) {
-            for (ExchangeRate e : _exchangeRateDao.getAll()) {
+            for (const ExchangeRate& e : _exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
                     fromLost = fromLost * e.rate;
                 }
@@ -166,20 +172,20 @@ bool BankTransactionService::doCreateBankTransaction(BankTransaction& transactio
         }
 
         int toReceived = transaction.amount;
-        for (Currency c : _currencyDao.getAll()) {
+        for (const Currency& c : _currencyDao.getAll()) {
             if (c.code == to.currencyCode) {
                 toReceived = toReceived * c.minorUnit;
             }
         }
         if (from.currencyCode != transaction.currencyCode) {
-            for (ExchangeRate e : _exchangeRateDao.getAll()) {
+            for (const ExchangeRate& e : _exchangeRateDao.getAll()) {
                 if ((e.baseCurrency == transaction.currencyCode) && (e.targetCurrency == from.currencyCode)) {
                     fromLost = fromLost * e.rate;
                 }
             }
         }
 
-        for (Currency c : _currencyDao.getAll()) {
+        for (const Currency& c : _currencyDao.getAll()) {
             if (c.code == transaction.currencyCode) {
                 transaction.amount = transaction.amount * c.minorUnit;
             }

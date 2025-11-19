@@ -24,7 +24,7 @@ private:
     std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const override;
 
     void doCreateScheduledTransfer(const ScheduledTransfer& transfer) const override;
-    void doUpdateScheduledTransfer(ScheduledTransfer transfer) const override;
+    void doUpdateScheduledTransfer(const ScheduledTransfer& transfer) const override;
     void doDeleteScheduledTransfer(int id) const override;
 
     void doExecuteAllScheduledTransfersByNow(const std::tm& time) const override;

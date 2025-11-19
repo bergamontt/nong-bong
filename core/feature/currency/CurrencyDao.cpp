@@ -12,13 +12,13 @@ void CurrencyDao::doCreate(const Currency& currency) const
         soci::use(currency);
 }
 
-Currency CurrencyDao::doGetCurrencyByCode(const string& code) const
+std::optional<Currency> CurrencyDao::doGetCurrencyByCode(const string& code) const
 {
     soci::session sql(_pool);
     Currency res;
     sql << currency_sql::getByCode,
         soci::use(code, "code"), soci::into(res);
-    return res;
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
 
 vector<Currency> CurrencyDao::doGetAll() const

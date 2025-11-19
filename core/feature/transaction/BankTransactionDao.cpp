@@ -3,13 +3,13 @@
 
 using namespace std;
 
-BankTransaction BankTransactionDao::doGetById(int id) const
+std::optional<BankTransaction> BankTransactionDao::doGetById(int id) const
 {
     soci::session sql(_pool);
     BankTransaction res;
     sql << bank_transaction_sql::getById,
         soci::use(id, "id"), soci::into(res);
-    return res;
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
 
 std::vector<BankTransaction> BankTransactionDao::doGetByFromCardId(int id) const

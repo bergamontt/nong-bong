@@ -5,19 +5,19 @@
 class IBankTransactionDao
 {
 public:
-    BankTransaction getById(int id) const;
+    std::optional<BankTransaction> getById(int id) const;
     std::vector<BankTransaction> getByFromCardId(int id) const;
     std::vector<BankTransaction> getByUserCardId(int cardId) const;
     void create(BankTransaction& transfer) const;
     virtual ~IBankTransactionDao() = default;
 private:
-    virtual BankTransaction doGetById(int id) const = 0;
+    virtual std::optional<BankTransaction> doGetById(int id) const = 0;
     virtual std::vector<BankTransaction> doGetByFromCardId(int id) const = 0;
     virtual std::vector<BankTransaction> doGetByUserCardId(int cardId) const = 0;
     virtual void doCreate(BankTransaction& transfer) const = 0;
 };
 
-inline BankTransaction IBankTransactionDao::getById(const int id) const
+inline std::optional<BankTransaction> IBankTransactionDao::getById(const int id) const
 {
     return doGetById(id);
 }

@@ -11,7 +11,8 @@ public:
     CurrencyDao& operator=(const CurrencyDao&)& = delete;
 private:
     soci::connection_pool& _pool;
+
     void doCreate(const Currency &currency) const override;
-    Currency doGetCurrencyByCode(const std::string& code) const override;
+    std::optional<Currency> doGetCurrencyByCode(const std::string& code) const override;
     std::vector<Currency> doGetAll() const override;
 };

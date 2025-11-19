@@ -3,13 +3,13 @@
 
 using namespace std;
 
-CardDesign CardDesignDao::doGetById(int id) const
+std::optional<CardDesign> CardDesignDao::doGetById(int id) const
 {
     soci::session sql(_pool);
     CardDesign res;
     sql << card_design_sql::getById,
         soci::use(id, "id"), soci::into(res);
-    return res;
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
 
 std::vector<CardDesign> CardDesignDao::doGetAll() const

@@ -1,32 +1,38 @@
 #include "ScheduledTransferService.h"
 
-ScheduledTransferService::ScheduledTransferService(IScheduledTransferDao& dao, IBankTransactionDao& transactionDao, IBankTransactionService& bankTransactionService) :
-    _scheduledTransferDao(dao),
-    _transactionDao(transactionDao),
-    _bankTransactionService(bankTransactionService)
+ScheduledTransferService::ScheduledTransferService(IScheduledTransferDao& dao, IBankTransactionDao& transactionDao, IBankTransactionService& bankTransactionService)
+    : _scheduledTransferDao(dao)
+    , _transactionDao(transactionDao)
+    , _bankTransactionService(bankTransactionService)
 {}
 
-std::optional<ScheduledTransfer> ScheduledTransferService::doGetScheduledTransferById(int id) const {
+std::optional<ScheduledTransfer> ScheduledTransferService::doGetScheduledTransferById(const int id) const
+{
     return _scheduledTransferDao.getById(id);
 }
 
-std::vector<ScheduledTransfer> ScheduledTransferService::doGetAllScheduledTransfersFromCardId(int id) const {
+std::vector<ScheduledTransfer> ScheduledTransferService::doGetAllScheduledTransfersFromCardId(const int id) const
+{
     return _scheduledTransferDao.getByFromCardId(id);
 }
 
-void ScheduledTransferService::doCreateScheduledTransfer(const ScheduledTransfer& transfer) const {
+void ScheduledTransferService::doCreateScheduledTransfer(const ScheduledTransfer& transfer) const
+{
     _scheduledTransferDao.create(transfer);
 }
 
-void ScheduledTransferService::doUpdateScheduledTransfer(ScheduledTransfer transfer) const {
+void ScheduledTransferService::doUpdateScheduledTransfer(const ScheduledTransfer& transfer) const
+{
     _scheduledTransferDao.update(transfer);
 }
 
-void ScheduledTransferService::doDeleteScheduledTransfer(int id) const {
+void ScheduledTransferService::doDeleteScheduledTransfer(const int id) const
+{
     _scheduledTransferDao.deleteById(id);
 }
 
-void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm& time) const {
+void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm& time) const
+{
     const std::time_t nowTime = std::time(nullptr);
     std::tm now{};
     localtime_s(&now, &nowTime);
@@ -34,7 +40,7 @@ void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm
 
     for (const auto& t : transfers) {
         ScheduledTransfer transfer = t;
-        BankTransaction transaction = BankTransaction();
+        BankTransaction transaction;
         transaction.createdAt = t.nextTun.value();
         transaction.type = "payment";
         transaction.fromCardId = t.fromCardId;

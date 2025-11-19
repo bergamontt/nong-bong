@@ -12,7 +12,7 @@ public:
 private:
     soci::connection_pool& _pool;
 
-    CardDesign doGetById(int id) const override;
+    std::optional<CardDesign> doGetById(int id) const override;
     std::vector<CardDesign> doGetAll() const override;
     void doCreate(const CardDesign& cardDesign) const override;
     void doDeleteAll() const override;

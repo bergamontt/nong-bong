@@ -15,28 +15,37 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API test")
     SUBCASE("Create should insert valid card design")
     {
         CHECK_NOTHROW(dao.create(design));
-        CardDesign retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.name, design.name);
-        CHECK_EQ(retrieved.author.value(), design.author.value());
-        CHECK_EQ(retrieved.imageRef, design.imageRef);
+        auto retrieved = dao.getById(design.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->name, design.name);
+        CHECK_EQ(retrieved->author.value(), design.author.value());
+        CHECK_EQ(retrieved->imageRef, design.imageRef);
     }
 
     SUBCASE("Create should insert valid card design without an author")
     {
         design.author.reset();
         CHECK_NOTHROW(dao.create(design));
-        CardDesign retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.name, design.name);
-        CHECK_FALSE(retrieved.author.has_value());
-        CHECK_EQ(retrieved.imageRef, design.imageRef);
+        auto retrieved = dao.getById(design.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->name, design.name);
+        CHECK_FALSE(retrieved->author.has_value());
+        CHECK_EQ(retrieved->imageRef, design.imageRef);
     }
 
-    SUBCASE("Get by id should return card design with the given id")
+    SUBCASE("Get by id should return card design with the given id if such design exists")
     {
         dao.create(design);
-        CardDesign retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.id, design.id);
-        CHECK_EQ(retrieved.name, design.name);
+        auto retrieved = dao.getById(design.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->id, design.id);
+        CHECK_EQ(retrieved->name, design.name);
+    }
+
+    SUBCASE("Get by id should return no value unless such design exists")
+    {
+        auto retrieved = dao.getById(design.id);
+        CHECK_FALSE(retrieved.has_value());
     }
 
     SUBCASE("Get all should return all designs")

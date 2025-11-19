@@ -7,6 +7,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
     const ScheduledTransferDao dao(pool());
 
     ScheduledTransfer transfer;
+    transfer.id = 1;
     transfer.fromCardId = 1;
     transfer.toCardId = 2;
     transfer.amount = 100;
@@ -15,21 +16,22 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
     transfer.active = 1;
     transfer.description = "Test transfer";
 
-    SUBCASE("Create should insert valid scheduled transfer")
+    SUBCASE("create should insert valid scheduled transfer")
     {
         CHECK_NOTHROW(dao.create(transfer));
-        ScheduledTransfer retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.fromCardId, transfer.fromCardId);
-        CHECK_EQ(retrieved.toCardId, transfer.toCardId);
-        CHECK_EQ(retrieved.amount, transfer.amount);
-        CHECK_EQ(retrieved.currencyCode, transfer.currencyCode);
-        CHECK_EQ(retrieved.frequency, transfer.frequency);
-        CHECK_EQ(retrieved.active, transfer.active);
-        CHECK_EQ(retrieved.description, transfer.description);
-        CHECK_FALSE(retrieved.comment.has_value());
+        auto retrieved = dao.getById(transfer.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->fromCardId, transfer.fromCardId);
+        CHECK_EQ(retrieved->toCardId, transfer.toCardId);
+        CHECK_EQ(retrieved->amount, transfer.amount);
+        CHECK_EQ(retrieved->currencyCode, transfer.currencyCode);
+        CHECK_EQ(retrieved->frequency, transfer.frequency);
+        CHECK_EQ(retrieved->active, transfer.active);
+        CHECK_EQ(retrieved->description, transfer.description);
+        CHECK_FALSE(retrieved->comment.has_value());
     }
 
-    SUBCASE("Get all active scheduled transfers before date should return fitting transfers")
+    SUBCASE("getAllActiveScheduledTransfersBeforeDate should return fitting transfers")
     {
         std::tm pastDate{};
         pastDate.tm_year = 2020 - 1900;
@@ -53,7 +55,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
         CHECK_EQ(retrieved[0].active, 1);
     }
 
-    SUBCASE("Get by fromCardId should return correct transfers")
+    SUBCASE("getByFromCardId should return correct transfers")
     {
         transfer.fromCardId = 1;
         ScheduledTransfer other = transfer;
@@ -67,24 +69,27 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
         CHECK_EQ(retrieved[0].fromCardId, 1);
     }
 
-    SUBCASE("Update should modify existing transfer")
+    SUBCASE("update should modify existing transfer in database")
     {
         dao.create(transfer);
 
-        ScheduledTransfer retrieved = dao.getById(1);
-        retrieved.amount = 200;
-        retrieved.description = "Updated description";
-        CHECK_NOTHROW(dao.update(retrieved));
+        auto retrieved = dao.getById(transfer.id);
+        retrieved->amount = 200;
+        retrieved->description = "Updated description";
+        CHECK_NOTHROW(dao.update(*retrieved));
 
-        ScheduledTransfer updated = dao.getById(1);
-        CHECK_EQ(updated.amount, retrieved.amount);
-        CHECK_EQ(updated.description, retrieved.description);
+        auto updated = dao.getById(transfer.id);
+        CHECK(updated.has_value());
+        CHECK_EQ(updated->amount, retrieved->amount);
+        CHECK_EQ(updated->description, retrieved->description);
     }
 
     SUBCASE("Delete should remove scheduled transfer with the given id")
     {
         dao.create(transfer);
         CHECK_NOTHROW(dao.deleteById(1));
+        auto retrieved = dao.getById(transfer.id);
+        CHECK_FALSE(retrieved.has_value());
     }
 
 }

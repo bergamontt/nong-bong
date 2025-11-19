@@ -7,6 +7,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "BankTransactionDao API test")
     const BankTransactionDao dao(pool());
 
     BankTransaction tx;
+    tx.id = 1;
     tx.type = "transfer";
     tx.fromCardId = 1;
     tx.toCardId = 2;
@@ -15,27 +16,36 @@ TEST_CASE_FIXTURE(DBTestFixture, "BankTransactionDao API test")
     tx.description = "Test transfer";
     tx.status = "completed";
 
-    SUBCASE("Create should insert valid bank transaction")
+    SUBCASE("create should insert valid bank transaction")
     {
         CHECK_NOTHROW(dao.create(tx));
-        BankTransaction retrieved = dao.getById(1);
-        CHECK_EQ(retrieved.type, tx.type);
-        CHECK_EQ(retrieved.fromCardId, tx.fromCardId);
-        CHECK_EQ(retrieved.toCardId, tx.toCardId);
-        CHECK_EQ(retrieved.amount, tx.amount);
-        CHECK_EQ(retrieved.currencyCode, tx.currencyCode);
-        CHECK_EQ(retrieved.description, tx.description);
-        CHECK_EQ(retrieved.comment, tx.comment);
-        CHECK_EQ(retrieved.status, tx.status);
+        auto retrieved = dao.getById(tx.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->type, tx.type);
+        CHECK_EQ(retrieved->fromCardId, tx.fromCardId);
+        CHECK_EQ(retrieved->toCardId, tx.toCardId);
+        CHECK_EQ(retrieved->amount, tx.amount);
+        CHECK_EQ(retrieved->currencyCode, tx.currencyCode);
+        CHECK_EQ(retrieved->description, tx.description);
+        CHECK_EQ(retrieved->comment, tx.comment);
+        CHECK_EQ(retrieved->status, tx.status);
     }
 
-    SUBCASE("Create with comment should create transaction with comment")
+    SUBCASE("create with comment should create transaction with comment")
     {
         tx.comment = "Comment";
         CHECK_NOTHROW(dao.create(tx));
-        BankTransaction retrieved = dao.getById(1);
-        CHECK(retrieved.comment.has_value());
-        CHECK_EQ(retrieved.comment.value(), tx.comment);
+        auto retrieved = dao.getById(tx.id);
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->type, tx.type);
+        CHECK_EQ(retrieved->fromCardId, tx.fromCardId);
+        CHECK_EQ(retrieved->toCardId, tx.toCardId);
+        CHECK_EQ(retrieved->amount, tx.amount);
+        CHECK_EQ(retrieved->currencyCode, tx.currencyCode);
+        CHECK_EQ(retrieved->description, tx.description);
+        CHECK(retrieved->comment.has_value());
+        CHECK_EQ(retrieved->comment.value(), tx.comment);
+        CHECK_EQ(retrieved->status, tx.status);
     }
 
     SUBCASE("Get by fromCardId should return correct transactions")

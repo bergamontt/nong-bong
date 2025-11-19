@@ -19,19 +19,27 @@ TEST_CASE_FIXTURE(DBTestFixture, "CurrencyDao API test")
     SUBCASE("Create should insert valid currency")
     {
         CHECK_NOTHROW(dao.create(usd));
-        Currency retrieved = dao.getByCode("USD");
-        CHECK_EQ(retrieved.code, usd.code);
-        CHECK_EQ(retrieved.name, usd.name);
-        CHECK_EQ(retrieved.minorUnit, usd.minorUnit);
+        auto retrieved = dao.getByCode("USD");
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->code, usd.code);
+        CHECK_EQ(retrieved->name, usd.name);
+        CHECK_EQ(retrieved->minorUnit, usd.minorUnit);
     }
 
-    SUBCASE("Get by code should return currency with the given code")
+    SUBCASE("Get by code should return currency with the given code if such currency exists")
     {
         dao.create(eur);
-        Currency retrieved = dao.getByCode("EUR");
-        CHECK_EQ(retrieved.code, eur.code);
-        CHECK_EQ(retrieved.name, eur.name);
-        CHECK_EQ(retrieved.minorUnit, eur.minorUnit);
+        auto retrieved = dao.getByCode("EUR");
+        CHECK(retrieved.has_value());
+        CHECK_EQ(retrieved->code, eur.code);
+        CHECK_EQ(retrieved->name, eur.name);
+        CHECK_EQ(retrieved->minorUnit, eur.minorUnit);
+    }
+
+    SUBCASE("Get by code should return no value unless such currency exists")
+    {
+        auto retrieved = dao.getByCode("EUR");
+        CHECK_FALSE(retrieved.has_value());
     }
 
     SUBCASE("Get all should return all currencies")

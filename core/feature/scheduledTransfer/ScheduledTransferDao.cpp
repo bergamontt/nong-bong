@@ -3,13 +3,13 @@
 
 using namespace std;
 
-ScheduledTransfer ScheduledTransferDao::doGetById(int id) const
+std::optional<ScheduledTransfer> ScheduledTransferDao::doGetById(int id) const
 {
     soci::session sql(_pool);
     ScheduledTransfer res;
     sql << scheduled_transfer_sql::getById,
         soci::use(id, "id"), soci::into(res);
-    return res;
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
 
 std::vector<ScheduledTransfer> ScheduledTransferDao::doGetAllActiveBeforeDate(const std::tm& date) const

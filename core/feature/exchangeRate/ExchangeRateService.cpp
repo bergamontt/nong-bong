@@ -1,13 +1,15 @@
 #include "ExchangeRateService.h"
 
-ExchangeRateService::ExchangeRateService(IExchangeRateDao& dao) :
-    _exchangeRateDao(dao)
+ExchangeRateService::ExchangeRateService(IExchangeRateDao& dao)
+    : _exchangeRateDao(dao)
 {}
 
-std::optional<ExchangeRate> ExchangeRateService::doGetExchangeRateById(int id) const {
+std::optional<ExchangeRate> ExchangeRateService::doGetExchangeRateById(const int id) const
+{
     return _exchangeRateDao.getById(id);
 }
 
-std::vector<ExchangeRate> ExchangeRateService::doGetAllExchangeRates() const {
+std::vector<ExchangeRate> ExchangeRateService::doGetAllExchangeRates() const
+{
     return _exchangeRateDao.getAll();
 }

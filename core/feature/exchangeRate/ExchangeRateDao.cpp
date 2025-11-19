@@ -11,13 +11,13 @@ void ExchangeRateDao::doCreate(const ExchangeRate& rate) const
         soci::use(rate);
 }
 
-ExchangeRate ExchangeRateDao::doGetById(int id) const
+std::optional<ExchangeRate> ExchangeRateDao::doGetById(int id) const
 {
     soci::session sql(_pool);
     ExchangeRate res;
     sql << exchange_rate_sql::getById,
         soci::use(id, "id"), soci::into(res);
-    return res;
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
 
 std::vector<ExchangeRate> ExchangeRateDao::doGetAll() const

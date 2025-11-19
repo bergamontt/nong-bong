@@ -5,7 +5,7 @@
 class IScheduledTransferDao
 {
 public:
-    ScheduledTransfer getById(int id) const;
+    std::optional<ScheduledTransfer> getById(int id) const;
     std::vector<ScheduledTransfer> getAllActiveBeforeDate(const std::tm& date) const;
     std::vector<ScheduledTransfer> getByFromCardId(int id) const;
     void create(const ScheduledTransfer& transfer) const;
@@ -13,7 +13,7 @@ public:
     void deleteById(int id) const;
     virtual ~IScheduledTransferDao() = default;
 private:
-    virtual ScheduledTransfer doGetById(int id) const = 0;
+    virtual std::optional<ScheduledTransfer> doGetById(int id) const = 0;
     virtual std::vector<ScheduledTransfer> doGetAllActiveBeforeDate(const std::tm& date) const = 0;
     virtual std::vector<ScheduledTransfer> doGetByFromCardId(int id) const = 0;
     virtual void doUpdate(ScheduledTransfer transfer) const = 0;
@@ -21,7 +21,7 @@ private:
     virtual void doCreate(const ScheduledTransfer& transfer) const = 0;
 };
 
-inline ScheduledTransfer IScheduledTransferDao::getById(const int id) const
+inline std::optional<ScheduledTransfer> IScheduledTransferDao::getById(const int id) const
 {
     return doGetById(id);
 }

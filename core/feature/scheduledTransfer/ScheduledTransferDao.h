@@ -12,7 +12,7 @@ public:
 private:
     soci::connection_pool& _pool;
 
-    ScheduledTransfer doGetById(int id) const override;
+    std::optional<ScheduledTransfer> doGetById(int id) const override;
     std::vector<ScheduledTransfer> doGetAllActiveBeforeDate(const std::tm& date) const override;
     std::vector<ScheduledTransfer> doGetByFromCardId(int id) const override;
     void doCreate(const ScheduledTransfer& transfer) const override;

@@ -12,7 +12,7 @@ public:
 private:
     soci::connection_pool& _pool;
 
-    BankTransaction doGetById(int id) const override;
+    std::optional<BankTransaction> doGetById(int id) const override;
     std::vector<BankTransaction> doGetByFromCardId(int id) const override;
     std::vector<BankTransaction> doGetByUserCardId(int cardId) const override;
     void doCreate(BankTransaction& transfer) const override;
