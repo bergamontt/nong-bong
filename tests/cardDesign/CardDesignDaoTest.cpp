@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "CardDesignDao.h"
+#include "CardDesignTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API test")
 {
@@ -16,10 +17,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API test")
     {
         CHECK_NOTHROW(dao.create(design));
         auto retrieved = dao.getById(design.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->name, design.name);
-        CHECK_EQ(retrieved->author.value(), design.author.value());
-        CHECK_EQ(retrieved->imageRef, design.imageRef);
+        REQUIRE(retrieved.has_value());
+        assertCardDesignEquals(*retrieved, design);
     }
 
     SUBCASE("Create should insert valid card design without an author")
@@ -27,19 +26,16 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API test")
         design.author.reset();
         CHECK_NOTHROW(dao.create(design));
         auto retrieved = dao.getById(design.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->name, design.name);
-        CHECK_FALSE(retrieved->author.has_value());
-        CHECK_EQ(retrieved->imageRef, design.imageRef);
+        REQUIRE(retrieved.has_value());
+        assertCardDesignEquals(*retrieved, design);
     }
 
     SUBCASE("Get by id should return card design with the given id if such design exists")
     {
         dao.create(design);
         auto retrieved = dao.getById(design.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->id, design.id);
-        CHECK_EQ(retrieved->name, design.name);
+        REQUIRE(retrieved.has_value());
+        assertCardDesignEquals(*retrieved, design);
     }
 
     SUBCASE("Get by id should return no value unless such design exists")
@@ -53,15 +49,16 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API test")
         dao.create(design);
 
         CardDesign another;
+        another.id = 2;
         another.name = "Name2";
         another.author = "Author2";
         another.imageRef = "img002.png";
         dao.create(another);
 
         auto all = dao.getAll();
-        CHECK_EQ(all.size(), 2);
-        CHECK_EQ(all[0].name, "Name");
-        CHECK_EQ(all[1].name, "Name2");
+        REQUIRE_EQ(all.size(), 2);
+        assertCardDesignEquals(all[0], design);
+        assertCardDesignEquals(all[1], another);
     }
 
     SUBCASE("Delete all should remove all designs")

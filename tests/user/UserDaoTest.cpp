@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "UserDao.h"
+#include "UserTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "UserDao API test")
 {
@@ -19,21 +20,16 @@ TEST_CASE_FIXTURE(DBTestFixture, "UserDao API test")
     {
         CHECK_NOTHROW(dao.create(user));
         auto retrieved = dao.getById(1);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->firstName, user.firstName);
-        CHECK_EQ(retrieved->lastName, user.lastName);
-        CHECK_EQ(retrieved->phone, user.phone);
-        CHECK_EQ(retrieved->passwordHash, user.passwordHash);
-        CHECK_EQ(retrieved->status, user.status);
-        CHECK_EQ(retrieved->failedLoginCount, user.failedLoginCount);
+        REQUIRE(retrieved.has_value());
+        assertUserEquals(user, *retrieved);
     }
 
     SUBCASE("Get by id should return user with given id if such user exists")
     {
         dao.create(user);
         auto retrieved = dao.getById(user.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->id, user.id);
+        REQUIRE(retrieved.has_value());
+        assertUserEquals(user, *retrieved);
     }
 
     SUBCASE("Get by id should return no value unless such user exists")
@@ -46,8 +42,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "UserDao API test")
     {
         dao.create(user);
         auto retrieved = dao.getById(user.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->phone, user.phone);
+        REQUIRE(retrieved.has_value());
+        assertUserEquals(user, *retrieved);
     }
 
     SUBCASE("Update should save modified data to database")
@@ -59,10 +55,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "UserDao API test")
 
         CHECK_NOTHROW(dao.update(*retrieved));
         auto updated = dao.getById(1);
-
-        CHECK(updated.has_value());
-        CHECK_EQ(updated->firstName, retrieved->firstName);
-        CHECK_EQ(updated->lastName, retrieved->lastName);
+        REQUIRE(updated.has_value());
+        assertUserEquals(*updated, *retrieved);
     }
 
 }

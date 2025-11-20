@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "ExchangeRateDao.h"
+#include "ExchangeRateTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "ExchangeRateDao API test")
 {
@@ -22,20 +23,16 @@ TEST_CASE_FIXTURE(DBTestFixture, "ExchangeRateDao API test")
     {
         CHECK_NOTHROW(dao.create(rate1));
         auto retrieved = dao.getById(rate1.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->baseCurrency, "USD");
-        CHECK_EQ(retrieved->targetCurrency, "EUR");
-        REQUIRE_EQ(retrieved->rate, doctest::Approx(0.93));
+        REQUIRE(retrieved.has_value());
+        assertExchangeRateEquals(rate1, *retrieved);
     }
 
     SUBCASE("getById should return valid exchange rate with given id if such rate exists")
     {
         dao.create(rate1);
         auto retrieved = dao.getById(rate1.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->baseCurrency, rate1.baseCurrency);
-        CHECK_EQ(retrieved->targetCurrency, rate1.targetCurrency);
-        CHECK_EQ(retrieved->rate, rate1.rate);
+        REQUIRE(retrieved.has_value());
+        assertExchangeRateEquals(rate1, *retrieved);
     }
 
     SUBCASE("getById should return no value unless such rate exists")
@@ -48,10 +45,10 @@ TEST_CASE_FIXTURE(DBTestFixture, "ExchangeRateDao API test")
     {
         dao.create(rate1);
         dao.create(rate2);
-        auto all = dao.getAll();
-        CHECK_EQ(all.size(), 2);
-        CHECK_EQ(all[0].baseCurrency, "USD");
-        CHECK_EQ(all[1].baseCurrency, "EUR");
+        auto retrieved = dao.getAll();
+        REQUIRE_EQ(retrieved.size(), 2);
+        assertExchangeRateEquals(rate1, retrieved[0]);
+        assertExchangeRateEquals(rate2, retrieved[1]);
     }
 
 }

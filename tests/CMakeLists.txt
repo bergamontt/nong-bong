@@ -21,7 +21,8 @@ target_link_libraries(core_tests PRIVATE
 
 target_include_directories(core_tests PRIVATE
         ${CMAKE_SOURCE_DIR}/external
-        ${CMAKE_CURRENT_SOURCE_DIR}/common
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/fixtures
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/utils
 )
 
 enable_testing()

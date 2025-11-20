@@ -1,10 +1,9 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
+#include "CardTestUtils.h"
 #include "CardDao.h"
 #include "CardService.h"
 #include "Hasher.h"
-
-void assertCardEquals(const Card& expected, const Card& actual);
 
 TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
 {
@@ -30,7 +29,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
         CHECK_NOTHROW(service.createCard(card));
         auto retrieved = service.getCardById(card.id);
         REQUIRE(retrieved.has_value());
-        assertCardEquals(card, retrieved.value());
+        assertCardEqualsHashed(card, *retrieved);
     }
 
     SUBCASE("createCard should insert valid card without optional fields")
@@ -40,7 +39,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
         CHECK_NOTHROW(service.createCard(card));
         auto retrieved = service.getCardById(card.id);
         REQUIRE(retrieved.has_value());
-        assertCardEquals(card, retrieved.value());
+        assertCardEqualsHashed(card, *retrieved);
     }
 
     SUBCASE("getCardById should return valid card with given id if such card exists")
@@ -48,7 +47,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
         service.createCard(card);
         auto retrieved = service.getCardById(card.id);
         REQUIRE(retrieved.has_value());
-        assertCardEquals(card, retrieved.value());
+        assertCardEqualsHashed(card, *retrieved);
     }
 
     SUBCASE("getCardById should return no value unless such card exist")
@@ -62,7 +61,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
         service.createCard(card);
         auto retrieved = service.getCardByNumber(card.cardNumber);
         REQUIRE(retrieved.has_value());
-        assertCardEquals(card, retrieved.value());
+        assertCardEqualsHashed(card, *retrieved);
     }
 
     SUBCASE("getCardByNumber should return no value unless such card exists")
@@ -89,7 +88,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
 
         auto retrieved = service.getAllActiveCardsByUserId(card.userId);
         CHECK_EQ(retrieved.size(), 1);
-        assertCardEquals(card, retrieved[0]);
+        assertCardEqualsHashed(card, retrieved[0]);
     }
 
     SUBCASE("getAllBlockedCardsByUserId should return only blocked cards")
@@ -110,7 +109,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
 
         auto retrieved = service.getAllBlockedCardsByUserId(card.userId);
         CHECK_EQ(retrieved.size(), 1);
-        assertCardEquals(card2, retrieved[0]);
+        assertCardEqualsHashed(card2, retrieved[0]);
     }
 
     SUBCASE("getAllDeletedCardsByUserId should return only deleted cards")
@@ -131,7 +130,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
 
         auto retrieved = service.getAllDeletedCardsByUserId(card.userId);
         CHECK_EQ(retrieved.size(), 1);
-        assertCardEquals(card3, retrieved[0]);
+        assertCardEqualsHashed(card3, retrieved[0]);
     }
 
     SUBCASE("getAllCardsByUserId should return all user cards regardless of status")
@@ -152,9 +151,9 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
 
         auto retrieved = service.getAllCardsByUserId(card.userId);
         CHECK_EQ(retrieved.size(), 3);
-        assertCardEquals(card, retrieved[0]);
-        assertCardEquals(card2, retrieved[1]);
-        assertCardEquals(card3, retrieved[2]);
+        assertCardEqualsHashed(card, retrieved[0]);
+        assertCardEqualsHashed(card2, retrieved[1]);
+        assertCardEqualsHashed(card3, retrieved[2]);
     }
 
     SUBCASE("updateCard should modify existing card in database")
@@ -169,7 +168,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
         CHECK_NOTHROW(service.updateCard(card));
         auto retrieved = service.getCardById(card.id);
         REQUIRE(retrieved.has_value());
-        assertCardEquals(card, retrieved.value());
+        assertCardEqualsHashed(card, *retrieved);
     }
 
     SUBCASE("deleteCardById should set card status to deleted")
@@ -210,19 +209,4 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
         CHECK_FALSE(service.changeCardPin(card.id, "0000", "1111"));
     }
 
-}
-
-void assertCardEquals(const Card& expected, const Card& actual) {
-    CHECK_EQ(actual.id, expected.id);
-    CHECK_EQ(actual.userId, expected.userId);
-    CHECK_EQ(actual.cardNumber, expected.cardNumber);
-    CHECK_EQ(actual.allowCredit, expected.allowCredit);
-    CHECK_EQ(actual.creditLimit, expected.creditLimit);
-    CHECK_EQ(actual.currencyCode, expected.currencyCode);
-    CHECK_EQ(actual.balance, expected.balance);
-    CHECK_EQ(actual.dailyLimit, expected.dailyLimit);
-    CHECK_EQ(actual.designId, expected.designId);
-    CHECK(Hasher::verifyPin(expected.pinHash, actual.pinHash));
-    CHECK_EQ(actual.status, expected.status);
-    CHECK_EQ(actual.failedAccessCount, expected.failedAccessCount);
 }

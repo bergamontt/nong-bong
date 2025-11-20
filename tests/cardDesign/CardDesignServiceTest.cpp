@@ -2,6 +2,7 @@
 #include "DBTestFixture.h"
 #include "CardDesignDao.h"
 #include "CardDesignService.h"
+#include "CardDesignTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API Integration Test")
 {
@@ -18,12 +19,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API Integration Test")
     {
         CHECK_NOTHROW(service.createCardDesign(cardDesign));
         auto retrieved = service.getCardDesignById(cardDesign.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->id, cardDesign.id);
-        CHECK_EQ(retrieved->name, cardDesign.name);
-        CHECK_EQ(retrieved->imageRef, cardDesign.imageRef);
-        CHECK(retrieved->author.has_value());
-        CHECK_EQ(retrieved->author.value(), cardDesign.author.value());
+        REQUIRE(retrieved.has_value());
+        assertCardDesignEquals(*retrieved, cardDesign);
     }
 
     SUBCASE("createCardDesign should insert valid card design without author")
@@ -31,19 +28,16 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API Integration Test")
         cardDesign.author.reset();
         CHECK_NOTHROW(service.createCardDesign(cardDesign));
         auto retrieved = service.getCardDesignById(cardDesign.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->id, cardDesign.id);
-        CHECK_EQ(retrieved->name, cardDesign.name);
-        CHECK_EQ(retrieved->imageRef, cardDesign.imageRef);
-        CHECK_FALSE(retrieved->author.has_value());
+        REQUIRE(retrieved.has_value());
+        assertCardDesignEquals(*retrieved, cardDesign);
     }
 
     SUBCASE("getCardDesignById should return design with given id if such design exists")
     {
         service.createCardDesign(cardDesign);
         auto retrieved = service.getCardDesignById(cardDesign.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->id, cardDesign.id);
+        REQUIRE(retrieved.has_value());
+        assertCardDesignEquals(*retrieved, cardDesign);
     }
 
     SUBCASE("getCardDesignById should return no value unless such design exists")
@@ -56,12 +50,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API Integration Test")
     {
         service.createCardDesign(cardDesign);
         auto retrieved = service.getAllCardDesigns();
-        CHECK_EQ(retrieved.size(), 1);
-        CHECK_EQ(retrieved[0].id, cardDesign.id);
-        CHECK_EQ(retrieved[0].name, cardDesign.name);
-        CHECK_EQ(retrieved[0].imageRef, cardDesign.imageRef);
-        CHECK(retrieved[0].author.has_value());
-        CHECK_EQ(retrieved[0].author.value(), cardDesign.author.value());
+        REQUIRE_EQ(retrieved.size(), 1);
+        assertCardDesignEquals(retrieved[0], cardDesign);
     }
 
     SUBCASE("deleteAll should remove all card designs")

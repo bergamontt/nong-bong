@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "CurrencyDao.h"
+#include "CurrencyTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CurrencyDao API test")
 {
@@ -20,20 +21,16 @@ TEST_CASE_FIXTURE(DBTestFixture, "CurrencyDao API test")
     {
         CHECK_NOTHROW(dao.create(usd));
         auto retrieved = dao.getByCode("USD");
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->code, usd.code);
-        CHECK_EQ(retrieved->name, usd.name);
-        CHECK_EQ(retrieved->minorUnit, usd.minorUnit);
+        REQUIRE(retrieved.has_value());
+        assertCurrencyEquals(*retrieved, usd);
     }
 
     SUBCASE("Get by code should return currency with the given code if such currency exists")
     {
         dao.create(eur);
         auto retrieved = dao.getByCode("EUR");
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->code, eur.code);
-        CHECK_EQ(retrieved->name, eur.name);
-        CHECK_EQ(retrieved->minorUnit, eur.minorUnit);
+        REQUIRE(retrieved.has_value());
+        assertCurrencyEquals(*retrieved, eur);
     }
 
     SUBCASE("Get by code should return no value unless such currency exists")
@@ -46,10 +43,10 @@ TEST_CASE_FIXTURE(DBTestFixture, "CurrencyDao API test")
     {
         dao.create(usd);
         dao.create(eur);
-        auto all = dao.getAll();
-        CHECK_EQ(all.size(), 2);
-        CHECK_EQ(all[0].code, "USD");
-        CHECK_EQ(all[1].code, "EUR");
+        auto retrieved = dao.getAll();
+        REQUIRE_EQ(retrieved.size(), 2);
+        assertCurrencyEquals(retrieved[0], usd);
+        assertCurrencyEquals(retrieved[1], eur);
     }
 
 }

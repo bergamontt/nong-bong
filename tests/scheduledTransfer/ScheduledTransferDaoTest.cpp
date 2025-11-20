@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "ScheduledTransferDao.h"
+#include "ScheduledTransferTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
 {
@@ -14,21 +15,14 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
     transfer.currencyCode = "USD";
     transfer.frequency = "weekly";
     transfer.active = 1;
-    transfer.description = "Test transfer";
+    transfer.description = "Transfer";
 
     SUBCASE("create should insert valid scheduled transfer")
     {
         CHECK_NOTHROW(dao.create(transfer));
         auto retrieved = dao.getById(transfer.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->fromCardId, transfer.fromCardId);
-        CHECK_EQ(retrieved->toCardId, transfer.toCardId);
-        CHECK_EQ(retrieved->amount, transfer.amount);
-        CHECK_EQ(retrieved->currencyCode, transfer.currencyCode);
-        CHECK_EQ(retrieved->frequency, transfer.frequency);
-        CHECK_EQ(retrieved->active, transfer.active);
-        CHECK_EQ(retrieved->description, transfer.description);
-        CHECK_FALSE(retrieved->comment.has_value());
+        REQUIRE(retrieved.has_value());
+        assertScheduledTransferEquals(*retrieved, transfer);
     }
 
     SUBCASE("getAllActiveScheduledTransfersBeforeDate should return fitting transfers")
@@ -48,11 +42,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
         now.tm_mday = 20;
 
         auto retrieved = dao.getAllActiveBeforeDate(now);
-        CHECK_FALSE(retrieved.empty());
-        REQUIRE_FALSE(retrieved.empty());
-        CHECK_EQ(retrieved.size(), 1);
-        CHECK_EQ(retrieved[0].fromCardId, 1);
-        CHECK_EQ(retrieved[0].active, 1);
+        REQUIRE_EQ(retrieved.size(), 1);
+        assertScheduledTransferEquals(transfer, retrieved[0]);
     }
 
     SUBCASE("getByFromCardId should return correct transfers")
@@ -65,8 +56,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
         dao.create(other);
 
         auto retrieved = dao.getByFromCardId(1);
-        CHECK_EQ(retrieved.size(), 1);
-        CHECK_EQ(retrieved[0].fromCardId, 1);
+        REQUIRE_EQ(retrieved.size(), 1);
+        assertScheduledTransferEquals(transfer, retrieved[0]);
     }
 
     SUBCASE("update should modify existing transfer in database")
@@ -79,9 +70,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
         CHECK_NOTHROW(dao.update(*retrieved));
 
         auto updated = dao.getById(transfer.id);
-        CHECK(updated.has_value());
-        CHECK_EQ(updated->amount, retrieved->amount);
-        CHECK_EQ(updated->description, retrieved->description);
+        REQUIRE(updated.has_value());
+        assertScheduledTransferEquals(*retrieved, *updated);
     }
 
     SUBCASE("Delete should remove scheduled transfer with the given id")

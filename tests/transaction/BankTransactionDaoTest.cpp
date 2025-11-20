@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "BankTransactionDao.h"
+#include "BankTransactionTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "BankTransactionDao API test")
 {
@@ -20,15 +21,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "BankTransactionDao API test")
     {
         CHECK_NOTHROW(dao.create(tx));
         auto retrieved = dao.getById(tx.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->type, tx.type);
-        CHECK_EQ(retrieved->fromCardId, tx.fromCardId);
-        CHECK_EQ(retrieved->toCardId, tx.toCardId);
-        CHECK_EQ(retrieved->amount, tx.amount);
-        CHECK_EQ(retrieved->currencyCode, tx.currencyCode);
-        CHECK_EQ(retrieved->description, tx.description);
-        CHECK_EQ(retrieved->comment, tx.comment);
-        CHECK_EQ(retrieved->status, tx.status);
+        REQUIRE(retrieved.has_value());
+        assertBankTransactionEquals(tx, *retrieved);
     }
 
     SUBCASE("create with comment should create transaction with comment")
@@ -36,16 +30,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "BankTransactionDao API test")
         tx.comment = "Comment";
         CHECK_NOTHROW(dao.create(tx));
         auto retrieved = dao.getById(tx.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->type, tx.type);
-        CHECK_EQ(retrieved->fromCardId, tx.fromCardId);
-        CHECK_EQ(retrieved->toCardId, tx.toCardId);
-        CHECK_EQ(retrieved->amount, tx.amount);
-        CHECK_EQ(retrieved->currencyCode, tx.currencyCode);
-        CHECK_EQ(retrieved->description, tx.description);
-        CHECK(retrieved->comment.has_value());
-        CHECK_EQ(retrieved->comment.value(), tx.comment);
-        CHECK_EQ(retrieved->status, tx.status);
+        REQUIRE(retrieved.has_value());
+        assertBankTransactionEquals(tx, *retrieved);
     }
 
     SUBCASE("Get by fromCardId should return correct transactions")

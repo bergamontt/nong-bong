@@ -2,7 +2,7 @@
 #include "DBTestFixture.h"
 #include "UserDao.h"
 #include "UserService.h"
-#include "Hasher.h"
+#include "UserTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "UserService API Integration Test")
 {
@@ -22,21 +22,16 @@ TEST_CASE_FIXTURE(DBTestFixture, "UserService API Integration Test")
     {
         CHECK_NOTHROW(service.createUser(user));
         auto retrieved = service.getUserById(user.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->firstName, user.firstName);
-        CHECK_EQ(retrieved->lastName, user.lastName);
-        CHECK_EQ(retrieved->phone, user.phone);
-        CHECK(Hasher::verifyPin(user.passwordHash, retrieved->passwordHash));
-        CHECK_EQ(retrieved->status, user.status);
-        CHECK_EQ(retrieved->failedLoginCount, user.failedLoginCount);
+        REQUIRE(retrieved.has_value());
+        assertUserEqualsHashed(user, *retrieved);
     }
 
     SUBCASE("getUserById should return user with given id if such user exists")
     {
         service.createUser(user);
         auto retrieved = service.getUserById(user.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->id, user.id);
+        REQUIRE(retrieved.has_value());
+        assertUserEqualsHashed(user, *retrieved);
     }
 
     SUBCASE("getUserById should return no value unless such user exists")
@@ -49,8 +44,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "UserService API Integration Test")
     {
         service.createUser(user);
         auto retrieved = service.getUserByPhone("12345");
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->phone, user.phone);
+        REQUIRE(retrieved.has_value());
+        assertUserEqualsHashed(user, *retrieved);
     }
 
     SUBCASE("getUserByPhone should return no value unless such user exists")
@@ -72,13 +67,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "UserService API Integration Test")
         CHECK_NOTHROW(service.updateUser(updated));
 
         auto retrieved = service.getUserById(user.id);
-        CHECK(retrieved.has_value());
-        CHECK_EQ(retrieved->firstName, updated.firstName);
-        CHECK_EQ(retrieved->lastName, updated.lastName);
-        CHECK_EQ(retrieved->phone, updated.phone);
-        CHECK(Hasher::verifyPin(updated.passwordHash, retrieved->passwordHash));
-        CHECK_EQ(retrieved->status, updated.status);
-        CHECK_EQ(retrieved->failedLoginCount, updated.failedLoginCount);
+        REQUIRE(retrieved.has_value());
+        assertUserEqualsHashed(updated, *retrieved);
     }
 
     SUBCASE("accessToUser should return true for valid phone and password")
