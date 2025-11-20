@@ -33,10 +33,7 @@ void ScheduledTransferService::doDeleteScheduledTransfer(const int id) const
 
 void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm& time) const
 {
-    const std::time_t nowTime = std::time(nullptr);
-    std::tm now{};
-    localtime_s(&now, &nowTime);
-    auto transfers = _scheduledTransferDao.getAllActiveBeforeDate(now);
+    auto transfers = _scheduledTransferDao.getAllActiveBeforeDate(time);
 
     for (const auto& t : transfers) {
         ScheduledTransfer transfer = t;
@@ -67,7 +64,7 @@ void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm
             transfer.nextTun.value().tm_mon += 1;
             std::mktime(&transfer.nextTun.value());
         }
-        updateScheduledTransfer(t);
+        updateScheduledTransfer(transfer);
 
     }
 }

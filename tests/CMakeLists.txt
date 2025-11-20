@@ -7,10 +7,13 @@ add_executable(core_tests
         currency/CurrencyDaoTest.cpp
         currency/CurrencyServiceTest.cpp
         exchangeRate/ExchangeRateDaoTest.cpp
+        exchangeRate/ExchangeRateServiceTest.cpp
         card/CardDaoTest.cpp
         card/CardServiceTest.cpp
         transaction/BankTransactionDaoTest.cpp
+        transaction/BankTransactionServiceTest.cpp
         scheduledTransfer/ScheduledTransferDaoTest.cpp
+        scheduledTransfer/ScheduledTransferServiceTest.cpp
 )
 
 target_link_libraries(core_tests PRIVATE

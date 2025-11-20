@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-
 #include "BankTransactionService.h"
 #include "IBankTransactionDao.h"
 #include "IScheduledTransferDao.h"
@@ -18,7 +17,6 @@ private:
     IScheduledTransferDao& _scheduledTransferDao;
     IBankTransactionDao& _transactionDao;
     IBankTransactionService& _bankTransactionService;
-
 
     std::optional<ScheduledTransfer> doGetScheduledTransferById(int id) const override;
     std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const override;

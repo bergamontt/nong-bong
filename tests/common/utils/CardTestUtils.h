@@ -26,3 +26,21 @@ inline void assertCardEquals(const Card& expected, const Card& actual) {
     assertCardBase(expected, actual);
     CHECK_EQ(actual.pinHash, expected.pinHash);
 }
+
+inline Card makeCard(const int id, std::string currency, const int balance)
+{
+    Card c;
+    c.id = id;
+    c.userId = id;
+    c.cardNumber = std::to_string(id);
+    c.allowCredit = true;
+    c.creditLimit = 50000;
+    c.currencyCode = std::move(currency);
+    c.balance = balance;
+    c.dailyLimit = 999999;
+    c.designId = 1;
+    c.pinHash = "hash";
+    c.status = Card::active;
+    c.failedAccessCount = 0;
+    return c;
+}

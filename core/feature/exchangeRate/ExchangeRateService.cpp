@@ -13,3 +13,8 @@ std::vector<ExchangeRate> ExchangeRateService::doGetAllExchangeRates() const
 {
     return _exchangeRateDao.getAll();
 }
+
+void ExchangeRateService::doCreate(const ExchangeRate& er) const
+{
+    return _exchangeRateDao.create(er);
+}

@@ -16,4 +16,5 @@ private:
 
     std::optional<ExchangeRate> doGetExchangeRateById(int id) const override;
     std::vector<ExchangeRate> doGetAllExchangeRates() const override;
+    void doCreate(const ExchangeRate& er) const override;
 };
