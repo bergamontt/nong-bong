@@ -16,4 +16,5 @@ private:
 
     std::optional<Currency> doGetCurrencyByCode(const std::string& code) const override;
     std::vector<Currency> doGetAllCurrencies() const override;
+    void doCreate(const Currency &currency) const override;
 };

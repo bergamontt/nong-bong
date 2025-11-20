@@ -18,7 +18,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDao API test")
     card.status = Card::Status::active;
     card.failedAccessCount = 0;
 
-    SUBCASE("Create should insert valid card")
+    SUBCASE("create should insert valid card")
     {
         CHECK_NOTHROW(dao.create(card));
         auto retrieved = dao.getById(1);
@@ -36,7 +36,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDao API test")
         CHECK_EQ(retrieved->blockedUntil, std::nullopt);
     }
 
-    SUBCASE("Get by id should return card with the given id")
+    SUBCASE("getById should return card with the given id")
     {
         dao.create(card);
         auto retrieved = dao.getById(1);
@@ -45,7 +45,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDao API test")
         CHECK_EQ(retrieved->currencyCode, card.currencyCode);
     }
 
-    SUBCASE("Get by user id should return all cards for a user")
+    SUBCASE("getByUserId should return all cards for a user")
     {
         dao.create(card);
         auto cards = dao.getByUserId(1);
@@ -53,21 +53,21 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDao API test")
         CHECK_EQ(cards[0].userId, card.userId);
     }
 
-    SUBCASE("Get by user and status should return fitting cards")
+    SUBCASE("getByUserAndStatus should return fitting cards")
     {
         dao.create(card);
         auto activeCards = dao.getByUserIdAndStatus(1, Card::Status::active);
         CHECK_EQ(activeCards.size(), 1);
     }
 
-    SUBCASE("Get by user and status should return empty vector if no fitting cards found")
+    SUBCASE("getByUserAndStatus should return empty vector if no fitting cards found")
     {
         card.status = Card::Status::blocked;
         auto activeCards = dao.getByUserIdAndStatus(1, Card::Status::active);
         CHECK_EQ(activeCards.size(), 0);
     }
 
-    SUBCASE("Update should save modified data")
+    SUBCASE("update should save modified data")
     {
         dao.create(card);
         auto retrieved = dao.getById(1);
@@ -81,7 +81,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardDao API test")
         CHECK_EQ(updated->status, Card::Status::blocked);
     }
 
-    SUBCASE("UpdatePin should save new pin")
+    SUBCASE("updatePin should save new pin")
     {
         dao.create(card);
         auto retrieved = dao.getById(1);

@@ -13,3 +13,8 @@ std::vector<Currency> CurrencyService::doGetAllCurrencies() const
 {
     return _currencyDao.getAll();
 }
+
+void CurrencyService::doCreate(const Currency &currency) const
+{
+    return _currencyDao.create(currency);
+}

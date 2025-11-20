@@ -55,10 +55,11 @@ void CardService::doUpdateCard(const Card& card) const
 
 void CardService::doDeleteCardById(const int id) const
 {
-    const std::optional<Card> optionalCard = getCardById(id);
-    Card card = optionalCard.value();
-    card.status = Card::Status::deleted;
-    _cardDao.update(card);
+    std::optional<Card> card = getCardById(id);
+    if (!card.has_value())
+        return;
+    card->status = Card::Status::deleted;
+    _cardDao.update(*card);
 }
 
 bool CardService::doAccessToCard(const int id, const std::string &pin)

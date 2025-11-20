@@ -3,14 +3,14 @@
 
 class ICardDesignService{
 public:
-    [[nodiscard]] std::optional<CardDesign> getCardDesignById(int id) const;
-    [[nodiscard]] std::vector<CardDesign> getAllCardDesigns() const;
+    std::optional<CardDesign> getCardDesignById(int id) const;
+    std::vector<CardDesign> getAllCardDesigns() const;
     void createCardDesign(const CardDesign& cardDesign) const;
     void deleteAll() const;
     virtual ~ICardDesignService() = default;
 private:
-    [[nodiscard]] virtual std::optional<CardDesign> doGetCardDesignById(int id) const = 0;
-    [[nodiscard]] virtual std::vector<CardDesign> doGetAllCardDesigns() const = 0;
+    virtual std::optional<CardDesign> doGetCardDesignById(int id) const = 0;
+    virtual std::vector<CardDesign> doGetAllCardDesigns() const = 0;
     virtual void doCreateCardDesign(const CardDesign& cardDesign) const = 0;
     virtual void doDeleteAll() const = 0;
 };
