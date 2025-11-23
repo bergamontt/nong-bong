@@ -34,10 +34,10 @@ private:
 
     std::unique_ptr<CardService> _cardService;
     std::unique_ptr<CardDesignService> _cardDesignService;
-    std::unique_ptr<CurrencyService> _currencyService;
     std::unique_ptr<ExchangeRateService> _exchangeRateService;
-    std::unique_ptr<ScheduledTransferService> _scheduledTransferService;
+    std::unique_ptr<CurrencyService> _currencyService;
     std::unique_ptr<BankTransactionService> _bankTransactionService;
+    std::unique_ptr<ScheduledTransferService> _scheduledTransferService;
     std::unique_ptr<UserService> _userService;
 
     ICardService& doCardService() const override;

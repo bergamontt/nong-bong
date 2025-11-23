@@ -35,6 +35,7 @@ target_include_directories(gui_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_SOURCE_DIR}/core/feature/exchangeRate
 		${CMAKE_SOURCE_DIR}/core/feature/scheduledTransfer
 		${CMAKE_SOURCE_DIR}/core/feature/transaction
+		${CMAKE_SOURCE_DIR}/core/feature/transaction/strategies
 		${CMAKE_SOURCE_DIR}/core/feature/user
 		${CMAKE_SOURCE_DIR}/core/db
 		${CMAKE_SOURCE_DIR}/core/security

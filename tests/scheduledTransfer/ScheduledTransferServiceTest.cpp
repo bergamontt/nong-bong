@@ -9,6 +9,7 @@
 #include "ExchangeRateDao.h"
 #include "ScheduledTransferTestUtils.h"
 #include "CardTestUtils.h"
+#include "CurrencyService.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferService API Integration Test")
 {
@@ -17,8 +18,9 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferService API Integration Test"
     CardDao cardDao(pool());
     CurrencyDao currencyDao(pool());
     ExchangeRateDao rateDao(pool());
+    CurrencyService currencyService(currencyDao, rateDao);
 
-    BankTransactionService bankTxService(txDao, cardDao, rateDao, currencyDao);
+    BankTransactionService bankTxService(txDao, cardDao, currencyService);
     ScheduledTransferService service(scheduledDao, txDao, bankTxService);
 
     Currency usd;

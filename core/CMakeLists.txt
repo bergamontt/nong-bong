@@ -18,6 +18,12 @@ add_library(core_lib
 		feature/transaction/BankTransactionService.cpp
 		feature/user/UserService.cpp
 		security/Hasher.cpp
+
+		feature/transaction/strategies/DepositStrategy.cpp
+		feature/transaction/strategies/PaymentStrategy.cpp
+		feature/transaction/strategies/TransferStrategy.cpp
+		feature/transaction/strategies/WithdrawalStrategy.cpp
+		feature/transaction/strategies/TransactionStrategyFactory.cpp
 )
 
 target_include_directories(core_lib PUBLIC
@@ -28,6 +34,7 @@ target_include_directories(core_lib PUBLIC
 		feature/exchangeRate
 		feature/scheduledTransfer
 		feature/transaction
+		feature/transaction/strategies
 		feature/user
 		db
 		db/sql

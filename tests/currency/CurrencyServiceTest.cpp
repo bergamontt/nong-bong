@@ -1,13 +1,15 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "CurrencyDao.h"
+#include "ExchangeRateDao.h"
 #include "CurrencyService.h"
 #include "CurrencyTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CurrencyService API Integration Test")
 {
-    CurrencyDao dao(pool());
-    CurrencyService service(dao);
+    CurrencyDao curDao(pool());
+    ExchangeRateDao excDao(pool());
+    CurrencyService service(curDao, excDao);
 
     Currency curr;
     curr.code = "Code";

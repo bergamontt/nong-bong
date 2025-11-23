@@ -4,21 +4,21 @@
 #include "IBankTransactionDao.h"
 #include "IBankTransactionService.h"
 #include "ICardDao.h"
-#include "ICurrencyDao.h"
-#include "IExchangeRateDao.h"
+#include "ICurrencyService.h"
+#include "TransactionStrategyFactory.h"
 
 class BankTransactionService final : public IBankTransactionService
 {
 public:
-    explicit BankTransactionService(IBankTransactionDao& dao, ICardDao& cardDao, IExchangeRateDao& exchangeRateDao, ICurrencyDao& currencyDao);
+    explicit BankTransactionService(IBankTransactionDao& dao, ICardDao& cardDao, ICurrencyService& currencyService);
     BankTransactionService(const BankTransactionService&) = delete;
     BankTransactionService& operator=(const BankTransactionService&)& = delete;
 
 private:
     IBankTransactionDao& _bankTransactionDao;
     ICardDao& _cardDao;
-    IExchangeRateDao& _exchangeRateDao;
-    ICurrencyDao& _currencyDao;
+    ICurrencyService& _currencyService;
+    TransactionStrategyFactory _factory;
 
     std::optional<BankTransaction> doGetBankTransactionById(int id) const override;
     std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
@@ -26,11 +26,4 @@ private:
     bool doCreateBankTransaction(BankTransaction& transaction) override;
 
     static bool validateCardIdsRule(const BankTransaction &tx);
-
-    bool handleWithdrawal(BankTransaction& transaction) const;
-    bool handleDeposit(BankTransaction& transaction) const;
-    bool handleTransfer(BankTransaction& transaction) const;
-    bool handlePayment(BankTransaction& transaction) const;
-
-    void normalizeTransactionAmount(BankTransaction& transaction) const;
 };
