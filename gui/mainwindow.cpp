@@ -34,6 +34,7 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
 
     ui->stackedWidget->setCurrentWidget(ui->loginScreen);
 
+    ui->LE_password->setEchoMode(QLineEdit::Password);
     ui->LE_phone->setInputMask(R"(\+3\8\0 (99) 999-9999;_)");
 
     ui->W_currentCard->setContext(context);
