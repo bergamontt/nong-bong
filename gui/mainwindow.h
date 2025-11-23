@@ -60,6 +60,8 @@ private slots:
     void on_B_cancelDesign_clicked();
 
     void on_B_deleteCard_clicked();
+    void on_B_enterDeleteCard_clicked();
+    void on_B_cancelDeleteCard_clicked();
 
     void on_B_register_clicked();
     void on_B_cancelRegister_clicked();
@@ -90,19 +92,21 @@ private:
     void animateTransition(QWidget* from, QWidget* to, int initY = 0, std::function<void()> onFinished = nullptr);
 
     static void shakeLabel(QLabel* label);
-    void initDesigns();
+    void initDesigns() const;
 
     void setStyles() const;
     void setupPinScreen();
     void setupPinChangeScreen();
     void setupWithdrawScreen();
-    void setupTransHistoryScreen();
+    void setupTransHistoryScreen() const;
     void setupDepositScreen() const;
     void setupDesignsScreen() const;
     void setupTransferScreen();
     void setupRegisterScreen() const;
     void setupScheduledTransferScreen();
-    void setupViewScheduledPaymentsScreen();
+    void setupViewScheduledPaymentsScreen() const;
     void setupCreateCardScreen();
+    void setupDeleteScreen() const;
+    void updateAllCardWidgets(int cardId) const;
 
 };

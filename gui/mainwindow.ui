@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>7</number>
+     <number>13</number>
     </property>
     <widget class="QWidget" name="loginScreen">
      <widget class="QLabel" name="L_welcome">
@@ -306,7 +306,7 @@
         <height>461</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_11">
+      <layout class="QVBoxLayout" name="verticalLayout_111">
        <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
         <widget class="QScrollArea" name="SA_designs">
          <property name="minimumSize">
@@ -354,7 +354,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <layout class="QHBoxLayout" name="horizontalLayout_61">
          <item>
           <widget class="QPushButton" name="B_cancelDesign">
            <property name="minimumSize">
@@ -408,7 +408,7 @@
         <height>358</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_12">
+      <layout class="QVBoxLayout" name="verticalLayout_121">
        <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
         <widget class="QLabel" name="L_join">
          <property name="minimumSize">
@@ -432,7 +432,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QFormLayout" name="formLayout_4">
+        <layout class="QFormLayout" name="formLayout_41">
          <property name="formAlignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
@@ -564,7 +564,7 @@
         <height>32</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <layout class="QHBoxLayout" name="horizontalLayout_71">
        <item>
         <widget class="QPushButton" name="B_cancelRegister">
          <property name="minimumSize">
@@ -1247,7 +1247,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <layout class="QHBoxLayout" name="horizontalLayout_111">
            <property name="topMargin">
             <number>20</number>
            </property>
@@ -1379,7 +1379,7 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <layout class="QHBoxLayout" name="horizontalLayout_121">
            <property name="spacing">
             <number>0</number>
            </property>
@@ -1463,6 +1463,116 @@
       <property name="checkable">
        <bool>false</bool>
       </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="deleteCardScreen">
+     <widget class="QWidget" name="verticalLayoutWidget_12">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>70</y>
+        <width>801</width>
+        <height>305</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_18">
+       <property name="spacing">
+        <number>20</number>
+       </property>
+       <item alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="BankCardWidget" name="W_currentCard_del" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>275</width>
+           <height>160</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>275</width>
+           <height>160</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="currentCard_9"/>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QLabel" name="L_cardDeletion">
+         <property name="minimumSize">
+          <size>
+           <width>700</width>
+           <height>51</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>700</width>
+           <height>51</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Do You really want to delete this card?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_14">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>100</number>
+         </property>
+         <property name="rightMargin">
+          <number>100</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="B_cancelDeleteCard">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>↩ Back</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="B_enterDeleteCard">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>DELETE</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="scheduledPaymentsScreen">
@@ -1963,7 +2073,7 @@
         <height>521</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
+      <layout class="QVBoxLayout" name="verticalLayout_19">
        <item alignment="Qt::AlignmentFlag::AlignHCenter">
         <widget class="BankCardWidget" name="W_currentCardd" native="true">
          <property name="minimumSize">
@@ -2829,7 +2939,7 @@ payment</string>
      <x>0</x>
      <y>0</y>
      <width>799</width>
-     <height>25</height>
+     <height>33</height>
     </rect>
    </property>
   </widget>

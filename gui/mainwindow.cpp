@@ -26,6 +26,7 @@ using namespace std;
 
 MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow),
                                                              context(context) {
+    this->setFixedSize(799, 610);
     ui->setupUi(this);
 
     setStyles();
@@ -43,11 +44,12 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->W_currentCardwd->setContext(context);
     ui->W_currentCardOnScreen->setContext(context);
     ui->W_currentCard_sp->setContext(context);
+    ui->W_currentCard_del->setContext(context);
 
     auto *scheduledTransferTimer = new QTimer(this);
-    connect(scheduledTransferTimer, &QTimer::timeout, this, [this, &context]() {
+    connect(scheduledTransferTimer, &QTimer::timeout, this, [&context]() {
         try {
-            std::time_t nowTime = std::time(nullptr);
+            const std::time_t nowTime = std::time(nullptr);
             std::tm now{};
             localtime_s(&now, &nowTime);
             qDebug() << "All scheduled payments are executed";
@@ -238,15 +240,7 @@ void MainWindow::on_B_enterWithdraw_clicked() const {
     if (context.bankTransactionService().createBankTransaction(newTransaction)) {
         qDebug() << "Transaction SUCCESS";
         ui->L_failWithdrawal->hide();
-        int cardId = ui->W_currentCardwd->getCardId();
-        ui->W_currentCardwd->setCardId(cardId);
-        ui->W_currentCard->setCardId(cardId);
-        ui->W_currentCard_2->setCardId(cardId);
-        ui->W_currentCard_3->setCardId(cardId);
-        ui->W_currentCard_4->setCardId(cardId);
-        ui->W_currentCardOnScreen->setCardId(cardId);
-        ui->W_currentCardd->setCardId(cardId);
-        ui->W_currentCard_sp->setCardId(cardId);
+        updateAllCardWidgets(ui->W_currentCardwd->getCardId());
 
         ui->LE_enteredAmount->clear();
     } else {
@@ -326,15 +320,7 @@ void MainWindow::on_B_enterDeposit_clicked() const {
 
     if (context.bankTransactionService().createBankTransaction(newTransaction)) {
         qDebug() << "Deposit SUCCESS";
-        int cardId = ui->W_currentCardd->getCardId();
-        ui->W_currentCardd->setCardId(cardId);
-        ui->W_currentCardwd->setCardId(cardId);
-        ui->W_currentCard->setCardId(cardId);
-        ui->W_currentCard_2->setCardId(cardId);
-        ui->W_currentCard_3->setCardId(cardId);
-        ui->W_currentCard_4->setCardId(cardId);
-        ui->W_currentCardOnScreen->setCardId(cardId);
-        ui->W_currentCard_sp->setCardId(cardId);
+        updateAllCardWidgets(ui->W_currentCardd->getCardId());
 
         ui->B_cancelDeposit->setDisabled(false);
         ui->L_amountDeposit->clear();
@@ -451,15 +437,9 @@ void MainWindow::on_B_enterTransfer_clicked() const {
     {
         qDebug() << "Transaction SUCCESS";
         ui->L_failTransfer->hide();
-        int cardId = ui->W_currentCard_3->getCardId();
-        ui->W_currentCardwd->setCardId(cardId);
-        ui->W_currentCard->setCardId(cardId);
-        ui->W_currentCard_2->setCardId(cardId);
-        ui->W_currentCard_3->setCardId(cardId);
-        ui->W_currentCardOnScreen->setCardId(cardId);
-        ui->W_currentCardd->setCardId(cardId);
-        ui->W_currentCard_sp->setCardId(cardId);
+        updateAllCardWidgets(ui->W_currentCard_3->getCardId());
         ui->LE_enteredAmount->clear();
+
     }
     else
     {
@@ -561,7 +541,7 @@ string randomCardNum() {
     result.reserve(16);
     random_device rd;
     mt19937 gen(rd());
-    uniform_int_distribution<> dist(0, 9);
+    uniform_int_distribution dist(0, 9);
     for (int i = 0; i < 16; ++i) {
         result += '0' + dist(gen);
     }
@@ -576,7 +556,7 @@ void MainWindow::on_B_enterCreateCard_clicked()
         && pin.size() == 4 && pinConfirm.size() == 4) {
         const std::string& pinStr = pin.toStdString();
         const std::string& curr = ui->selectCurrency->currentText().toStdString();
-        bool checked = ui->CB_isCredit->isChecked();
+        const bool checked = ui->CB_isCredit->isChecked();
 
         Card card;
         card.userId = currUserId;
@@ -730,16 +710,7 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
             }
         }
 
-
-        ui->W_currentCardwd->setCardId(cardId);
-        ui->W_currentCard->setCardId(cardId);
-        ui->W_currentCard_2->setCardId(cardId);
-        ui->W_currentCard_3->setCardId(cardId);
-        ui->W_currentCard_4->setCardId(cardId);
-        ui->W_currentCardOnScreen->setCardId(cardId);
-        ui->W_currentCardd->setCardId(cardId);
-        ui->W_currentCard_sp->setCardId(cardId);
-
+        updateAllCardWidgets(cardId);
         ui->LE_enteredScheduledTransferAmount->clear();
     }
     else
@@ -748,6 +719,25 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
         ui->L_failScheduledTransfer->show();
         shakeLabel(ui->L_failScheduledTransfer);
     }
+}
+
+void MainWindow::on_B_deleteCard_clicked()
+{
+    setupDeleteScreen();
+    animateTransition(ui->cardScreen, ui->deleteCardScreen);
+}
+
+void MainWindow::on_B_enterDeleteCard_clicked() {
+    const int cardId = ui->W_currentCardOnScreen->getCardId();
+    Card card = context.cardService().getCardById(cardId).value();
+    card.status = Card::Status::deleted;
+    context.cardService().updateCard(card);
+    ui->B_createCard->show();
+    animateTransition(ui->deleteCardScreen, ui->dashboardScreen);
+}
+
+void MainWindow::on_B_cancelDeleteCard_clicked() {
+    animateTransition(ui->deleteCardScreen, ui->cardScreen);
 }
 
 void MainWindow::setupPinScreen() {
@@ -807,9 +797,9 @@ void MainWindow::setupCreateCardScreen()
     vector<Currency> currencies = context.currencyService().getAllCurrencies();
     vector<string> codes;
     codes.reserve(currencies.size());
-    transform(currencies.begin(), currencies.end(),
-        back_inserter(codes),
-        [](const Currency& c) { return c.code; });
+    ranges::transform(currencies,
+                      back_inserter(codes),
+                      [](const Currency& c) { return c.code; });
     QStringList items;
     for (const auto& code : codes) {
         items << QString::fromStdString(code);
@@ -842,8 +832,8 @@ void MainWindow::setupDesignsScreen() const {
             currentDesignId = context.cardService().getCardById(currentCardD.id).value().designId.value();
         }
     }
-    int totalRows = (designs.size() + 1) / 2;
-    int rowHeight = 220;
+    const int totalRows = (designs.size() + 1) / 2;
+    constexpr int rowHeight = 220;
     ui->scrollAreaWidgetContents->setMinimumHeight(totalRows * rowHeight);
     ui->scrollAreaWidgetContents->setMinimumWidth(2 * 220 + 100);
     int row = 0, col = 0;
@@ -885,17 +875,12 @@ void MainWindow::setupDesignsScreen() const {
             [this, buttonGroup, currentCardD](QAbstractButton *button) {
                 int id = buttonGroup->id(button);
                 qDebug() << "chosen ID:" << id;
-                auto cardOpt = context.cardService().getCardById(currentCardD.id);
+                const auto cardOpt = context.cardService().getCardById(currentCardD.id);
                 if (cardOpt.has_value()) {
                     auto card = cardOpt.value();
                     card.designId = id;
                     context.cardService().updateCard(card);
-                    ui->W_currentCardd->setCardId(card.id);
-                    ui->W_currentCardwd->setCardId(card.id);
-                    ui->W_currentCard->setCardId(card.id);
-                    ui->W_currentCard_2->setCardId(card.id);
-                    ui->W_currentCard_sp->setCardId(card.id);
-                    ui->W_currentCardOnScreen->setCardId(card.id);
+                    updateAllCardWidgets(card.id);
                     if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.
                         has_value()) {
                         const QPixmap design1(QString::fromStdString(
@@ -915,17 +900,12 @@ void MainWindow::setupDesignsScreen() const {
         for (auto *b: buttonGroup->buttons()) b->setChecked(false);
         buttonGroup->setExclusive(true);
         qDebug() << "no design";
-        auto cardOpt = context.cardService().getCardById(currentCardD.id);
+        const auto cardOpt = context.cardService().getCardById(currentCardD.id);
         if (cardOpt.has_value()) {
             auto card = cardOpt.value();
             card.designId = std::nullopt;
             context.cardService().updateCard(card);
-            ui->W_currentCardd->setCardId(card.id);
-            ui->W_currentCardwd->setCardId(card.id);
-            ui->W_currentCard->setCardId(card.id);
-            ui->W_currentCard_2->setCardId(card.id);
-            ui->W_currentCardOnScreen->setCardId(card.id);
-            ui->W_currentCard_sp->setCardId(card.id);
+            updateAllCardWidgets(card.id);
             if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
                 const QPixmap design1(QString::fromStdString(
                     context.cardDesignService().getCardDesignById(
@@ -962,19 +942,29 @@ void MainWindow::on_B_toCardList_clicked()
     animateTransition(ui->cardScreen, ui->dashboardScreen);
 }
 
-void MainWindow::on_B_deleteCard_clicked()
-{
-    int cardId = ui->W_currentCardOnScreen->getCardId();
-    Card card = context.cardService().getCardById(cardId).value();
-    card.status = Card::Status::deleted;
-    context.cardService().updateCard(card);
-    ui->B_createCard->show();
-    animateTransition(ui->cardScreen, ui->dashboardScreen);
+void MainWindow::setupDeleteScreen() const {
+    ui->W_currentCard_del->setCardId(ui->W_currentCardOnScreen->getCardId());
+    if (context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.has_value()) {
+        const QPixmap design1(QString::fromStdString(
+            context.cardDesignService().getCardDesignById(
+                context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().designId.value()).
+            value().imageRef));
+        ui->W_currentCard_del->setDesignPixmap(design1);
+    } else {
+        ui->W_currentCard_del->setDesignPixmap();
+    }
+    if (context.cardService().getCardById(ui->W_currentCardOnScreen->getCardId()).value().balance>0) {
+        ui->B_enterDeleteCard->setDisabled(true);
+        ui->L_cardDeletion->setText("This card is not empty. Please, take all money from this card before deleting it");
+    } else {
+        ui->B_enterDeleteCard->setDisabled(false);
+        ui->L_cardDeletion->setText("Do You really want to delete this card?");
+    }
 }
 
 void MainWindow::setupTransferScreen() {
-    int cardId = ui->W_currentCardOnScreen->getCardId();
-    Card card = context.cardService().getCardById(cardId).value();
+    const int cardId = ui->W_currentCardOnScreen->getCardId();
+    const Card card = context.cardService().getCardById(cardId).value();
     ui->W_currentCard_3->setCardId(cardId);
     if (card.designId.has_value()) {
         const QPixmap design(QString::fromStdString(
@@ -992,8 +982,8 @@ void MainWindow::setupTransferScreen() {
     ui->LE_transferDest->setInputMask(R"(9999 9999 9999 9999)");
 }
 
-void MainWindow::setupTransHistoryScreen() {
-    int cardId = ui->W_currentCard->getCardId();
+void MainWindow::setupTransHistoryScreen() const {
+    const int cardId = ui->W_currentCard->getCardId();
     QWidget *listWidget = new TransactionListWidget(context, cardId);
     ui->W_currentCard_2->setCardId(cardId);
     if (context.cardService().getCardById(cardId).value().designId.has_value()) {
@@ -1048,8 +1038,8 @@ void MainWindow::setupScheduledTransferScreen() {
     ui->RB_daily->setChecked(true);
     ui->RB_weekly->setChecked(false);
     ui->RB_monthly->setChecked(false);
-    int cardId = ui->W_currentCardOnScreen->getCardId();
-    Card card = context.cardService().getCardById(cardId).value();
+    const int cardId = ui->W_currentCardOnScreen->getCardId();
+    const Card card = context.cardService().getCardById(cardId).value();
     ui->W_currentCard_sp->setCardId(cardId);
     if (card.designId.has_value()) {
         const QPixmap design(QString::fromStdString(
@@ -1068,10 +1058,9 @@ void MainWindow::setupScheduledTransferScreen() {
     ui->LE_scheduledTransferDest->setInputMask(R"(9999 9999 9999 9999)");
 }
 
-void MainWindow::setupViewScheduledPaymentsScreen()
-{
-    int cardId = ui->W_currentCard->getCardId();
-    Card card = context.cardService().getCardById(cardId).value();
+void MainWindow::setupViewScheduledPaymentsScreen() const {
+    const int cardId = ui->W_currentCard->getCardId();
+    const Card card = context.cardService().getCardById(cardId).value();
     QWidget* listWidget = new ScheduledTransferListWidget(context, cardId);
     ui->W_currentCard_4->setCardId(cardId);
     if (card.designId.has_value()) {
@@ -1139,6 +1128,22 @@ void MainWindow::shakeLabel(QLabel *label) {
     animation->setEasingCurve(QEasingCurve::OutElastic);
 
     animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void MainWindow::updateAllCardWidgets(const int cardId) const {
+    auto safeSet = [&](auto widget) {
+        if (widget != nullptr)
+            widget->setCardId(cardId);
+    };
+    safeSet(ui->W_currentCardwd);
+    safeSet(ui->W_currentCard);
+    safeSet(ui->W_currentCard_2);
+    safeSet(ui->W_currentCard_3);
+    safeSet(ui->W_currentCard_4);
+    safeSet(ui->W_currentCardOnScreen);
+    safeSet(ui->W_currentCardd);
+    safeSet(ui->W_currentCard_sp);
+    safeSet(ui->W_currentCard_del);
 }
 
 
@@ -1307,7 +1312,7 @@ void MainWindow::setStyles() const {
     )");
 }
 
-void MainWindow::initDesigns() {
+void MainWindow::initDesigns() const {
     if (context.cardDesignService().getAllCardDesigns().size() > 0) {
         return;
     }
