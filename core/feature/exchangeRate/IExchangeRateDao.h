@@ -8,12 +8,14 @@ public:
     void create(const ExchangeRate& rate) const;
     std::optional<ExchangeRate> getById(int id) const;
     std::vector<ExchangeRate> getAll() const;
+    std::optional<ExchangeRate> getByCurrencies(const std::string& from, const std::string& to) const;
 protected:
     ~IExchangeRateDao() = default;
 private:
     virtual void doCreate(const ExchangeRate& rate) const = 0;
     virtual std::optional<ExchangeRate> doGetById(int id) const = 0;
     virtual std::vector<ExchangeRate> doGetAll() const = 0;
+    virtual std::optional<ExchangeRate> doGetByCurrencies(const std::string& from, const std::string& to) const = 0;
 };
 
 inline void IExchangeRateDao::create(const ExchangeRate& rate) const
@@ -29,4 +31,9 @@ inline std::optional<ExchangeRate> IExchangeRateDao::getById(const int id) const
 inline std::vector<ExchangeRate> IExchangeRateDao::getAll() const
 {
     return doGetAll();
+}
+
+inline std::optional<ExchangeRate> IExchangeRateDao::getByCurrencies(const std::string& from, const std::string& to) const
+{
+    return doGetByCurrencies(from, to);
 }

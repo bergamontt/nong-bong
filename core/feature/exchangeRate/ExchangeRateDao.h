@@ -14,4 +14,5 @@ private:
     void doCreate(const ExchangeRate &rate) const override;
     std::optional<ExchangeRate> doGetById(int id) const override;
     std::vector<ExchangeRate> doGetAll() const override;
+    std::optional<ExchangeRate> doGetByCurrencies(const std::string& from, const std::string& to) const override;
 };

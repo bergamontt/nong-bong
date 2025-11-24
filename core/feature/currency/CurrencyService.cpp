@@ -31,9 +31,7 @@ int CurrencyService::doConvert(const std::string &fromCurrency, const std::strin
     const int minorAmount = toMinor(fromCurrency, majorAmount);
     if (fromCurrency == toCurrency)
         return minorAmount;
-    auto rates = _exchangeRateDao.getAll();
-    for (const auto& r : rates)
-        if (r.baseCurrency == fromCurrency && r.targetCurrency == toCurrency)
-            return static_cast<int>(minorAmount * r.rate);
-    return 0;
+    const auto rate = _exchangeRateDao.getByCurrencies(fromCurrency, toCurrency);
+    if (!rate.has_value()) return 0;
+    return static_cast<int>(minorAmount * rate->rate);
 }

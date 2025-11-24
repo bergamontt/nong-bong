@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 void ExchangeRateDao::doCreate(const ExchangeRate& rate) const
 {
     soci::session sql(_pool);
@@ -28,4 +27,15 @@ std::vector<ExchangeRate> ExchangeRateDao::doGetAll() const
     for (const ExchangeRate& er : rs)
         res.push_back(er);
     return res;
+}
+
+std::optional<ExchangeRate> ExchangeRateDao::doGetByCurrencies(const std::string& from, const std::string& to) const
+{
+    soci::session sql(_pool);
+    ExchangeRate res;
+    sql << exchange_rate_sql::getByCurrencies,
+        soci::use(from,"from"),
+        soci::use(to,"to"),
+        soci::into(res);
+    return sql.got_data() ? std::optional{res} : std::nullopt;
 }
