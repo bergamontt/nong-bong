@@ -20,6 +20,8 @@ private slots:
     void on_B_logout_clicked();
     void on_B_enterPin_clicked();
     void on_B_cancelPin_clicked();
+    void handleLoginSuccess(int cardId) const;
+    void handleLoginFailure(int cardId);
 
     void on_B_changePin_clicked();
     void on_B_enterNewPin_clicked();
@@ -53,6 +55,7 @@ private slots:
     void on_B_T1000_clicked() const;
     void on_B_cancelTransfer_clicked();
     void on_B_enterTransfer_clicked() const;
+    void showTransferError(const QString &msg) const;
 
     void on_B_toCardList_clicked();
 
@@ -66,6 +69,7 @@ private slots:
     void on_B_register_clicked();
     void on_B_cancelRegister_clicked();
     void on_B_enterRegister_clicked();
+    void showRegisterError(const QString &msg) const;
 
     void on_B_createCard_clicked();
     void on_B_cancelCreateCard_clicked();
@@ -80,6 +84,7 @@ private slots:
     void on_B_S1000_clicked() const;
     void on_B_backScheduledTransfer_clicked();
     void on_B_enterScheduledTransfer_clicked() const;
+    void showScheduledTransferError(const QString &msg) const;
 
     void on_B_viewScheduledPayments_clicked();
     void on_B_backToScheduledTransfer_clicked();

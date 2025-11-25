@@ -127,34 +127,45 @@ void MainWindow::on_B_enter_clicked() {
 void MainWindow::on_B_enterPin_clicked() {
     ui->B_enterPin->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     const QString enteredPin = ui->LE_pin->text();
+    const int id = ui->W_currentCard->getCardId();
+
     if (context.cardService().accessToCard(ui->W_currentCard->getCardId(), enteredPin.toStdString())) {
-        qDebug() << "SUCCESS";
-        ui->L_accessDenied->hide();
-        ui->W_currentCardOnScreen->setCardId(ui->W_currentCard->getCardId());
-        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.has_value()) {
-            const QPixmap design1(QString::fromStdString(
-                context.cardDesignService().getCardDesignById(
-                    context.cardService().getCardById(ui->W_currentCard->getCardId()).value().designId.value()).
-                value().imageRef));
-            ui->W_currentCardOnScreen->setDesignPixmap(design1);
-        } else {
-            ui->W_currentCardOnScreen->setDesignPixmap();
-        }
+        handleLoginSuccess(id);
         animateTransition(ui->pinScreen, ui->cardScreen, 0, [this] {
             ui->B_enterPin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
         });
     } else {
-        qDebug() << "FAILURE";
-        ui->L_accessDenied->show();
-        ui->LE_pin->clear();
-        shakeLabel(ui->L_accessDenied);
-        if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status == Card::blocked) {
-            ui->B_createCard->show();
-            animateTransition(ui->pinScreen, ui->dashboardScreen, 0, [this] {
-            ui->B_enterPin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
-            });
-        }
+        handleLoginFailure(id);
         ui->B_enterPin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    }
+}
+
+void MainWindow::handleLoginSuccess(const int cardId) const {
+    qDebug() << "SUCCESS";
+    ui->L_accessDenied->hide();
+
+    ui->W_currentCardOnScreen->setCardId(cardId);
+    if (context.cardService().getCardById(cardId).value().designId.has_value()) {
+        const QPixmap design1(QString::fromStdString(
+            context.cardDesignService().getCardDesignById(
+                context.cardService().getCardById(cardId).value().designId.value()).
+            value().imageRef));
+        ui->W_currentCardOnScreen->setDesignPixmap(design1);
+    } else {
+        ui->W_currentCardOnScreen->setDesignPixmap();
+    }
+}
+
+void MainWindow::handleLoginFailure(const int cardId) {
+    qDebug() << "FAILURE";
+    ui->L_accessDenied->show();
+    ui->LE_pin->clear();
+    shakeLabel(ui->L_accessDenied);
+    if (context.cardService().getCardById(cardId).value().status == Card::blocked) {
+        ui->B_createCard->show();
+        animateTransition(ui->pinScreen, ui->dashboardScreen, 0, [this] {
+        ui->B_enterPin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        });
     }
 }
 
@@ -487,35 +498,33 @@ void MainWindow::on_B_enterTransfer_clicked() const {
     std::string comm = ui->LE_enteredComment->text().toStdString();
     dest.remove(' ');
     optional<Card> card = context.cardService().getCardByNumber(dest.toStdString());
-
     const int enteredAmount = ui->LE_enteredTransferAmount->text().toInt();
 
-    if (dest.size() < 16 || !card)
+    if (dest.size() < 16 || !card) {
+        showTransferError("Enter a valid card number");
+        ui->B_enterTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        return;
+    }
+    if (enteredAmount==0)
     {
-        qDebug() << "Transaction FAILURE";
-        ui->L_failTransfer->show();
-        shakeLabel(ui->L_failTransfer);
+        showTransferError("Enter an amount");
         ui->B_enterTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
         return;
     }
 
-    if (enteredAmount==0)
+    auto newTransaction = BankTransaction();
+    newTransaction.type = "transfer";
+    newTransaction.fromCardId = ui->W_currentCard_3->getCardId();
+    newTransaction.toCardId = card.value().id;
+    if (newTransaction.toCardId==newTransaction.fromCardId)
     {
-        qDebug() << "Transaction FAILURE";
-        ui->L_failTransfer->text().clear();
-        ui->L_failTransfer->setText("Enter an amount");
-        ui->L_failTransfer->show();
-        shakeLabel(ui->L_failTransfer);
+        showTransferError("Do not enter your card number");
         ui->B_enterTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
         return;
     }
     ui->L_failTransfer->text().clear();
     ui->L_failTransfer->setText("FAIL");
 
-    auto newTransaction = BankTransaction();
-    newTransaction.type = "transfer";
-    newTransaction.fromCardId = ui->W_currentCard_3->getCardId();
-    newTransaction.toCardId = card.value().id;
     newTransaction.amount = enteredAmount;
     newTransaction.currencyCode = "UAH";
     newTransaction.description = "transfer";
@@ -525,20 +534,24 @@ void MainWindow::on_B_enterTransfer_clicked() const {
     }
     newTransaction.status = "completed";
 
-    if (context.bankTransactionService().createBankTransaction(newTransaction))
-    {
+    if (context.bankTransactionService().createBankTransaction(newTransaction)) {
         qDebug() << "Transaction SUCCESS";
         ui->L_failTransfer->hide();
         updateAllCardWidgets(ui->W_currentCard_3->getCardId());
         ui->LE_enteredAmount->clear();
     }
-    else
-    {
-        qDebug() << "Transaction FAILURE";
-        ui->L_failTransfer->show();
-        shakeLabel(ui->L_failTransfer);
+    else {
+        showTransferError("FAIL");
     }
     ui->B_enterTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+}
+
+void MainWindow::showTransferError(const QString &msg) const {
+    qDebug() << "Transaction FAILURE";
+    ui->L_failTransfer->text().clear();
+    ui->L_failTransfer->setText(msg);
+    ui->L_failTransfer->show();
+    shakeLabel(ui->L_failTransfer);
 }
 
 void MainWindow::on_B_register_clicked() {
@@ -568,26 +581,15 @@ void MainWindow::on_B_enterRegister_clicked() {
     const std::string regPassword = ui->LE_password_2->text().toStdString();
 
     if (regFirstName.empty() || regLastName.empty() || regPhone.empty() || regPassword.empty() || regPhone.size()!=18) {
-        ui->L_fillCorrectly->setText("Fields marked with * are required");
-        ui->L_fillCorrectly->show();
-        shakeLabel(ui->L_fillCorrectly);
-        ui->B_enterRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        showRegisterError("Fields marked with * are required");
         return;
     }
-
     if (context.userService().getUserByPhone(regPhone).has_value()) {
-        ui->L_fillCorrectly->setText("User with this phone number is already registered");
-        ui->L_fillCorrectly->show();
-        shakeLabel(ui->L_fillCorrectly);
-        ui->B_enterRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        showRegisterError("User with this phone number is already registered");
         return;
     }
-
     if (regPassword.size()<8) {
-        ui->L_fillCorrectly->setText("Your password is too short (minimum 8 symbols required)");
-        ui->L_fillCorrectly->show();
-        shakeLabel(ui->L_fillCorrectly);
-        ui->B_enterRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        showRegisterError("Your password is too short (minimum 8 symbols required)");
         return;
     }
 
@@ -600,10 +602,7 @@ void MainWindow::on_B_enterRegister_clicked() {
     if (!regEmail.empty()) {
         const std::regex pattern(R"(^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$)");
         if (!std::regex_match(regEmail, pattern)) {
-            ui->L_fillCorrectly->setText("Please enter a valid email (or erase completely, it is not required)");
-            ui->L_fillCorrectly->show();
-            shakeLabel(ui->L_fillCorrectly);
-            ui->B_enterRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+            showRegisterError("Please enter a valid email (or erase completely, it is not required)");
             return;
         }
         regUser.email = regEmail;
@@ -621,6 +620,14 @@ void MainWindow::on_B_enterRegister_clicked() {
     animateTransition(ui->registerScreen, ui->thanksScreen,0, [this] {
             ui->B_enterRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
+}
+
+void MainWindow::showRegisterError(const QString &msg) const {
+    ui->L_fillCorrectly->text().clear();
+    ui->L_fillCorrectly->setText(msg);
+    ui->L_fillCorrectly->show();
+    shakeLabel(ui->L_fillCorrectly);
+    ui->B_enterRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 }
 
 void MainWindow::on_B_createCard_clicked()
@@ -749,32 +756,26 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
 
     if (dest.size() < 16 || !card)
     {
-        qDebug() << "Scheduled payment FAILURE";
-        ui->L_failScheduledTransfer->text().clear();
-        ui->L_failScheduledTransfer->setText("Enter a valid card number");
-        ui->L_failScheduledTransfer->show();
-        shakeLabel(ui->L_failScheduledTransfer);
-        ui->B_enterScheduledTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        showScheduledTransferError("Enter a valid card number");
         return;
     }
-
     if (ui->LE_enteredScheduledTransferAmount->text().isEmpty())
     {
-        qDebug() << "Scheduled payment FAILURE";
-        ui->L_failScheduledTransfer->text().clear();
-        ui->L_failScheduledTransfer->setText("Enter an amount");
-        ui->L_failScheduledTransfer->show();
-        shakeLabel(ui->L_failScheduledTransfer);
-        ui->B_enterScheduledTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        showScheduledTransferError("Enter an amount");
         return;
     }
-    ui->L_failScheduledTransfer->text().clear();
-    ui->L_failScheduledTransfer->setText("FAIL");
 
     auto newTransaction = BankTransaction();
     newTransaction.type = "payment";
     newTransaction.fromCardId = ui->W_currentCard_sp->getCardId();
     newTransaction.toCardId = card.value().id;
+    if (newTransaction.fromCardId==newTransaction.toCardId)
+    {
+        showScheduledTransferError("Do not enter your card number");
+        return;
+    }
+    ui->L_failScheduledTransfer->text().clear();
+    ui->L_failScheduledTransfer->setText("FAIL");
     newTransaction.amount = enteredAmount;
     newTransaction.currencyCode = "UAH";
     newTransaction.description = "Sch payment";
@@ -822,9 +823,7 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
         if (newSchTransfer.nextTun.has_value()) {
             std::cout << std::put_time(&newSchTransfer.nextTun.value(), "%Y-%m-%d %H:%M:%S") << std::endl;
         }
-
         context.scheduledTransferService().createScheduledTransfer(newSchTransfer);
-
 
         ui->L_failScheduledTransfer->hide();
         int cardId = ui->W_currentCard_sp->getCardId();
@@ -841,12 +840,19 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
     }
     else
     {
-        qDebug() << "Sch Transaction FAILURE";
-        ui->L_failScheduledTransfer->show();
-        shakeLabel(ui->L_failScheduledTransfer);
-        ui->B_enterScheduledTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        showScheduledTransferError("FAIL");
     }
 }
+
+void MainWindow::showScheduledTransferError(const QString &msg) const {
+    qDebug() << "Scheduled payment FAILURE";
+    ui->L_failScheduledTransfer->text().clear();
+    ui->L_failScheduledTransfer->setText(msg);
+    ui->L_failScheduledTransfer->show();
+    shakeLabel(ui->L_failScheduledTransfer);
+    ui->B_enterScheduledTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+}
+
 
 void MainWindow::on_B_deleteCard_clicked()
 {
