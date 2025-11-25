@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>6</number>
     </property>
     <widget class="QWidget" name="loginScreen">
      <widget class="QLabel" name="L_welcome">
@@ -1071,10 +1071,10 @@
      <widget class="QLabel" name="L_failTransfer">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>500</y>
-        <width>50</width>
-        <height>40</height>
+        <x>200</x>
+        <y>510</y>
+        <width>391</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -1098,7 +1098,7 @@
         <x>0</x>
         <y>56</y>
         <width>801</width>
-        <height>521</height>
+        <height>451</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -1371,67 +1371,6 @@
            </item>
           </layout>
          </item>
-         <item alignment="Qt::AlignmentFlag::AlignHCenter">
-          <widget class="QLabel" name="L_failScheduledTransfer">
-           <property name="text">
-            <string>FAIL</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_121">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>250</number>
-           </property>
-           <property name="rightMargin">
-            <number>160</number>
-           </property>
-           <item>
-            <widget class="QPushButton" name="B_backScheduledTransfer">
-             <property name="minimumSize">
-              <size>
-               <width>90</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>90</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>↩ Back</string>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="B_enterScheduledTransfer">
-             <property name="minimumSize">
-              <size>
-               <width>250</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>250</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Create and do the first payment</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
         </layout>
        </item>
       </layout>
@@ -1463,6 +1402,84 @@
       <property name="checkable">
        <bool>false</bool>
       </property>
+     </widget>
+     <widget class="QLabel" name="L_failScheduledTransfer">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>500</y>
+        <width>711</width>
+        <height>44</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>FAIL</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>540</y>
+        <width>797</width>
+        <height>58</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_121">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>250</number>
+       </property>
+       <property name="rightMargin">
+        <number>160</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="B_backScheduledTransfer">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>↩ Back</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="B_enterScheduledTransfer">
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>250</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Create and do the first payment</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="deleteCardScreen">

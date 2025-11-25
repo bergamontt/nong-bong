@@ -1,9 +1,10 @@
 #include "ScheduledTransferService.h"
 
-ScheduledTransferService::ScheduledTransferService(IScheduledTransferDao& dao, IBankTransactionDao& transactionDao, IBankTransactionService& bankTransactionService)
+ScheduledTransferService::ScheduledTransferService(IScheduledTransferDao& dao, IBankTransactionDao& transactionDao, IBankTransactionService& bankTransactionService, ICurrencyService &currencyService)
     : _scheduledTransferDao(dao)
     , _transactionDao(transactionDao)
     , _bankTransactionService(bankTransactionService)
+    ,_currencyService(currencyService)
 {}
 
 std::optional<ScheduledTransfer> ScheduledTransferService::doGetScheduledTransferById(const int id) const
@@ -16,8 +17,10 @@ std::vector<ScheduledTransfer> ScheduledTransferService::doGetAllScheduledTransf
     return _scheduledTransferDao.getByFromCardId(id);
 }
 
-void ScheduledTransferService::doCreateScheduledTransfer(const ScheduledTransfer& transfer) const
+void ScheduledTransferService::doCreateScheduledTransfer(ScheduledTransfer& transfer) const
 {
+    const int txMinor = _currencyService.toMinor(transfer.currencyCode, transfer.amount);
+    transfer.amount = txMinor;
     _scheduledTransferDao.create(transfer);
 }
 

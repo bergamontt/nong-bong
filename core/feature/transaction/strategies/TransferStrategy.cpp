@@ -21,6 +21,7 @@ bool TransferStrategy::doExecute(BankTransaction &tx) const
 
     if (allowed < fromLost) {
         tx.status = "failed";
+        tx.amount = txMinor;
         return false;
     }
 

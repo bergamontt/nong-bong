@@ -1,4 +1,7 @@
 #include "BankTransactionService.h"
+
+#include <iostream>
+
 #include "ICurrencyDao.h"
 
 BankTransactionService::BankTransactionService(

@@ -48,7 +48,7 @@ MainWindow::MainWindow(IContext &context, QWidget *parent) : QMainWindow(parent)
     ui->W_currentCard_del->setContext(context);
 
     auto *scheduledTransferTimer = new QTimer(this);
-    connect(scheduledTransferTimer, &QTimer::timeout, this, [&context]() {
+    connect(scheduledTransferTimer, &QTimer::timeout, this, [&context] {
         try {
             const std::time_t nowTime = std::time(nullptr);
             std::tm now{};
@@ -82,7 +82,7 @@ void MainWindow::on_B_enter_clicked() {
         currUserId = user.id;
         ui->L_welcomeUser->setText("Welcome!");
         ui->B_createCard->show();
-        animateTransition(ui->loginScreen, ui->dashboardScreen, 0, [this]() {
+        animateTransition(ui->loginScreen, ui->dashboardScreen, 0, [this] {
             ui->B_enter->setAttribute(Qt::WA_TransparentForMouseEvents, false);
         });
 
@@ -140,7 +140,7 @@ void MainWindow::on_B_enterPin_clicked() {
         } else {
             ui->W_currentCardOnScreen->setDesignPixmap();
         }
-        animateTransition(ui->pinScreen, ui->cardScreen, 0, [this]() {
+        animateTransition(ui->pinScreen, ui->cardScreen, 0, [this] {
             ui->B_enterPin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
         });
     } else {
@@ -150,7 +150,7 @@ void MainWindow::on_B_enterPin_clicked() {
         shakeLabel(ui->L_accessDenied);
         if (context.cardService().getCardById(ui->W_currentCard->getCardId()).value().status == Card::blocked) {
             ui->B_createCard->show();
-            animateTransition(ui->pinScreen, ui->dashboardScreen, 0, [this]() {
+            animateTransition(ui->pinScreen, ui->dashboardScreen, 0, [this] {
             ui->B_enterPin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
             });
         }
@@ -163,7 +163,7 @@ void MainWindow::on_B_cancelPin_clicked() {
     ui->L_accessDenied->hide();
     ui->LE_pin->clear();
     ui->B_createCard->show();
-    animateTransition(ui->pinScreen, ui->dashboardScreen, 0, [this]() {
+    animateTransition(ui->pinScreen, ui->dashboardScreen, 0, [this] {
             ui->B_cancelPin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -181,7 +181,7 @@ void MainWindow::on_B_logout_clicked() {
         delete item;
     }
 
-    animateTransition(ui->dashboardScreen, ui->loginScreen,0, [this]() {
+    animateTransition(ui->dashboardScreen, ui->loginScreen,0, [this] {
             ui->B_logout->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -189,7 +189,7 @@ void MainWindow::on_B_logout_clicked() {
 void MainWindow::on_B_changePin_clicked() {
     ui->B_changePin->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupPinChangeScreen();
-    animateTransition(ui->cardScreen, ui->changePinScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->changePinScreen,0, [this] {
             ui->B_changePin->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -219,7 +219,7 @@ void MainWindow::on_B_cancelChange_clicked() {
     ui->LE_newPin_1->clear();
     ui->LE_newPin_2->clear();
     ui->L_newPinInvalid->hide();
-    animateTransition(ui->changePinScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->changePinScreen, ui->cardScreen,0, [this] {
             ui->B_cancelChange->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -227,7 +227,7 @@ void MainWindow::on_B_cancelChange_clicked() {
 void MainWindow::on_B_withdraw_clicked() {
     ui->B_withdraw->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupWithdrawScreen();
-    animateTransition(ui->cardScreen, ui->withdrawScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->withdrawScreen,0, [this] {
             ui->B_withdraw->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -255,7 +255,7 @@ void MainWindow::on_B_1000_clicked() const {
 void MainWindow::on_B_cancelWithdraw_clicked() {
     ui->B_cancelWithdraw->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->L_failWithdrawal->hide();
-    animateTransition(ui->withdrawScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->withdrawScreen, ui->cardScreen,0, [this] {
             ui->B_cancelWithdraw->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -263,6 +263,10 @@ void MainWindow::on_B_cancelWithdraw_clicked() {
 void MainWindow::on_B_enterWithdraw_clicked() const {
     ui->B_enterWithdraw->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     const int enteredAmount = ui->LE_enteredAmount->text().toInt();
+    if (enteredAmount==0) {
+        ui->B_enterWithdraw->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        return;
+    }
     auto newTransaction = BankTransaction();
     newTransaction.type = "withdrawal";
     newTransaction.fromCardId = ui->W_currentCardwd->getCardId();
@@ -289,7 +293,7 @@ void MainWindow::on_B_enterWithdraw_clicked() const {
 void MainWindow::on_B_deposit_clicked() {
     ui->B_deposit->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupDepositScreen();
-    animateTransition(ui->cardScreen, ui->depositScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->depositScreen,0, [this] {
             ui->B_deposit->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -344,7 +348,7 @@ void MainWindow::on_B_cancelDeposit_clicked() {
     ui->B_D200->hide();
     ui->B_D500->hide();
     ui->B_D1000->hide();
-    animateTransition(ui->depositScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->depositScreen, ui->cardScreen,0, [this] {
             ui->B_cancelDeposit->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -352,6 +356,11 @@ void MainWindow::on_B_cancelDeposit_clicked() {
 void MainWindow::on_B_enterDeposit_clicked() const {
     ui->B_enterDeposit->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     const int enteredAmount = ui->L_amountDeposit->text().toInt();
+    if (enteredAmount==0) {
+        ui->B_enterDeposit->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        return;
+    }
+
     auto newTransaction = BankTransaction();
     newTransaction.type = "deposit";
     newTransaction.toCardId = ui->W_currentCardd->getCardId();
@@ -377,7 +386,7 @@ void MainWindow::on_B_enterDeposit_clicked() const {
 void MainWindow::on_B_transactionHistory_clicked() {
     ui->B_transactionHistory->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupTransHistoryScreen();
-    animateTransition(ui->cardScreen, ui->transHistoryScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->transHistoryScreen,0, [this] {
             ui->B_transactionHistory->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -390,7 +399,7 @@ void MainWindow::on_B_backToCard_clicked() {
         delete item->widget();
         delete item;
     }
-    animateTransition(ui->transHistoryScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->transHistoryScreen, ui->cardScreen,0, [this] {
             ui->B_backToCard->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -399,7 +408,7 @@ void MainWindow::on_B_viewScheduledPayments_clicked()
 {
     ui->B_viewScheduledPayments->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupViewScheduledPaymentsScreen();
-    animateTransition(ui->scheduledTransferScreen, ui->scheduledPaymentsScreen,0, [this]() {
+    animateTransition(ui->scheduledTransferScreen, ui->scheduledPaymentsScreen,0, [this] {
             ui->B_viewScheduledPayments->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -413,7 +422,7 @@ void MainWindow::on_B_backToScheduledTransfer_clicked()
         delete item->widget();
         delete item;
     }
-    animateTransition(ui->scheduledPaymentsScreen, ui->scheduledTransferScreen,0, [this]() {
+    animateTransition(ui->scheduledPaymentsScreen, ui->scheduledTransferScreen,0, [this]{
             ui->B_backToScheduledTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -421,14 +430,14 @@ void MainWindow::on_B_backToScheduledTransfer_clicked()
 void MainWindow::on_B_chooseDesign_clicked() {
     ui->B_chooseDesign->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupDesignsScreen();
-    animateTransition(ui->cardScreen, ui->designsScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->designsScreen,0, [this] {
             ui->B_chooseDesign->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
 
 void MainWindow::on_B_cancelDesign_clicked() {
     ui->B_cancelDesign->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    animateTransition(ui->designsScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->designsScreen, ui->cardScreen,0, [this] {
             ui->B_cancelDesign->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -436,7 +445,7 @@ void MainWindow::on_B_cancelDesign_clicked() {
 void MainWindow::on_B_transfer_clicked() {
     ui->B_transfer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupTransferScreen();
-    animateTransition(ui->cardScreen, ui->transferScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->transferScreen,0, [this] {
             ui->B_transfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -467,7 +476,7 @@ void MainWindow::on_B_cancelTransfer_clicked() {
     ui->LE_transferDest->clear();
     ui->L_failTransfer->hide();
     ui->LE_enteredComment->clear();
-    animateTransition(ui->transferScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->transferScreen, ui->cardScreen,0, [this] {
             ui->B_cancelTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -476,9 +485,10 @@ void MainWindow::on_B_enterTransfer_clicked() const {
     ui->B_enterTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     QString dest = ui->LE_transferDest->text();
     std::string comm = ui->LE_enteredComment->text().toStdString();
-
     dest.remove(' ');
     optional<Card> card = context.cardService().getCardByNumber(dest.toStdString());
+
+    const int enteredAmount = ui->LE_enteredTransferAmount->text().toInt();
 
     if (dest.size() < 16 || !card)
     {
@@ -489,7 +499,19 @@ void MainWindow::on_B_enterTransfer_clicked() const {
         return;
     }
 
-    const int enteredAmount = ui->LE_enteredTransferAmount->text().toInt();
+    if (enteredAmount==0)
+    {
+        qDebug() << "Transaction FAILURE";
+        ui->L_failTransfer->text().clear();
+        ui->L_failTransfer->setText("Enter an amount");
+        ui->L_failTransfer->show();
+        shakeLabel(ui->L_failTransfer);
+        ui->B_enterTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        return;
+    }
+    ui->L_failTransfer->text().clear();
+    ui->L_failTransfer->setText("FAIL");
+
     auto newTransaction = BankTransaction();
     newTransaction.type = "transfer";
     newTransaction.fromCardId = ui->W_currentCard_3->getCardId();
@@ -522,7 +544,7 @@ void MainWindow::on_B_enterTransfer_clicked() const {
 void MainWindow::on_B_register_clicked() {
     ui->B_register->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupRegisterScreen();
-    animateTransition(ui->loginScreen, ui->registerScreen,0, [this]() {
+    animateTransition(ui->loginScreen, ui->registerScreen,0, [this] {
             ui->B_register->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -532,7 +554,7 @@ void MainWindow::on_B_cancelRegister_clicked() {
     ui->L_fillCorrectly->hide();
     ui->LE_phone->clear();
     ui->LE_password->clear();
-    animateTransition(ui->registerScreen, ui->loginScreen,0, [this]() {
+    animateTransition(ui->registerScreen, ui->loginScreen,0, [this] {
             ui->B_cancelRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -545,7 +567,7 @@ void MainWindow::on_B_enterRegister_clicked() {
     const std::string regPhone = ui->LE_phoneNumber->text().toStdString();
     const std::string regPassword = ui->LE_password_2->text().toStdString();
 
-    if (regFirstName.empty() || regLastName.empty() || regPhone.empty() || regPassword.empty()) {
+    if (regFirstName.empty() || regLastName.empty() || regPhone.empty() || regPassword.empty() || regPhone.size()!=18) {
         ui->L_fillCorrectly->setText("Fields marked with * are required");
         ui->L_fillCorrectly->show();
         shakeLabel(ui->L_fillCorrectly);
@@ -596,7 +618,7 @@ void MainWindow::on_B_enterRegister_clicked() {
 
     ui->L_fillCorrectly->hide();
 
-    animateTransition(ui->registerScreen, ui->thanksScreen,0, [this]() {
+    animateTransition(ui->registerScreen, ui->thanksScreen,0, [this] {
             ui->B_enterRegister->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -605,7 +627,7 @@ void MainWindow::on_B_createCard_clicked()
 {
     ui->B_createCard->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupCreateCardScreen();
-    animateTransition(ui->dashboardScreen, ui->createCardScreen,0, [this]() {
+    animateTransition(ui->dashboardScreen, ui->createCardScreen,0, [this] {
             ui->B_createCard->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -620,7 +642,7 @@ void MainWindow::on_B_cancelCreateCard_clicked()
     ui->LE_confirmCardPin->clear();
     ui->L_invalidCard->hide();
     ui->B_createCard->show();
-    animateTransition(ui->createCardScreen, ui->dashboardScreen,0, [this]() {
+    animateTransition(ui->createCardScreen, ui->dashboardScreen,0, [this] {
         ui->B_cancelCreateCard->setAttribute(Qt::WA_TransparentForMouseEvents, false);
         ui->B_enterCreateCard->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
@@ -675,7 +697,7 @@ void MainWindow::on_B_startWork_clicked() {
     ui->L_fillCorrectly->hide();
     ui->LE_phone->clear();
     ui->LE_password->clear();
-    animateTransition(ui->thanksScreen, ui->loginScreen,0, [this]() {
+    animateTransition(ui->thanksScreen, ui->loginScreen,0, [this] {
             ui->B_startWork->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -683,7 +705,7 @@ void MainWindow::on_B_startWork_clicked() {
 void MainWindow::on_B_regularPayment_clicked() {
     ui->B_regularPayment->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupScheduledTransferScreen();
-    animateTransition(ui->cardScreen, ui->scheduledTransferScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->scheduledTransferScreen,0, [this] {
             ui->B_regularPayment->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -713,7 +735,7 @@ void MainWindow::on_B_backScheduledTransfer_clicked() {
     ui->LE_enteredScheduledTransferAmount->clear();
     ui->LE_scheduledTransferDest->clear();
     ui->L_failScheduledTransfer->hide();
-    animateTransition(ui->scheduledTransferScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->scheduledTransferScreen, ui->cardScreen,0, [this] {
             ui->B_backScheduledTransfer->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -723,6 +745,7 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
     QString dest = ui->LE_scheduledTransferDest->text();
     dest.remove(' ');
     optional<Card> card = context.cardService().getCardByNumber(dest.toStdString());
+    const int enteredAmount = ui->LE_enteredScheduledTransferAmount->text().toInt();
 
     if (dest.size() < 16 || !card)
     {
@@ -748,12 +771,11 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
     ui->L_failScheduledTransfer->text().clear();
     ui->L_failScheduledTransfer->setText("FAIL");
 
-    const int enteredAmount = ui->LE_enteredScheduledTransferAmount->text().toInt();
     auto newTransaction = BankTransaction();
     newTransaction.type = "payment";
     newTransaction.fromCardId = ui->W_currentCard_sp->getCardId();
     newTransaction.toCardId = card.value().id;
-    newTransaction.amount = enteredAmount * 100;
+    newTransaction.amount = enteredAmount;
     newTransaction.currencyCode = "UAH";
     newTransaction.description = "Sch payment";
     newTransaction.comment = "";
@@ -830,7 +852,7 @@ void MainWindow::on_B_deleteCard_clicked()
 {
     ui->B_deleteCard->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setupDeleteScreen();
-    animateTransition(ui->cardScreen, ui->deleteCardScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->deleteCardScreen,0, [this] {
             ui->B_deleteCard->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -842,14 +864,14 @@ void MainWindow::on_B_enterDeleteCard_clicked() {
     card.status = Card::Status::deleted;
     context.cardService().updateCard(card);
     ui->B_createCard->show();
-    animateTransition(ui->deleteCardScreen, ui->dashboardScreen,0, [this]() {
+    animateTransition(ui->deleteCardScreen, ui->dashboardScreen,0, [this] {
             ui->B_enterDeleteCard->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
 
 void MainWindow::on_B_cancelDeleteCard_clicked() {
     ui->B_cancelDeleteCard->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    animateTransition(ui->deleteCardScreen, ui->cardScreen,0, [this]() {
+    animateTransition(ui->deleteCardScreen, ui->cardScreen,0, [this] {
             ui->B_cancelDeleteCard->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -1009,7 +1031,7 @@ void MainWindow::setupDesignsScreen() const {
                 }
             });
 
-    connect(ui->B_noDesign, &QPushButton::clicked, this, [this, buttonGroup, currentCardD]() {
+    connect(ui->B_noDesign, &QPushButton::clicked, this, [this, buttonGroup, currentCardD] {
         buttonGroup->setExclusive(false);
         for (auto *b: buttonGroup->buttons()) b->setChecked(false);
         buttonGroup->setExclusive(true);
@@ -1054,7 +1076,7 @@ void MainWindow::on_B_toCardList_clicked()
 {
     ui->B_toCardList->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->B_createCard->show();
-    animateTransition(ui->cardScreen, ui->dashboardScreen,0, [this]() {
+    animateTransition(ui->cardScreen, ui->dashboardScreen,0, [this] {
             ui->B_toCardList->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     });
 }
@@ -1198,7 +1220,7 @@ bool MainWindow::authenticate(const std::string &phone, const std::string &passw
     return context.userService().accessToUser(phone, password);
 }
 
-void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::function<void()> onFinished) {
+void MainWindow::animateTransition(QWidget *from, QWidget *to, const int initY, std::function<void()> onFinished) {
     const int h = ui->stackedWidget->height();
 
     to->move(0, h);
@@ -1220,7 +1242,7 @@ void MainWindow::animateTransition(QWidget *from, QWidget *to, int initY, std::f
     group->addAnimation(animTo);
     group->start(QAbstractAnimation::DeleteWhenStopped);
 
-    connect(group, &QParallelAnimationGroup::finished, this, [this, to, from, onFinished]() {
+    connect(group, &QParallelAnimationGroup::finished, this, [this, to, from, onFinished] {
         ui->stackedWidget->setCurrentWidget(to);
         from->hide();
         from->move(0, 0);
@@ -1275,6 +1297,7 @@ void MainWindow::setStyles() const {
     ui->L_cashWithdrawal->setObjectName("cashWithdrawalLabel");
     ui->L_failWithdrawal->setObjectName("failWithdrawalLabel");
     ui->L_failTransfer->setObjectName("failTransferLabel");
+    ui->L_failScheduledTransfer->setObjectName("failTransferLabel");
     ui->L_cashDepositing->setObjectName("cashDepositingLabel");
     ui->L_fillCorrectly->setObjectName("fillCorrectlyLabel");
     ui->L_invalidCard->setObjectName("invalidCardLabel");
@@ -1470,9 +1493,4 @@ void MainWindow::initDesigns() const {
     newDesign2.name = "KMA";
     newDesign2.imageRef = ":/designs/resources/designs/kma.jpg";
     context.cardDesignService().createCardDesign(newDesign2);
-    /*
-        CardDesign newDesign4;
-        newDesign2.name = "Floor pattern";
-        newDesign2.imageRef = ":/designs/resources/designs/floor.jpg";
-        context.cardDesignService().createCardDesign(newDesign2);*/
 }

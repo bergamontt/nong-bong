@@ -8,7 +8,7 @@ public:
     std::optional<ScheduledTransfer> getScheduledTransferById(int id) const;
     std::vector<ScheduledTransfer> getAllScheduledTransfersFromCardId(int id) const;
 
-    void createScheduledTransfer(const ScheduledTransfer& transfer) const;
+    void createScheduledTransfer(ScheduledTransfer& transfer) const;
     void updateScheduledTransfer(const ScheduledTransfer& transfer) const;
     void deleteScheduledTransfer(int id) const;
 
@@ -20,7 +20,7 @@ private:
     virtual std::optional<ScheduledTransfer> doGetScheduledTransferById(int id) const = 0;
     virtual std::vector<ScheduledTransfer> doGetAllScheduledTransfersFromCardId(int id) const = 0;
 
-    virtual void doCreateScheduledTransfer(const ScheduledTransfer& transfer) const = 0;
+    virtual void doCreateScheduledTransfer(ScheduledTransfer& transfer) const = 0;
     virtual void doUpdateScheduledTransfer(const ScheduledTransfer& transfer) const = 0;
     virtual void doDeleteScheduledTransfer(int id) const = 0;
 
@@ -37,7 +37,7 @@ inline std::vector<ScheduledTransfer> IScheduledTransferService::getAllScheduled
     return doGetAllScheduledTransfersFromCardId(id);
 }
 
-inline void IScheduledTransferService::createScheduledTransfer(const ScheduledTransfer& transfer) const
+inline void IScheduledTransferService::createScheduledTransfer(ScheduledTransfer& transfer) const
 {
     doCreateScheduledTransfer(transfer);
 }
