@@ -5,8 +5,9 @@
 
 using namespace std;
 
-CardService::CardService(ICardDao &dao)
-    : _cardDao(dao)
+CardService::CardService(ICardDao& cardDao, 
+    IBankTransactionDao& transDao, IExchangeRateDao& rateDao)
+    : _cardDao(cardDao), _transDao(transDao), _rateDao(rateDao)
 {}
 
 std::optional<Card> CardService::doGetCardById(const int id) const
@@ -37,6 +38,37 @@ std::vector<Card> CardService::doGetAllDeletedCardsByUserId(const int id) const
 std::vector<Card> CardService::doGetAllCardsByUserId(const int id) const
 {
     return _cardDao.getByUserId(id);
+}
+
+int CardService::doGetCardSpendingsSince(int cardId, std::tm time) const
+{
+    std::optional<Card> card = _cardDao.getById(cardId);
+    std::string& cardCurrCode = card.value().currencyCode;
+    std::vector<BankTransaction> transactions = _transDao.getByFromCardId(cardId);
+    std::vector<ExchangeRate> rates = _rateDao.getAll();
+    int res = 0;
+    time_t t = std::mktime(&time);
+    for (auto& trans : transactions) 
+    {
+        time_t transTime = std::mktime(&trans.createdAt);
+        if (transTime < t)
+            continue;
+        std::string transCurrCode = trans.currencyCode;
+        int amount = trans.amount;
+        if (transCurrCode != cardCurrCode)
+        {
+            for (auto& rate : rates) 
+            {
+                if (rate.baseCurrency == transCurrCode
+                    && rate.targetCurrency == cardCurrCode) 
+                {
+                    amount *= rate.rate;
+                }
+            }
+        }
+        res += amount;
+    }
+    return res;
 }
 
 void CardService::doCreateCard(const Card& card) const

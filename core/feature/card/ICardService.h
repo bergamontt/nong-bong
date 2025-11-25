@@ -13,6 +13,7 @@ public:
     std::vector<Card> getAllBlockedCardsByUserId(int id) const;
     std::vector<Card> getAllDeletedCardsByUserId(int id) const;
     std::vector<Card> getAllCardsByUserId(int id) const;
+    int getCardSpendingsSince(int cardId, std::tm time) const;
 
     void createCard(const Card& card) const;
     void updateCard(const Card& card) const;
@@ -32,6 +33,7 @@ private:
     virtual std::vector<Card> doGetAllBlockedCardsByUserId(int id) const = 0;
     virtual std::vector<Card> doGetAllDeletedCardsByUserId(int id) const = 0;
     virtual std::vector<Card> doGetAllCardsByUserId(int id) const = 0;
+    virtual int doGetCardSpendingsSince(int cardId, std::tm time) const = 0;
 
     virtual void doCreateCard(const Card& card) const = 0;
     virtual void doUpdateCard(const Card& card) const = 0;
@@ -69,6 +71,11 @@ inline std::vector<Card> ICardService::getAllDeletedCardsByUserId(const int id) 
 inline std::vector<Card> ICardService::getAllCardsByUserId(const int id) const
 {
     return doGetAllCardsByUserId(id);
+}
+
+inline int ICardService::getCardSpendingsSince(int cardId, std::tm time) const
+{
+    return doGetCardSpendingsSince(cardId, time);
 }
 
 inline void ICardService::createCard(const Card& card) const

@@ -13,9 +13,8 @@
 using namespace std;
 
 QString maskCardNumber(const QString& number) {
-    QString digits = number;
-    QString last4 = digits.right(4);
-    return QString("**** **** **** %1").arg(last4);
+    return number.mid(0, 4) + " " + number.mid(4, 4) + " " +
+        number.mid(8, 4) + " " + number.mid(12, 4);
 }
 
 QString formatMoney(qint64 minorUnits, double minorsInUnit, const QString& currency) {
@@ -33,6 +32,17 @@ QString humanFriendlyCountdown(qint64 seconds)
         .arg(h, 2, 10, QChar('0'))
         .arg(m, 2, 10, QChar('0'))
         .arg(s, 2, 10, QChar('0'));
+}
+
+tm getDayStart()
+{
+    time_t now = time(nullptr);
+    tm local = *localtime(&now);
+    local.tm_hour = 0;
+    local.tm_min = 0;
+    local.tm_sec = 0;
+    mktime(&local);
+    return local;
 }
 
 BankCardWidget::BankCardWidget(QWidget* parent)
@@ -69,6 +79,15 @@ void BankCardWidget::setCardId(int id)
         _creditLimit = card.creditLimit.value();
     _status = QString::fromStdString(statusToString(card.status));
 
+    int spentDuringDay = _context->cardService()
+        .getCardSpendingsSince(id, getDayStart());
+    double ratio = (_dailyLimit - spentDuringDay) / static_cast<double>(_dailyLimit);
+    if (ratio < 0.0)
+        ratio = 0.0;
+    if (ratio > 1.0)
+        ratio = 1.0;
+    _dailyUsageRatio = ratio;
+
     Currency curr = _context->currencyService()
         .getCurrencyByCode(_currency.toStdString()).value();
     _minorsInUnit = curr.minorUnit;
@@ -104,16 +123,6 @@ void BankCardWidget::setCardId(int id)
 int BankCardWidget::getCardId() const {
     return _id;
 };
-
-void BankCardWidget::setDailyUsageRatio(double ratio)
-{
-    if (ratio < 0.0) 
-        ratio = 0.0;
-    if (ratio > 1.0) 
-        ratio = 1.0;
-    _dailyUsageRatio = ratio;
-    update();
-}
 
 void BankCardWidget::setDesignPixmap(const QPixmap& pix)
 {
@@ -233,9 +242,9 @@ void BankCardWidget::paintEvent(QPaintEvent*)
     p.setFont(balFont);
     QString balText = formatMoney(_balanceMinor, _minorsInUnit, _currency);
     QRectF balArea(
-        r.left() + r.width() * 0.52,
+        r.left() + r.width() * 0.25,
         r.top() + r.height() * 0.12,
-        r.width() * 0.42,
+        r.width() * 0.70,
         r.height() * 0.18
     );
     p.drawText(balArea, Qt::AlignRight | Qt::AlignTop, balText);

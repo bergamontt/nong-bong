@@ -2,13 +2,17 @@
 #include "DBTestFixture.h"
 #include "CardTestUtils.h"
 #include "CardDao.h"
+#include "BankTransactionDao.h"
+#include "ExchangeRateDao.h"
 #include "CardService.h"
 #include "Hasher.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
 {
-    CardDao dao(pool());
-    CardService service(dao);
+    CardDao cardDao(pool());
+    BankTransactionDao transDao(pool());
+    ExchangeRateDao rateDao(pool());
+    CardService service(cardDao, transDao, rateDao);
 
     Card card;
     card.id = 1;

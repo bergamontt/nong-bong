@@ -15,7 +15,6 @@ public:
 
     void setContext(const IContext& context);
     void setCardId(int id);
-    void setDailyUsageRatio(double ratio);
     void setDesignPixmap(const QPixmap& pix);
     void setDesignPixmap();
     [[nodiscard]] int getCardId() const;
