@@ -1,25 +1,39 @@
 #include "TransactionStrategy.h"
 #include "CurrencyService.h"
-#include "CardDao.h"
+#include "CardService.h"
 
-TransferStrategy::TransferStrategy(ICardDao &cardDao, ICurrencyService &currencyService)
-    : _cardDao(cardDao), _currencyService(currencyService)
+std::tm getMidnight()
+{
+    std::time_t now = std::time(nullptr);
+    std::tm local = *std::localtime(&now);
+    local.tm_hour = 0;
+    local.tm_min = 0;
+    local.tm_sec = 0;
+    std::mktime(&local);
+    return local;
+}
+
+TransferStrategy::TransferStrategy(ICardService& cardService, ICurrencyService &currencyService)
+    : _cardService(cardService), _currencyService(currencyService)
 {}
 
 bool TransferStrategy::doExecute(BankTransaction &tx) const
 {
-    Card from = _cardDao.getById(tx.fromCardId.value()).value();
-    Card to   = _cardDao.getById(tx.toCardId.value()).value();
+    Card from = _cardService.getCardById(tx.fromCardId.value()).value();
+    Card to   = _cardService.getCardById(tx.toCardId.value()).value();
 
     int txMinor = _currencyService.toMinor(tx.currencyCode, tx.amount);
     int fromLost = _currencyService.convert(tx.currencyCode, from.currencyCode, tx.amount);
     int toReceived = _currencyService.convert(tx.currencyCode, to.currencyCode, tx.amount);
 
-    int allowed = from.balance;
+    int balance = from.balance;
     if (from.allowCredit)
-        allowed += from.creditLimit.value();
+        balance += from.creditLimit.value();
 
-    if (allowed < fromLost) {
+    int spent = _cardService.getCardSpendingsSince(from.id, getMidnight());
+    int limit = from.dailyLimit - spent;
+
+    if (balance < fromLost || limit < fromLost) {
         tx.status = "failed";
         tx.amount = txMinor;
         return false;
@@ -28,8 +42,8 @@ bool TransferStrategy::doExecute(BankTransaction &tx) const
     from.balance -= fromLost;
     to.balance += toReceived;
 
-    _cardDao.update(from);
-    _cardDao.update(to);
+    _cardService.updateCard(from);
+    _cardService.updateCard(to);
 
     tx.amount = txMinor;
     return true;

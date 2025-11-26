@@ -3,20 +3,20 @@
 #include "BankTransaction.h"
 #include "IBankTransactionDao.h"
 #include "IBankTransactionService.h"
-#include "ICardDao.h"
+#include "ICardService.h"
 #include "ICurrencyService.h"
 #include "TransactionStrategyFactory.h"
 
 class BankTransactionService final : public IBankTransactionService
 {
 public:
-    explicit BankTransactionService(IBankTransactionDao& dao, ICardDao& cardDao, ICurrencyService& currencyService);
+    explicit BankTransactionService(IBankTransactionDao& dao, ICardService& cardService, ICurrencyService& currencyService);
     BankTransactionService(const BankTransactionService&) = delete;
     BankTransactionService& operator=(const BankTransactionService&)& = delete;
 
 private:
     IBankTransactionDao& _bankTransactionDao;
-    ICardDao& _cardDao;
+    ICardService& _cardService;
     ICurrencyService& _currencyService;
     TransactionStrategyFactory _factory;
 

@@ -1,11 +1,11 @@
 #include "TransactionStrategy.h"
 
-PaymentStrategy::PaymentStrategy(ICardDao &cardDao, ICurrencyService &currencyService)
-    : _cardDao(cardDao), _currencyService(currencyService)
+PaymentStrategy::PaymentStrategy(ICardService& cardService, ICurrencyService& currencyService)
+    : _cardService(cardService), _currencyService(currencyService)
 {}
 
 bool PaymentStrategy::doExecute(BankTransaction &tx) const
 {
-    const TransferStrategy transfer(_cardDao, _currencyService);
+    const TransferStrategy transfer(_cardService, _currencyService);
     return transfer.execute(tx);
 }

@@ -5,12 +5,12 @@
 #include "ICurrencyDao.h"
 
 BankTransactionService::BankTransactionService(
-    IBankTransactionDao &dao, ICardDao &cardDao, ICurrencyService &currencyService
+    IBankTransactionDao &dao, ICardService &cardService, ICurrencyService &currencyService
 )
     : _bankTransactionDao(dao)
-    , _cardDao(cardDao)
+    , _cardService(cardService)
     , _currencyService(currencyService)
-    , _factory(_cardDao, _currencyService)
+    , _factory(_cardService, _currencyService)
 {}
 
 std::optional<BankTransaction> BankTransactionService::doGetBankTransactionById(const int id) const {

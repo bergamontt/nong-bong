@@ -2,14 +2,14 @@
 #include "ITransactionStrategy.h"
 
 class ICurrencyService;
-class ICardDao;
+class ICardService;
 
 class WithdrawalStrategy final : public ITransactionStrategy
 {
 public:
-    WithdrawalStrategy(ICardDao& cardDao, ICurrencyService& currencyService);
+    WithdrawalStrategy(ICardService& cardService, ICurrencyService& currencyService);
 private:
-    ICardDao& _cardDao;
+    ICardService& _cardService;
     ICurrencyService& _currencyService;
     bool doExecute(BankTransaction &tx) const override;
 };
@@ -17,9 +17,9 @@ private:
 class DepositStrategy final : public ITransactionStrategy
 {
 public:
-    DepositStrategy(ICardDao& cardDao, ICurrencyService& currencyService);
+    DepositStrategy(ICardService& cardService, ICurrencyService& currencyService);
 private:
-    ICardDao& _cardDao;
+    ICardService& _cardService;
     ICurrencyService& _currencyService;
     bool doExecute(BankTransaction &tx) const override;
 };
@@ -27,9 +27,9 @@ private:
 class TransferStrategy final : public ITransactionStrategy
 {
 public:
-    TransferStrategy(ICardDao& cardDao, ICurrencyService& currencyService);
+    TransferStrategy(ICardService& cardService, ICurrencyService& currencyService);
 private:
-    ICardDao& _cardDao;
+    ICardService& _cardService;
     ICurrencyService& _currencyService;
     bool doExecute(BankTransaction &tx) const override;
 };
@@ -37,9 +37,9 @@ private:
 class PaymentStrategy final : public ITransactionStrategy
 {
 public:
-    PaymentStrategy(ICardDao& cardDao, ICurrencyService& currencyService);
+    PaymentStrategy(ICardService& cardService, ICurrencyService& currencyService);
 private:
-    ICardDao& _cardDao;
+    ICardService& _cardService;
     ICurrencyService& _currencyService;
     bool doExecute(BankTransaction &tx) const override;
 };
