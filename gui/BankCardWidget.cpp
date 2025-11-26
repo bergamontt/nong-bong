@@ -107,17 +107,24 @@ void BankCardWidget::setCardId(int id)
                 _countdownTimer.start();
         }
         else {
-            if (_countdownTimer.isActive())
-                _countdownTimer.stop();
-            _status = "active";
-            _blockedUntil.reset();
+            unblock();
         }
     }
     else {
-        if (_countdownTimer.isActive())
-            _countdownTimer.stop();
+        unblock();
     }
     update();
+}
+
+void BankCardWidget::unblock() {
+    Card card = _context->cardService().getCardById(_id).value();
+    if (_countdownTimer.isActive())
+        _countdownTimer.stop();
+    _status = "active";
+    _blockedUntil.reset();
+    card.status = Card::Status::active;
+    card.blockedUntil = std::nullopt;
+    _context->cardService().updateCard(card);
 }
 
 int BankCardWidget::getCardId() const {
@@ -153,9 +160,7 @@ void BankCardWidget::onCountdownTick()
     qint64 now = QDateTime::currentSecsSinceEpoch();
     qint64 until = static_cast<qint64>(*_blockedUntil) - now;
     if (until <= 0) {
-        _blockedUntil.reset();
-        _status = "active";
-        _countdownTimer.stop();
+        unblock();
     }
     update();
 }

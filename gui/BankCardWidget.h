@@ -32,6 +32,7 @@ signals:
 
 private:
     qint64 blockedUntilEpochSeconds() const;
+    void unblock();
 
 private:
     const IContext* _context;
