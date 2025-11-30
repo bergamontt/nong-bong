@@ -10,6 +10,7 @@ public:
     std::optional<Card> getByNumber(const std::string& number) const;
     std::vector<Card> getByUserId(int id) const;
     std::vector<Card> getByUserIdAndStatus(int id, Card::Status status) const;
+    int getSpendingsSince(int cardId, const std::tm &time) const;
     void update(const Card& card) const;
     void updatePin(const Card& card) const;
     void create(const Card& card) const;
@@ -19,6 +20,7 @@ private:
     virtual std::optional<Card> doGetByNumber(const std::string& number) const = 0;
     virtual std::vector<Card> doGetByUserId(int id) const = 0;
     virtual std::vector<Card> doGetByUserIdAndStatus(int id, Card::Status status) const = 0;
+    virtual int doGetSpendingsSince(int cardId, std::tm time) const = 0;
     virtual void doUpdate(const Card& card) const = 0;
     virtual void doUpdatePin(const Card& card) const = 0;
     virtual void doCreate(const Card& card) const = 0;
@@ -42,6 +44,11 @@ inline std::vector<Card> ICardDao::getByUserId(const int id) const
 inline std::vector<Card> ICardDao::getByUserIdAndStatus(int id, Card::Status status) const
 {
     return doGetByUserIdAndStatus(id, status);
+}
+
+inline int ICardDao::getSpendingsSince(const int cardId, const std::tm &time) const
+{
+    return doGetSpendingsSince(cardId, time);
 }
 
 inline void ICardDao::update(const Card& card) const

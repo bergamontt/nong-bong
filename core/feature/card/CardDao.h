@@ -17,6 +17,7 @@ private:
     std::optional<Card> doGetByNumber(const std::string& number) const override;
     std::vector<Card> doGetByUserId(int id) const override;
     std::vector<Card> doGetByUserIdAndStatus(int id, Card::Status status) const override;
+    int doGetSpendingsSince(int cardId, std::tm time) const override;
     void doUpdate(const Card& card) const override;
     void doUpdatePin(const Card& card) const override;
     void doCreate(const Card& card) const override;

@@ -25,7 +25,7 @@ private:
     std::vector<Card> doGetAllBlockedCardsByUserId(int id) const override;
     std::vector<Card> doGetAllDeletedCardsByUserId(int id) const override;
     std::vector<Card> doGetAllCardsByUserId(int id) const override;
-    int doGetCardSpendingsSince(int cardId, std::tm time) const override;
+    int doGetCardSpendingsSince(int cardId, const std::tm& time) const override;
 
     void doCreateCard(const Card& card) const override;
     void doUpdateCard(const Card& card) const override;

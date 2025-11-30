@@ -40,35 +40,9 @@ std::vector<Card> CardService::doGetAllCardsByUserId(const int id) const
     return _cardDao.getByUserId(id);
 }
 
-int CardService::doGetCardSpendingsSince(int cardId, std::tm time) const
+int CardService::doGetCardSpendingsSince(const int cardId, const std::tm& time) const
 {
-    std::optional<Card> card = _cardDao.getById(cardId);
-    std::string& cardCurrCode = card.value().currencyCode;
-    std::vector<BankTransaction> transactions = _transDao.getByFromCardId(cardId);
-    std::vector<ExchangeRate> rates = _rateDao.getAll();
-    int res = 0;
-    time_t t = std::mktime(&time);
-    for (auto& trans : transactions) 
-    {
-        time_t transTime = std::mktime(&trans.createdAt);
-        if (transTime < t)
-            continue;
-        std::string transCurrCode = trans.currencyCode;
-        int amount = trans.amount;
-        if (transCurrCode != cardCurrCode)
-        {
-            for (auto& rate : rates) 
-            {
-                if (rate.baseCurrency == transCurrCode
-                    && rate.targetCurrency == cardCurrCode) 
-                {
-                    amount *= rate.rate;
-                }
-            }
-        }
-        res += amount;
-    }
-    return res;
+    return _cardDao.getSpendingsSince(cardId, time);
 }
 
 void CardService::doCreateCard(const Card& card) const

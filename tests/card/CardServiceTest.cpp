@@ -28,6 +28,13 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
     card.status = Card::Status::active;
     card.failedAccessCount = 0;
 
+    BankTransaction t;
+    t.fromCardId = card.id;
+    t.amount = 100;
+    t.currencyCode = "USD";
+    t.type = "transfer";
+    t.status = "completed";
+
     SUBCASE("createCard should insert valid card with optional fields")
     {
         CHECK_NOTHROW(service.createCard(card));
@@ -211,6 +218,42 @@ TEST_CASE_FIXTURE(DBTestFixture, "CardService API Integration Test")
     {
         service.createCard(card);
         CHECK_FALSE(service.changeCardPin(card.id, "0000", "1111"));
+    }
+
+    SUBCASE("getCardSpendingsSince should ignore all transactions before given date")
+    {
+        service.createCard(card);
+
+        t.createdAt.tm_year = 2025 - 1900;
+        t.createdAt.tm_mon = 5;
+        t.createdAt.tm_mday = 1;
+        transDao.create(t);
+
+        std::time_t now = std::time(nullptr);
+        now += 60;
+        std::tm sinceTm = *std::localtime(&now);
+
+        int spendings = service.getCardSpendingsSince(card.id, sinceTm);
+        CHECK_EQ(spendings, 0);
+    }
+
+    SUBCASE("getCardSpendingsSince should count transactions after given date")
+    {
+        service.createCard(card);
+
+        std::tm sinceTm{};
+        sinceTm.tm_year = 2025 - 1900;
+        sinceTm.tm_mon = 0;
+        sinceTm.tm_mday = 1;
+
+        std::tm createdAt = sinceTm;
+        createdAt.tm_mday += 1;
+
+        t.createdAt = createdAt;
+        transDao.create(t);
+
+        int spendings = service.getCardSpendingsSince(card.id, sinceTm);
+        CHECK_EQ(spendings, t.amount);
     }
 
 }

@@ -47,6 +47,17 @@ std::vector<Card> CardDao::doGetByUserIdAndStatus(int id, const Card::Status sta
     return res;
 }
 
+int CardDao::doGetSpendingsSince(int cardId, std::tm time) const
+{
+    soci::session sql(_pool);
+    int total = 0;
+    sql << card_sql::getSpendingsSince,
+        soci::use(cardId, "cardId"),
+        soci::use(time, "since"),
+        soci::into(total);
+    return total;
+}
+
 void CardDao::doUpdate(const Card& card) const
 {
     soci::session sql(_pool);

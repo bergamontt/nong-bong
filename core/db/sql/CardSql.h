@@ -14,6 +14,17 @@ namespace card_sql
     inline const auto getByUserIdAndStatus =
             "SELECT * FROM card WHERE user_id = ? AND status = ?";
 
+    inline const auto getSpendingsSince =
+            "SELECT COALESCE(SUM(t.amount * COALESCE(r.rate, 1)), 0) AS total_spendings "
+            "FROM bank_transaction t "
+            "JOIN card c ON c.id = t.from_card_id "
+            "LEFT JOIN exchange_rate r "
+            "ON r.base_currency = t.currency_code "
+            "AND r.target_currency = c.currency_code "
+            "AND t.currency_code != c.currency_code "
+            "WHERE t.from_card_id = :cardId "
+            "AND t.created_at >= :since";
+
     inline const auto update =
             "UPDATE card SET "
             "user_id = :user_id, "
