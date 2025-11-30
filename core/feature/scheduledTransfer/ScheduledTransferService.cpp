@@ -36,38 +36,54 @@ void ScheduledTransferService::doDeleteScheduledTransfer(const int id) const
 
 void ScheduledTransferService::doExecuteAllScheduledTransfersByNow(const std::tm& time) const
 {
-    auto transfers = _scheduledTransferDao.getAllActiveBeforeDate(time);
-
-    for (const auto& t : transfers) {
-        ScheduledTransfer transfer = t;
-        BankTransaction transaction;
-        transaction.createdAt = t.nextTun.value();
-        transaction.type = "payment";
-        transaction.fromCardId = t.fromCardId;
-        transaction.toCardId = t.toCardId;
-        transaction.amount = t.amount;
-        transaction.currencyCode = t.currencyCode;
-        transaction.description = t.description;
-        transaction.comment = "";
-        transaction.status = "completed";
-
-        _bankTransactionService.createBankTransaction(transaction);
-
-        if (transfer.frequency=="daily") {
-            std::time_t newT = std::mktime(&transfer.nextTun.value());
-            newT += 1 * 24 * 60 * 60;
-            localtime_s(&transfer.nextTun.value(), &newT);
-        }
-        if (transfer.frequency=="weekly") {
-            std::time_t newT = std::mktime(&transfer.nextTun.value());
-            newT += 7 * 24 * 60 * 60;
-            localtime_s(&transfer.nextTun.value(), &newT);
-        }
-        if (transfer.frequency=="monthly") {
-            transfer.nextTun.value().tm_mon += 1;
-            std::mktime(&transfer.nextTun.value());
-        }
-        updateScheduledTransfer(transfer);
-
+    for (auto& transfer : _scheduledTransferDao.getAllActiveBeforeDate(time))
+    {
+        executeTransfer(transfer);
+        scheduleNextTransfer(transfer);
     }
+}
+
+void ScheduledTransferService::executeTransfer(const ScheduledTransfer& transfer) const
+{
+    BankTransaction transaction;
+    transaction.createdAt = transfer.nextRun.value();
+    transaction.type = "payment";
+    transaction.fromCardId = transfer.fromCardId;
+    transaction.toCardId = transfer.toCardId;
+    transaction.amount = transfer.amount;
+    transaction.currencyCode = transfer.currencyCode;
+    transaction.description = transfer.description;
+    transaction.comment = transfer.comment;
+    transaction.status = "completed";
+    _bankTransactionService.createBankTransaction(transaction);
+}
+
+void ScheduledTransferService::scheduleNextTransfer(ScheduledTransfer& transfer) const
+{
+    if (!transfer.nextRun.has_value())
+        return;
+    transfer.nextRun = calculateNextRun(transfer.nextRun.value(), transfer.frequency);
+    updateScheduledTransfer(transfer);
+}
+
+std::tm ScheduledTransferService::calculateNextRun(const std::tm& curr, const std::string& freq) const
+{
+    std::tm next = curr;
+    std::time_t t = std::mktime(&next);
+
+    if (freq == "daily")
+        t += 1 * 24 * 60 * 60;
+    else if (freq == "weekly")
+        t += 7 * 24 * 60 * 60;
+    else if (freq == "monthly")
+    {
+        next.tm_mon += 1;
+        t = std::mktime(&next);
+    }
+
+    if (freq != "monthly")
+        if (const auto tmp = std::localtime(&t))
+            next = *tmp;
+
+    return next;
 }

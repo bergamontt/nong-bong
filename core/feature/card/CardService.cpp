@@ -1,7 +1,8 @@
 #include "CardService.h"
+#include "CardValidator.h"
+#include "Hasher.h"
 #include <string>
 #include <iostream>
-#include "Hasher.h"
 
 using namespace std;
 
@@ -70,31 +71,38 @@ void CardService::doDeleteCardById(const int id) const
 
 bool CardService::doAccessToCard(const int id, const std::string &pin)
 {
-    std::time_t now = std::time(nullptr);
     const std::optional<Card> optionalCard = getCardById(id);
+    if (!optionalCard.has_value())
+        return false;
     Card card = optionalCard.value();
 
-    if (card.status == Card::Status::blocked) {
-        std::time_t blockedUntilTime = std::mktime(&card.blockedUntil.value());
-        if (blockedUntilTime >= now) {
-            return false;
-        }
-    }
-    const bool accept = Hasher::verifyPin(pin, card.pinHash);
-    if (!accept) {
-        if (++card.failedAccessCount==3) {
-            now += 30 * 60;
-            std::tm* tm_ptr = std::localtime(&now);
-            card.blockedUntil = *tm_ptr;
-            card.failedAccessCount = 0;
-            card.status = Card::Status::blocked;
-        }
-    } else {
-        card.failedAccessCount=0;
-    }
+    if (CardValidator::isTemporarilyBlocked(card))
+        return false;
+
+    const bool accessed = Hasher::verifyPin(pin, card.pinHash);
+    if (accessed)
+        card.failedAccessCount = 0;
+    else handleFailedAccess(card);
 
     _cardDao.update(card);
-    return accept;
+    return accessed;
+}
+
+void CardService::handleFailedAccess(Card& card) const
+{
+    card.failedAccessCount++;
+    if (card.failedAccessCount >= 3)
+        blockCardTemporarily(card, 30 * 60);
+}
+
+void CardService::blockCardTemporarily(Card& card, const int seconds) const
+{
+    std::time_t now = std::time(nullptr);
+    now += seconds;
+    if (const auto tm_ptr = std::localtime(&now))
+        card.blockedUntil = *tm_ptr;
+    card.failedAccessCount = 0;
+    card.status = Card::Status::blocked;
 }
 
 bool CardService::doChangeCardPin(const int id, const std::string& oldPin, const std::string& newPin) const

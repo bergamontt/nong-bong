@@ -3,6 +3,7 @@ add_library(core_lib
 		db/DataSource.cpp
 
 		feature/card/CardDao.cpp
+		feature/card/validator/CardValidator.cpp
 		feature/cardDesign/CardDesignDao.cpp
 		feature/currency/CurrencyDao.cpp
 		feature/exchangeRate/ExchangeRateDao.cpp
@@ -24,17 +25,20 @@ add_library(core_lib
 		feature/transaction/strategies/TransferStrategy.cpp
 		feature/transaction/strategies/WithdrawalStrategy.cpp
 		feature/transaction/strategies/TransactionStrategyFactory.cpp
+		feature/transaction/validator/TransactionValidator.cpp
 )
 
 target_include_directories(core_lib PUBLIC
 		context
 		feature/card
+		feature/card/validator
 		feature/cardDesign
 		feature/currency
 		feature/exchangeRate
 		feature/scheduledTransfer
 		feature/transaction
 		feature/transaction/strategies
+		feature/transaction/validator
 		feature/user
 		db
 		db/sql

@@ -59,7 +59,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferService API Integration Test"
     now.tm_mon = 0;
     now.tm_mday = 1;
 
-    tr.nextTun = now;
+    tr.nextRun = now;
 
     SUBCASE("createScheduledTransfer should insert valid transfer into database")
     {
@@ -134,8 +134,8 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferService API Integration Test"
 
         auto retrieved = service.getScheduledTransferById(tr.id);
         REQUIRE(retrieved.has_value());
-        CHECK(retrieved->nextTun.has_value());
-        CHECK_EQ(retrieved->nextTun->tm_mday, now.tm_mday + 1);
+        CHECK(retrieved->nextRun.has_value());
+        CHECK_EQ(retrieved->nextRun->tm_mday, now.tm_mday + 1);
     }
 
 }

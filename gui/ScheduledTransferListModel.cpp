@@ -58,7 +58,7 @@ QVariant ScheduledTransferListModel::data(const QModelIndex& index, int role) co
     if (role == SortRole)
     {
         if (col == ColNext && st.active)
-            return QVariant::fromValue<qint64>(tmToEpoch(st.nextTun.value()));
+            return QVariant::fromValue<qint64>(tmToEpoch(st.nextRun.value()));
         else
             return QVariant::fromValue<qint64>(0);
     }
@@ -81,7 +81,7 @@ QVariant ScheduledTransferListModel::data(const QModelIndex& index, int role) co
         {
             if (st.active)
             {
-                qint64 epoch = tmToEpoch(st.nextTun.value());
+                qint64 epoch = tmToEpoch(st.nextRun.value());
                 QDateTime dt = QDateTime::fromSecsSinceEpoch(epoch);
                 return dt.toString(QLocale().dateFormat(QLocale::ShortFormat));
             }
@@ -163,7 +163,7 @@ void ScheduledTransferListModel::updateScheduledTransfers()
                 return true;
             if (!a.active && b.active)
                 return false;
-            return tmToEpoch(a.nextTun.value()) > tmToEpoch(b.nextTun.value());
+            return tmToEpoch(a.nextRun.value()) > tmToEpoch(b.nextRun.value());
         });
 }
 

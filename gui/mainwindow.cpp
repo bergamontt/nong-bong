@@ -805,23 +805,23 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
         const std::time_t nowTime = std::time(nullptr);
         std::tm now{};
         localtime_s(&now, &nowTime);
-        newSchTransfer.nextTun = now;
+        newSchTransfer.nextRun = now;
         if (newSchTransfer.frequency=="daily") {
-            std::time_t newT = std::mktime(&newSchTransfer.nextTun.value());
+            std::time_t newT = std::mktime(&newSchTransfer.nextRun.value());
             newT += 1 * 24 * 60 * 60;
-            localtime_s(&newSchTransfer.nextTun.value(), &newT);
+            localtime_s(&newSchTransfer.nextRun.value(), &newT);
         }
         if (newSchTransfer.frequency=="weekly") {
-            std::time_t newT = std::mktime(&newSchTransfer.nextTun.value());
+            std::time_t newT = std::mktime(&newSchTransfer.nextRun.value());
             newT += 7 * 24 * 60 * 60;
-            localtime_s(&newSchTransfer.nextTun.value(), &newT);
+            localtime_s(&newSchTransfer.nextRun.value(), &newT);
         }
         if (newSchTransfer.frequency=="monthly") {
-            newSchTransfer.nextTun.value().tm_mon += 1;
-            std::mktime(&newSchTransfer.nextTun.value());
+            newSchTransfer.nextRun.value().tm_mon += 1;
+            std::mktime(&newSchTransfer.nextRun.value());
         }
-        if (newSchTransfer.nextTun.has_value()) {
-            std::cout << std::put_time(&newSchTransfer.nextTun.value(), "%Y-%m-%d %H:%M:%S") << std::endl;
+        if (newSchTransfer.nextRun.has_value()) {
+            std::cout << std::put_time(&newSchTransfer.nextRun.value(), "%Y-%m-%d %H:%M:%S") << std::endl;
         }
         context.scheduledTransferService().createScheduledTransfer(newSchTransfer);
 
@@ -829,8 +829,8 @@ void MainWindow::on_B_enterScheduledTransfer_clicked() const {
         int cardId = ui->W_currentCard_sp->getCardId();
         for (ScheduledTransfer s :context.scheduledTransferService().getAllScheduledTransfersFromCardId(cardId)) {
             cout << s.id << " " << s.amount << " " << s.fromCardId << " " << s.toCardId << " " << s.currencyCode << " " << s.description << " " << s.frequency << " " << s.active << endl;
-            if (s.nextTun.has_value()) {
-                std::cout << std::put_time(&s.nextTun.value(), "%Y-%m-%d %H:%M:%S") << std::endl;
+            if (s.nextRun.has_value()) {
+                std::cout << std::put_time(&s.nextRun.value(), "%Y-%m-%d %H:%M:%S") << std::endl;
             }
         }
 

@@ -24,6 +24,4 @@ private:
     std::vector<BankTransaction> doGetAllBankTransactionsFromCardId(int id) const override;
     std::vector<BankTransaction> doGetBankTransactionByUserCardId(int id) const override;
     bool doCreateBankTransaction(BankTransaction& transaction) override;
-
-    static bool validateCardIdsRule(const BankTransaction &tx);
 };

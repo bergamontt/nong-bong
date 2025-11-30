@@ -33,4 +33,7 @@ private:
 
     bool doAccessToCard(int id, const std::string& pin) override;
     bool doChangeCardPin(int id, const std::string& oldPin, const std::string& newPin) const override;
+
+    void handleFailedAccess(Card& card) const;
+    void blockCardTemporarily(Card& card, int seconds) const;
 };

@@ -28,5 +28,8 @@ private:
 
     void doExecuteAllScheduledTransfersByNow(const std::tm& time) const override;
 
+    void executeTransfer(const ScheduledTransfer& transfer) const;
+    void scheduleNextTransfer(ScheduledTransfer& transfer) const;
+    std::tm calculateNextRun(const std::tm& curr, const std::string& freq) const;
 };
 

@@ -32,7 +32,7 @@ TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
         pastDate.tm_mon = 0;
         pastDate.tm_mday = 1;
 
-        transfer.nextTun = pastDate;
+        transfer.nextRun = pastDate;
         transfer.active = 1;
         dao.create(transfer);
 
