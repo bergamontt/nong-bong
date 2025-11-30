@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "ExchangeRateDao.h"
-#include "ExchangeRateTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "ExchangeRateDao API test")
 {

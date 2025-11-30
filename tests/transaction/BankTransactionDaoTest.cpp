@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "BankTransactionDao.h"
-#include "BankTransactionTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "BankTransactionDao API test")
 {

@@ -1,8 +1,8 @@
-#pragma once
+#include "EntityTestUtils.h"
 #include "Currency.h"
 #include "doctest.h"
 
-inline void assertCurrencyEquals(const Currency& expected, const Currency& actual)
+void assertCurrencyEquals(const Currency& expected, const Currency& actual)
 {
     CHECK_EQ(expected.code, actual.code);
     CHECK_EQ(expected.name, actual.name);

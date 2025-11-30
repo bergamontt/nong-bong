@@ -3,7 +3,7 @@
 #include "CurrencyDao.h"
 #include "ExchangeRateDao.h"
 #include "CurrencyService.h"
-#include "CurrencyTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CurrencyService API Integration Test")
 {

@@ -1,8 +1,8 @@
-#pragma once
-#include "doctest.h"
+#include "EntityTestUtils.h"
 #include "CardDesign.h"
+#include "doctest.h"
 
-inline void assertCardDesignEquals(const CardDesign& expected, const CardDesign& actual)
+void assertCardDesignEquals(const CardDesign& expected, const CardDesign& actual)
 {
     CHECK_EQ(expected.id, actual.id);
     CHECK_EQ(expected.name, actual.name);

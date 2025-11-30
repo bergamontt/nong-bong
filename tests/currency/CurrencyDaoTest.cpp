@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "CurrencyDao.h"
-#include "CurrencyTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CurrencyDao API test")
 {

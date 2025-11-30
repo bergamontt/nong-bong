@@ -1,4 +1,4 @@
-#pragma once
+#include "EntityTestUtils.h"
 #include "doctest.h"
 #include "User.h"
 #include "Hasher.h"
@@ -14,13 +14,13 @@ static void assertUserBase(const User& expected, const User& actual)
     CHECK_EQ(expected.failedLoginCount, actual.failedLoginCount);
 }
 
-inline void assertUserEqualsHashed(const User& expected, const User& actual)
+void assertUserEqualsHashed(const User& expected, const User& actual)
 {
     assertUserBase(expected, actual);
     CHECK(Hasher::verifyPin(expected.passwordHash, actual.passwordHash));
 }
 
-inline void assertUserEquals(const User& expected, const User& actual)
+void assertUserEquals(const User& expected, const User& actual)
 {
     assertUserBase(expected, actual);
     CHECK_EQ(actual.passwordHash, expected.passwordHash);

@@ -2,7 +2,7 @@
 #include "DBTestFixture.h"
 #include "ExchangeRateDao.h"
 #include "ExchangeRateService.h"
-#include "ExchangeRateTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "ExchangeRateService API Integration Test")
 {

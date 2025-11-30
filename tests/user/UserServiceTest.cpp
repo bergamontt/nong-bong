@@ -2,7 +2,7 @@
 #include "DBTestFixture.h"
 #include "UserDao.h"
 #include "UserService.h"
-#include "UserTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "UserService API Integration Test")
 {

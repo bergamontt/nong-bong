@@ -1,9 +1,10 @@
-#pragma once
+#include "EntityTestUtils.h"
 #include "doctest.h"
 #include "Card.h"
 #include "Hasher.h"
 
-static void assertCardBase(const Card& expected, const Card& actual) {
+static void assertCardBase(const Card& expected, const Card& actual)
+{
     CHECK_EQ(actual.id, expected.id);
     CHECK_EQ(actual.userId, expected.userId);
     CHECK_EQ(actual.cardNumber, expected.cardNumber);
@@ -17,17 +18,19 @@ static void assertCardBase(const Card& expected, const Card& actual) {
     CHECK_EQ(actual.failedAccessCount, expected.failedAccessCount);
 }
 
-inline void assertCardEqualsHashed(const Card& expected, const Card& actual) {
+void assertCardEqualsHashed(const Card& expected, const Card& actual)
+{
     assertCardBase(expected, actual);
     CHECK(Hasher::verifyPin(expected.pinHash, actual.pinHash));
 }
 
-inline void assertCardEquals(const Card& expected, const Card& actual) {
+void assertCardEquals(const Card& expected, const Card& actual)
+{
     assertCardBase(expected, actual);
     CHECK_EQ(actual.pinHash, expected.pinHash);
 }
 
-inline Card makeCard(const int id, std::string currency, const int balance)
+Card makeCard(const int id, std::string currency, const int balance)
 {
     Card c;
     c.id = id;

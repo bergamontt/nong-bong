@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "CardDesignDao.h"
-#include "CardDesignTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "CardDesign API test")
 {

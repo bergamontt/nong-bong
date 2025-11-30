@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
 #include "ScheduledTransferDao.h"
-#include "ScheduledTransferTestUtils.h"
+#include "EntityTestUtils.h"
 
 TEST_CASE_FIXTURE(DBTestFixture, "ScheduledTransferDao API test")
 {

@@ -1,8 +1,8 @@
-#pragma once
+#include "EntityTestUtils.h"
 #include "BankTransaction.h"
 #include "doctest.h"
 
-inline void assertBankTransactionEquals(const BankTransaction& expected, const BankTransaction& actual)
+void assertBankTransactionEquals(const BankTransaction& expected, const BankTransaction& actual)
 {
     CHECK_EQ(expected.id, actual.id);
     CHECK_EQ(expected.type, actual.type);

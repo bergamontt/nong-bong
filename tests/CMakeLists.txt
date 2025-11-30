@@ -14,6 +14,13 @@ add_executable(core_tests
         transaction/BankTransactionServiceTest.cpp
         scheduledTransfer/ScheduledTransferDaoTest.cpp
         scheduledTransfer/ScheduledTransferServiceTest.cpp
+        common/utils/BankTransactionTestUtils.cpp
+        common/utils/CardDesignTestUtils.cpp
+        common/utils/CardTestUtils.cpp
+        common/utils/CurrencyTestUtils.cpp
+        common/utils/ExchangeRateTestUtils.cpp
+        common/utils/ScheduledTransferTestUtils.cpp
+        common/utils/UserTestUtils.cpp
 )
 
 target_link_libraries(core_tests PRIVATE

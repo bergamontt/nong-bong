@@ -1,6 +1,6 @@
 #include "doctest.h"
 #include "DBTestFixture.h"
-#include "CardTestUtils.h"
+#include "EntityTestUtils.h"
 #include "CardDao.h"
 #include "BankTransactionDao.h"
 #include "ExchangeRateDao.h"

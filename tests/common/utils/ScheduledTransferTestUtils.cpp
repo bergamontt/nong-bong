@@ -1,8 +1,8 @@
-#pragma once
+#include "EntityTestUtils.h"
 #include "doctest.h"
 #include "ScheduledTransfer.h"
 
-inline void assertScheduledTransferEquals(const ScheduledTransfer& expected, const ScheduledTransfer& actual)
+void assertScheduledTransferEquals(const ScheduledTransfer& expected, const ScheduledTransfer& actual)
 {
     CHECK_EQ(expected.id, actual.id);
     CHECK_EQ(expected.fromCardId, actual.fromCardId);

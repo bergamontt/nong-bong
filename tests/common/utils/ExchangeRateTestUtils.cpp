@@ -1,8 +1,8 @@
-#pragma once
+#include "EntityTestUtils.h"
 #include "doctest.h"
 #include "ExchangeRate.h"
 
-inline void assertExchangeRateEquals(const ExchangeRate& expected, const ExchangeRate& actual)
+void assertExchangeRateEquals(const ExchangeRate& expected, const ExchangeRate& actual)
 {
     CHECK_EQ(expected.id, actual.id);
     CHECK_EQ(expected.rate, actual.rate);

@@ -7,8 +7,7 @@
 #include "CardDao.h"
 #include "CurrencyDao.h"
 #include "ExchangeRateDao.h"
-#include "ScheduledTransferTestUtils.h"
-#include "CardTestUtils.h"
+#include "EntityTestUtils.h"
 #include "CurrencyService.h"
 #include "CardService.h"
 
